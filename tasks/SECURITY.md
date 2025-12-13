@@ -105,10 +105,10 @@ This is a hackathon/MVP project and is NOT compliant with:
 
 | Date | Auditor | Findings | Status |
 |------|---------|----------|--------|
-| 2024-11-23 | Internal | 8 findings (1 Critical, 2 High, 3 Medium, 2 Low) | Remediated |
-| 2024-11-23 | Kiro AI | 10 findings (3 Critical, 4 High, 2 Medium, 1 Low) | In Progress |
+| 2025-11-23 | Internal | 8 findings (1 Critical, 2 High, 3 Medium, 2 Low) | Remediated |
+| 2025-11-23 | Kiro AI | 10 findings (3 Critical, 4 High, 2 Medium, 1 Low) | In Progress |
 
-### Latest Audit Findings (2024-11-23)
+### Latest Audit Findings (2025-11-23)
 
 **Critical Issues:**
 1. API Key Exposure - Client-side bundle contains Gemini API key (Documented, requires backend)

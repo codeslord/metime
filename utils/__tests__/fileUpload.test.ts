@@ -15,7 +15,7 @@ describe('fileUpload utilities', () => {
   describe('validateFileType', () => {
     it('should accept valid image types', () => {
       const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
-      
+
       validTypes.forEach(type => {
         const file = new File([''], 'test.jpg', { type });
         const result = validateFileType(file);
@@ -87,7 +87,7 @@ describe('fileUpload utilities', () => {
     });
 
     it('should preserve valid filenames', () => {
-      expect(sanitizeFileName('my-photo_2024.jpg')).toBe('my-photo_2024.jpg');
+      expect(sanitizeFileName('my-photo_2025.jpg')).toBe('my-photo_2025.jpg');
     });
   });
 
@@ -95,7 +95,7 @@ describe('fileUpload utilities', () => {
     it('should validate file type, size, magic number, and dimensions', async () => {
       // This is a simplified test - in real tests you'd need to mock File and Image APIs
       const file = new File([''], 'test.jpg', { type: 'image/jpeg' });
-      
+
       // Note: This will fail in the test environment without proper mocking
       // In a real test suite, you'd mock the FileReader and Image APIs
       try {

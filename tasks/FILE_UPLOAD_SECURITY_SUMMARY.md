@@ -95,7 +95,7 @@ npm run test utils/fileUpload
 
 ## Documentation
 
-- **Full Audit**: `SECURITY_AUDIT_FILE_UPLOAD_2024-11-23.md`
+- **Full Audit**: `SECURITY_AUDIT_FILE_UPLOAD_2025-11-23.md`
 - **Main Security**: `SECURITY.md`
 - **Guidelines**: `.kiro/steering/security-guidelines.md`
 

@@ -284,7 +284,7 @@ User: "Make a clay turtle"
 
 ## 📄 License
 
-This project is created for the Epiminds Multi-Agent Hackathon — December 2024.
+This project is created for the Epiminds Multi-Agent Hackathon — December 2025.
 
 ---
 

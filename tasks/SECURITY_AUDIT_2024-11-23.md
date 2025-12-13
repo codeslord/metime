@@ -1,4 +1,4 @@
-# Security Audit Report - November 23, 2024
+# Security Audit Report - November 23, 2025
 
 ## Executive Summary
 
@@ -441,7 +441,7 @@ For security questions or to report vulnerabilities:
 
 ## Audit Metadata
 
-- **Audit Date**: November 23, 2024
+- **Audit Date**: November 23, 2025
 - **Auditor**: Kiro AI Security Analysis
 - **Scope**: Full application codebase
 - **Methodology**: OWASP Top 10, manual code review, static analysis
@@ -450,4 +450,4 @@ For security questions or to report vulnerabilities:
 
 ## Related Security Audits
 
-- **File Upload Security Audit**: See `SECURITY_AUDIT_FILE_UPLOAD_2024-11-23.md` for detailed analysis of the file upload implementation (Task 7.1 - utils/fileUpload.ts)
+- **File Upload Security Audit**: See `SECURITY_AUDIT_FILE_UPLOAD_2025-11-23.md` for detailed analysis of the file upload implementation (Task 7.1 - utils/fileUpload.ts)
