@@ -1,147 +1,258 @@
-# Crafternia
+# 🎨 Crafternia
 
 > **Dissect your imagination. Build reality.**
 
-Crafternia is an AI-powered "Infinite Craft Workbench" that transforms craft ideas into visual, step-by-step instruction sequences. The system generates studio-quality reference images and isolated instruction visuals that recreate the aesthetic of traditional paper craft manuals.
+**[🚀 Try the Live App](https://crafternia.vercel.app/)**
 
-## 🪦 Resurrection Category - Bringing Back Lost Craft Culture
+---
 
-**Dead Technology Being Resurrected:** Paper craft instruction sheets from the 1970s-1990s
+## 💔 The Problem — Why We Built This
 
-Remember the tactile joy of unfolding a paper instruction sheet from a model kit, origami book, or sewing pattern? Those beautifully illustrated, step-by-step guides that showed isolated components in knolling layouts? The ones that made complex builds feel achievable through careful visual breakdowns?
+Remember opening a model kit as a kid and unfolding that beautiful instruction sheet? Each step was **perfectly illustrated**. Each piece was shown **in complete isolation**. You could see exactly what you needed at every moment.
 
-**That format is dead.** Replaced by YouTube tutorials, Pinterest pins, and text-heavy blog posts.
+**That world is gone.**
 
-### What We Lost
-- **Spatial Clarity**: Instructions you could spread across a table and reference at a glance
-- **Isolated Component Views**: Each step showing ONLY what you need, not the entire finished product
-- **Knolling Aesthetics**: Organized, flat-lay arrangements of materials and sub-assemblies
-- **Tangible Reference**: A physical artifact you could annotate, fold, and keep with your project
-- **Universal Design Language**: Visual instructions that transcended language barriers
+Today, when someone asks *"How do I make a clay turtle?"*, they face:
+- 47-minute YouTube tutorials with unskippable ads
+- Blog posts buried under SEO filler
+- Pinterest boards leading to broken links
+- Instagram reels that flash by too fast to follow
 
-### How Crafternia Resurrects It
-Crafternia doesn't just digitize old instruction sheets—it uses AI to **generate them on-demand for ANY craft idea**:
+**The beautiful simplicity of visual instruction sheets died with the 90s.** The IKEA manuals. The Tamiya model kits. The Simplicity sewing patterns.
 
-1. **Master Reference Image** (gemini-3-pro-image-preview): Creates a studio-quality photograph of the finished craft with handmade textures, neutral backgrounds, and proper material detail—exactly like vintage instruction sheet cover images.
+### Why did it die?
 
-2. **Intelligent Dissection** (gemini-2.5-flash): Analyzes the craft like an expert maker would have manually designed an instruction sheet, breaking it into logical steps with materials lists and complexity ratings.
+Because professional instruction sheets were **expensive** — you needed expert makers, photographers, graphic designers, and print production. Only big companies could afford this.
 
-3. **Isolated Step Visualizations** (gemini-3-pro-image-preview): Generates photorealistic "knolling" images for each step showing ONLY the components needed—no full product, no distractions. Just like those vintage IKEA manuals and Tamiya model kit guides.
+**Crafternia brings it back for everyone.**
 
-4. **Infinite Canvas**: Resurrects the "spread it on the table" experience digitally. Pan, zoom, and spatially arrange your instruction nodes like physical paper sheets.
+---
 
-### Why This Matters Today
-The craft instruction sheet format died because it was expensive to produce professionally. You needed:
-- Professional photographers
-- Expert makers to design the breakdown
-- Graphic designers for layout
-- Print production costs
+## ✨ The Solution — What Crafternia Does
 
-**Crafternia makes this accessible to everyone.** AI generation means anyone can have professional-quality, visually-clear instructions for their craft ideas—whether it's papercraft, clay, fabric, woodworking, or cosplay props.
+Crafternia is an **AI-powered Infinite Craft Workbench** that transforms any craft idea into professional-quality visual instruction guides.
 
-We're resurrecting a superior instructional format and solving tomorrow's problem: **making crafting accessible in an age of overwhelming, poorly-structured online tutorials.**
+**Give it any idea:**
+- *"Paper crane"*
+- *"Clay turtle"*  
+- *"Earrings in the shape of Santa Claus"*
 
-## Features
+**Get back:**
 
-### 🎨 Infinite Canvas Workbench
-- Built on React Flow for infinite panning and zooming
-- Dark mode with technical blueprint aesthetic
-- Spatial arrangement of craft instructions
-- Drag and reposition nodes freely
+| Component | What It Does |
+|-----------|--------------|
+| 📷 **Master Reference Image** | Studio-quality photograph of your finished craft |
+| 📦 **Materials List** | Everything you need, nothing you don't |
+| 📋 **Step-by-Step Cards** | Chronological breakdown of the build process |
+| 🎯 **Isolated Step Images** | Knolling-style visuals showing *only* the components for each step |
 
-### ✨ AI-Powered Master Image Generation
-Describe your craft idea and select a category, then watch as Gemini 3 Pro creates a photorealistic studio photograph showing:
-- Tangible handmade materials with detailed textures
-- Neutral background with even studio lighting
-- Clean, centered composition
-- Category-specific material details (fabric weave, paper fibers, wood grain, etc.)
+### 8 Supported Craft Categories
 
-### 🔬 Intelligent Dissection
-The system analyzes your craft and automatically generates:
-- **Complexity Assessment**: Simple, Moderate, or Complex rating (1-10 scale)
-- **Materials List**: All essential materials visible or implied
-- **Step-by-Step Instructions**: Chronological breakdown of the build process
-- **Category-Specific Guidance**: Tailored to your craft type
+| | | | |
+|:-:|:-:|:-:|:-:|
+| 📄 Papercraft | 🏺 Clay | 🧵 Fabric | 🎭 Costumes & Props |
+| 🪵 Woodcraft | 💎 Jewelry | 🧒 Kids Crafts | 🎨 Coloring Book | Drawing
 
-### 📸 Isolated Step Visualizations
-For each instruction step, the AI generates photorealistic, isolated images using "knolling" layouts:
-- Shows ONLY the materials needed for that specific step
-- Matches exact textures and colors from the master image
-- Excludes the finished product to maintain clarity
-- Creates an IKEA-manual style visual guide
+---
 
-## Supported Craft Categories
+## 🤖 The Architecture — Multi-Agent System with A2A Protocol
 
-- 📄 **Papercraft** - Origami, paper models, card crafts
-- 🏺 **Clay** - Sculptures, pottery, modeling
-- 🧵 **Fabric/Sewing** - Plushies, quilts, fabric crafts
-- 🛡️ **Costume & Props** - Foam armor, cosplay props, Worbla builds
-- 🪵 **Woodcraft** - Furniture, toys, wood projects
-- 💎 **Jewelry** - Beading, wire work, accessories
-- 🎨 **Kids Crafts** - Simple projects for children
-- ⚔️ **Tabletop Figures** - Miniatures, wargaming models
+**This is the core innovation.** Crafternia is built on a **multi-agent architecture** where specialized AI agents communicate and collaborate using the **Agent-to-Agent (A2A) Protocol**.
 
-## Tech Stack
+### Architecture Diagram
 
-- **React 19** - Modern UI framework
-- **TypeScript** - Type-safe development
-- **TailwindCSS** - Utility-first styling
-- **React Flow** (@xyflow/react) - Infinite canvas implementation
-- **Google Gemini AI** (@google/genai) - AI image and text generation
-  - `gemini-3-pro-image-preview` for image generation
-  - `gemini-2.5-flash` for text reasoning/dissection
-- **Lucide React** - Beautiful icons
-- **Vite** - Fast build tool and dev server
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          🎭 AGENT ORCHESTRATOR                              │
+│                                                                             │
+│   • Routes tasks based on capabilities & categories                         │
+│   • Manages agent registration                                              │
+│   • Tracks task state via A2A Protocol                                      │
+└─────────────────────────────────────┬───────────────────────────────────────┘
+                                      │
+            ┌─────────────────────────┼─────────────────────────┐
+            │                         │                         │
+            ▼                         ▼                         ▼
+   ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+   │ 📷 VISUALIZER   │     │ 🔬 DISSECTION   │     │ 📐 PATTERN      │
+   │    AGENT        │     │    AGENT        │     │    AGENT        │
+   │                 │     │                 │     │                 │
+   │ Generates       │     │ Analyzes &      │     │ Creates         │
+   │ master images   │     │ breaks down     │     │ templates &     │
+   │ & step photos   │     │ complexity      │     │ pattern sheets  │
+   └─────────────────┘     └─────────────────┘     └─────────────────┘
+            │                         │                         │
+            └─────────────────────────┼─────────────────────────┘
+                                      │
+                    ┌─────────────────▼─────────────────┐
+                    │     🎨 CATEGORY-SPECIFIC AGENTS    │
+                    │                                   │
+                    │  ┌─────────────┬─────────────┐   │
+                    │  │ Papercraft  │    Clay     │   │
+                    │  ├─────────────┼─────────────┤   │
+                    │  │ Woodcraft   │  Jewelry    │   │
+                    │  ├─────────────┼─────────────┤   │
+                    │  │ Kids Crafts │ Costumes    │   │
+                    │  ├─────────────┼─────────────┤   │
+                    │  │ Coloring    │  Drawing    │   │
+                    │  └─────────────┴─────────────┘   │
+                    │                                   │
+                    │  Each agent has domain-specific   │
+                    │  prompts & visual understanding   │
+                    └───────────────────────────────────┘
+```
 
-## Getting Started
+### A2A Protocol — Agent Communication
+
+Every agent speaks the same language through our **Agent-to-Agent Protocol**:
+
+```typescript
+interface A2AMessage {
+    taskId: string;      // Unique identifier for tracking
+    sender: string;      // Source agent
+    recipient: string;   // Target agent or 'orchestrator'
+    type: MessageType;   // TASK_REQUEST | TASK_RESPONSE | ERROR | STATUS_UPDATE
+    payload: any;        // Task data
+    timestamp: number;   // For observability
+}
+```
+
+**Key Features:**
+- ✅ **Unique Task IDs** for every operation
+- ✅ **Full message tracking** from request to response
+- ✅ **Standardized error handling** across all agents
+- ✅ **Timestamps** for complete observability
+
+### How Agents Collaborate
+
+**Example: User requests *"Make a paper fox"***
+
+```
+1️⃣  User Input → Orchestrator receives request, identifies category
+2️⃣  Orchestrator routes to PapercraftAgent via capability matching
+3️⃣  PapercraftAgent generates domain-specific master image prompt
+4️⃣  Master image generated → passed to DissectionAgent
+5️⃣  DissectionAgent analyzes complexity, materials, steps
+6️⃣  For each step → PapercraftAgent generates isolated step images
+7️⃣  All results combined → displayed on infinite canvas
+```
+
+**Each step's output becomes input for the next — agents truly build on each other's work.**
+
+### Why Specialized Agents?
+
+A clay craft and a papercraft have *completely different* visual requirements:
+
+| Papercraft Agent | Clay Agent |
+|-----------------|------------|
+| Flat pattern pieces | Rolled shapes, slabs |
+| Fold lines & scoring | Fingerprint textures |
+| Cut templates | Sculpting marks |
+| Glue tabs | Blending surfaces |
+
+**One generic prompt cannot do both well.** Specialized agents = specialized excellence.
+
+---
+
+## 🏆 Hackathon Criteria
+
+| Criteria | How Crafternia Delivers |
+|----------|------------------------|
+| **Business Value** | Democratizes professional craft instruction creation |
+| **Observability** | A2A Protocol with full message tracking, task IDs, timestamps |
+| **Functionality** | End-to-end: idea → master image → dissection → step images |
+| **Creativity** | Resurrects a dead medium with AI + spatial infinite canvas |
+| **Impact** | Makes crafting accessible to millions struggling with tutorials |
+
+---
+
+## 🛠️ Tech Stack
+
+| Technology | Purpose |
+|------------|---------|
+| **React 19** | Modern UI framework |
+| **TypeScript** | Type-safe development |
+| **React Flow** (@xyflow/react) | Infinite canvas with pan/zoom |
+| **Google Gemini AI** | Powers all generation |
+| • `gemini-3-pro-image-preview` | Image generation |
+| • `gemini-2.5-flash` | Text reasoning & dissection |
+| **TailwindCSS** | Dark-mode UI styling |
+| **Vite** | Fast build tool & dev server |
+| **Lucide React** | Beautiful icons |
+
+---
+
+## 🚀 Getting Started
 
 ### Prerequisites
 
 - Node.js 16+ installed
-- A Google Gemini API key ([Get one here](https://aistudio.google.com/apikey))
+- A Google Gemini API key — [Get one here](https://aistudio.google.com/apikey)
 
 ### Installation
 
-1. Clone the repository:
 ```bash
-git clone <repository-url>
+# 1. Clone the repository
+git clone https://github.com/your-repo/Crafternia.git
 cd Crafternia
-```
 
-2. Install dependencies:
-```bash
+# 2. Install dependencies
 npm install
-```
 
-3. Set up your environment variables:
-   - Create a `.env.local` file in the root directory
-   - Add your Gemini API key:
-```env
-GEMINI_API_KEY=your_api_key_here
-```
+# 3. Configure environment
+# Create a .env.local file in the root directory
+echo "VITE_GEMINI_API_KEY=your_api_key_here" > .env.local
 
-4. Start the development server:
-```bash
+# 4. Start the development server
 npm run dev
 ```
 
-5. Open your browser to `http://localhost:3000`
+The app will be available at `http://localhost:5173`
 
-### Build for Production
+### Production Build
 
 ```bash
 npm run build
 npm run preview
 ```
 
-## How It Works
+---
 
-1. **Describe It** - Type your craft idea (e.g., "Papercraft fox") and select a category
-2. **See It** - A master reference image appears showing the finished craft
-3. **Dissect It** - Click "Dissect" to analyze the craft and generate steps
-4. **Build It** - Step cards with isolated visuals expand on the canvas
+## 📁 Project Structure
 
-## User Flow Example
+```
+Crafternia/
+├── services/
+│   ├── a2a/                    # Agent-to-Agent Protocol
+│   │   ├── AgentBase.ts        # Abstract base class for agents
+│   │   └── types.ts            # A2A message types
+│   ├── agents/
+│   │   ├── CategoryAgentBase.ts    # Base for category agents
+│   │   ├── DissectionAgent.ts      # Analyzes craft complexity
+│   │   ├── VisualizerAgent.ts      # Generates images
+│   │   ├── PatternAgent.ts         # Creates pattern sheets
+│   │   └── categories/             # Specialized agents
+│   │       ├── PapercraftAgent.ts
+│   │       ├── ClayAgent.ts
+│   │       ├── WoodcraftAgent.ts
+│   │       └── ... (8 total)
+│   └── orchestrator/
+│       └── AgentOrchestrator.ts    # Central task router
+├── components/                 # React UI components
+├── pages/                      # Page components
+├── contexts/                   # React Context providers
+├── utils/                      # Helper functions
+└── types.ts                    # TypeScript definitions
+```
+
+---
+
+## 🎬 How It Works
+
+1. **Describe It** — Type your craft idea and select a category
+2. **See It** — A master reference image appears showing the finished craft
+3. **Dissect It** — Click "Dissect" to analyze and generate steps
+4. **Build It** — Step cards with isolated visuals expand on the canvas
 
 ```
 User: "Make a clay turtle"
@@ -154,46 +265,29 @@ User: "Make a clay turtle"
                 • Shape the shell dome
                 • Attach legs and head
                 • Add texture details
-                • (Each with isolated knolling images)
+                (Each with isolated knolling images!)
 ```
 
-## Error Handling
+---
 
-- **Retry Logic**: Automatic exponential backoff for 503/429 errors
-- **Rate Limiting**: Sequential queuing for step image generation
-- **Graceful Fallbacks**: Loading states and error messages in UI
+## 💡 The Vision
 
-## Project Structure
+> *Every grandparent should be able to create a professional instruction guide for their grandchild.*
+> 
+> *Every teacher should have beautiful visual aids without a design budget.*
+> 
+> *Every hobbyist should be able to share their craft in a format that actually works.*
 
-```
-Crafternia/
-├── components/          # React components
-│   ├── ChatInterface.tsx
-│   ├── GeneratorModal.tsx
-│   └── ...
-├── services/           # API services
-│   └── geminiService.ts
-├── types.ts            # TypeScript type definitions
-├── App.tsx             # Main application
-├── index.tsx           # Entry point
-└── vite.config.ts      # Vite configuration
-```
+**Crafternia isn't just an app. It's the resurrection of a superior instructional format — powered by an orchestra of AI agents working together.**
 
-## Future Roadmap
+---
 
-- [ ] Landing page with showcase examples
-- [ ] User project gallery ("My Projects")
-- [ ] Community showcase page
-- [ ] Project export (PDF/PNG)
-- [ ] Cloud sync with Supabase
-- [ ] Share and publish projects
+## 📄 License
 
-## License
+This project is created for the Epiminds Multi-Agent Hackathon — December 2024.
 
-This project is private and not licensed for redistribution.
+---
 
-## Acknowledgments
+**Built with ❤️ and a symphony of AI agents**
 
-- Powered by Google Gemini AI
-- Built with React Flow
-- Inspired by traditional craft instruction manuals
+[🚀 Try the Live App](https://crafternia.vercel.app/)
