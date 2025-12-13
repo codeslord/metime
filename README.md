@@ -2,23 +2,34 @@
 
 > **Dissect your imagination. Build reality.**
 
-**[🚀 Try the Live App](https://crafternia.vercel.app/)**
+**[🚀 Try the Live App](https://crafternia.vercel.app/)** • **[🎥 Watch the Demo](https://youtu.be/DVyiDgaXrns)**
 
 ---
 
 ## 💔 The Problem — Why We Built This
 
-Remember opening a model kit as a kid and unfolding that beautiful instruction sheet? Each step was **perfectly illustrated**. Each piece was shown **in complete isolation**. You could see exactly what you needed at every moment.
+> *Remember when we were kids? When I was eight years old, I got this origami kit with a beautiful instruction manual. I wanted to make a paper plane. I followed the guide — step by step, fold by fold — and it worked perfectly. I'm sure you all have memories of creating crafts using those clear, simple manuals.*
+>
+> *But today? For most of our creative ideas... those manuals simply don't exist.*
 
 **That world is gone.**
 
-Today, when someone asks *"How do I make a clay turtle?"*, they face:
+Today, when someone asks *"How do I make a paper craner?"*, they face:
 - 47-minute YouTube tutorials with unskippable ads
 - Blog posts buried under SEO filler
 - Pinterest boards leading to broken links
 - Instagram reels that flash by too fast to follow
 
-**The beautiful simplicity of visual instruction sheets died with the 90s.** The IKEA manuals. The Tamiya model kits. The Simplicity sewing patterns.
+
+**The beautiful simplicity of visual instruction sheets died with the 90s.** Except the IKEA manuals. The Tamiya model kits. The Simplicity sewing patterns. All gone. 
+
+*"We all have a hobby. Whether it's woodworking, origami, or just tinkering — we love building things.*
+>
+
+>
+> ***The beautiful art of visual instruction sheets is dead.***
+>
+> *Until now."*
 
 ### Why did it die?
 
