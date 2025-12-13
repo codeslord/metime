@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sparkles, X, Loader2, Wand2 } from 'lucide-react';
 import { CraftCategory } from '../types';
-import { generateCraftImage } from '../services/geminiService';
+import { generateCraftImage } from '../services/agentService';
 
 interface GeneratorModalProps {
   isOpen: boolean;
@@ -26,7 +26,7 @@ export const GeneratorModal: React.FC<GeneratorModalProps> = ({ isOpen, onClose,
 
   useEffect(() => {
     if (!process.env.API_KEY) {
-        setApiKeyMissing(true);
+      setApiKeyMissing(true);
     }
   }, []);
 
@@ -64,7 +64,7 @@ export const GeneratorModal: React.FC<GeneratorModalProps> = ({ isOpen, onClose,
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
       <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden relative">
-        
+
         {/* Header */}
         <div className="bg-slate-800/50 px-6 py-4 flex justify-between items-center border-b border-slate-700">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -79,9 +79,9 @@ export const GeneratorModal: React.FC<GeneratorModalProps> = ({ isOpen, onClose,
         {/* Body */}
         <div className="p-6 space-y-6">
           {apiKeyMissing && (
-             <div className="bg-red-900/20 border border-red-800 text-red-200 p-3 rounded text-sm">
-                Warning: No default API_KEY found in environment. You may need to select one if using the selection flow.
-             </div>
+            <div className="bg-red-900/20 border border-red-800 text-red-200 p-3 rounded text-sm">
+              Warning: No default API_KEY found in environment. You may need to select one if using the selection flow.
+            </div>
           )}
 
           {isLoading ? (
@@ -129,10 +129,10 @@ export const GeneratorModal: React.FC<GeneratorModalProps> = ({ isOpen, onClose,
             </form>
           )}
         </div>
-        
+
         {/* Footer Note */}
         <div className="bg-slate-950/50 px-6 py-3 border-t border-slate-800 text-center">
-            <p className="text-xs text-slate-500">Powered by Gemini 3 Pro Image Preview</p>
+          <p className="text-xs text-slate-500">Powered by Gemini 3 Pro Image Preview</p>
         </div>
       </div>
     </div>

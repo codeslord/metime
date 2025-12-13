@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, ArrowUp, ChevronUp, Loader2 } from 'lucide-react';
 import { CraftCategory } from '../types';
-import { generateCraftImage } from '../services/geminiService';
+import { generateCraftImage } from '../services/agentService';
 import { validatePrompt } from '../utils/validation';
 import { sanitizeText } from '../utils/security';
 
@@ -108,39 +108,38 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerate, onStar
   return (
     <div className="fixed bottom-4 md:bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-2xl px-3 md:px-4 z-50">
       <div className="relative group" ref={dropdownRef}>
-        
+
         {/* Category Popup - Appears above the input */}
         {isCategoryOpen && (
-          <div 
+          <div
             className="absolute bottom-full left-0 mb-3 w-56 md:w-64 bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 rounded-xl shadow-2xl overflow-hidden smooth-transition origin-bottom-left"
             style={{ animation: 'fadeIn 0.2s ease-out' }}
           >
-             <div className="p-2 md:p-3 border-b border-slate-800 bg-slate-950/30">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Select Category</span>
-             </div>
-             <div className="max-h-[240px] md:max-h-[280px] overflow-y-auto py-1 custom-scrollbar">
-               {Object.values(CraftCategory).map((cat) => (
-                 <button
-                   key={cat}
-                   onClick={() => {
-                     setCategory(cat);
-                     setIsCategoryOpen(false);
-                   }}
-                   className={`w-full text-left px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm smooth-transition flex items-center gap-2 ${
-                     category === cat 
-                       ? 'bg-indigo-600/20 text-indigo-300 border-l-2 border-indigo-500' 
-                       : 'text-slate-300 hover:bg-slate-800 border-l-2 border-transparent'
-                   }`}
-                 >
-                   {cat}
-                 </button>
-               ))}
-             </div>
+            <div className="p-2 md:p-3 border-b border-slate-800 bg-slate-950/30">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Select Category</span>
+            </div>
+            <div className="max-h-[240px] md:max-h-[280px] overflow-y-auto py-1 custom-scrollbar">
+              {Object.values(CraftCategory).map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => {
+                    setCategory(cat);
+                    setIsCategoryOpen(false);
+                  }}
+                  className={`w-full text-left px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm smooth-transition flex items-center gap-2 ${category === cat
+                      ? 'bg-indigo-600/20 text-indigo-300 border-l-2 border-indigo-500'
+                      : 'text-slate-300 hover:bg-slate-800 border-l-2 border-transparent'
+                    }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
         {/* Main Input Bar */}
-        <form 
+        <form
           onSubmit={handleSubmit}
           className={`
             relative flex items-center gap-1.5 md:gap-2 bg-slate-900/90 backdrop-blur-md border border-slate-700/50 p-1.5 md:p-2 rounded-2xl md:rounded-3xl shadow-2xl shadow-black/50 smooth-transition
@@ -181,24 +180,24 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerate, onStar
             disabled={!prompt.trim() || isLoading}
             className={`
               h-10 w-10 md:h-12 md:w-12 flex items-center justify-center rounded-xl md:rounded-2xl smooth-transition flex-shrink-0
-              ${!prompt.trim() || isLoading 
-                ? 'bg-slate-800 text-slate-600 cursor-not-allowed' 
+              ${!prompt.trim() || isLoading
+                ? 'bg-slate-800 text-slate-600 cursor-not-allowed'
                 : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-900/20 hover:scale-105 active:scale-95'}
             `}
           >
             {isLoading ? (
-               <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin text-white/80" />
+              <Loader2 className="w-4 h-4 md:w-5 md:h-5 animate-spin text-white/80" />
             ) : (
-               <ArrowUp className="w-4 h-4 md:w-5 md:h-5 font-bold" />
+              <ArrowUp className="w-4 h-4 md:w-5 md:h-5 font-bold" />
             )}
           </button>
         </form>
-        
+
         {/* Footer Hint */}
         <div className="absolute top-full left-0 right-0 mt-3 md:mt-4 text-center pointer-events-none smooth-transition">
-            <p className={`text-[9px] md:text-[10px] uppercase tracking-widest font-medium smooth-transition ${isLoading ? 'text-indigo-400 opacity-100' : 'text-slate-600 opacity-0'}`}>
-                Running Gemini 3 Pro
-            </p>
+          <p className={`text-[9px] md:text-[10px] uppercase tracking-widest font-medium smooth-transition ${isLoading ? 'text-indigo-400 opacity-100' : 'text-slate-600 opacity-0'}`}>
+            Running Gemini 3 Pro
+          </p>
         </div>
       </div>
     </div>

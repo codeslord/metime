@@ -25,7 +25,7 @@ import { ImageNodeUnifiedMenu } from '../src/components/ImageNodeUnifiedMenu';
 import { MasterNodeActionsMenu } from '../src/components/MasterNodeActionsMenu';
 import { calculateNodeMenuPosition, calculateCraftMenuPosition } from '../utils/contextMenuPosition';
 import { handleFileUpload } from '../utils/fileUpload';
-import { dissectCraft, dissectSelectedObject, generateStepImage, identifySelectedObject, generateCraftFromImage, generateSVGPatternSheet, generateTurnTableView, TurnTableView } from '../services/geminiService';
+import { dissectCraft, dissectSelectedObject, generateStepImage, identifySelectedObject, generateCraftFromImage, generateSVGPatternSheet, generateTurnTableView, TurnTableView } from '../services/agentService';
 import { CraftCategory, DissectionResponse } from '../types';
 import { useProjects } from '../contexts/ProjectsContext';
 import { useKeyboardShortcuts } from '../utils/useKeyboardShortcuts';

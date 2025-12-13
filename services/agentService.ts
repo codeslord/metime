@@ -3,16 +3,21 @@ import { AgentOrchestrator } from "./orchestrator/AgentOrchestrator";
 import { VisualizerAgent } from "./agents/VisualizerAgent";
 import { DissectionAgent } from "./agents/DissectionAgent";
 import { PatternAgent } from "./agents/PatternAgent";
+import { getAllCategoryAgents } from "./agents/categories";
 
 // Initialize Orchestrator and Agents
 const orchestrator = new AgentOrchestrator();
 
-// Register Core Agents on startup
+// Register Core Functional Agents (retained for shared/generic functionality)
 orchestrator.registerAgent(new VisualizerAgent());
 orchestrator.registerAgent(new DissectionAgent());
 orchestrator.registerAgent(new PatternAgent());
 
-console.log('🤖 Agent A2A System Initialized');
+// Register Category-Specific Agents
+const categoryAgents = getAllCategoryAgents();
+categoryAgents.forEach(agent => orchestrator.registerAgent(agent));
+
+console.log(`🤖 Agent A2A System Initialized with ${3 + categoryAgents.length} agents`);
 
 /**
  * Generates a realistic image of the craft concept.
@@ -52,6 +57,11 @@ export const generateStepImage = async (
     stepNumber
   });
 };
+
+/**
+ * Type for turntable view directions
+ */
+export type TurnTableView = 'left' | 'right' | 'back';
 
 /**
  * Generates a turn table view (left, right, or back) of the craft object
