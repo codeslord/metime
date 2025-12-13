@@ -5,7 +5,8 @@ export enum CraftCategory {
   WOODCRAFT = 'Woodcraft',
   JEWELRY = 'Jewelry',
   KIDS_CRAFTS = 'Kids Crafts',
-  COLORING_BOOK = 'Coloring Book'
+  COLORING_BOOK = 'Coloring Book',
+  DRAWING = 'Drawing'
 }
 
 export interface DissectionResponse {
