@@ -33,7 +33,7 @@ import { useToolKeyboardShortcuts } from '../utils/useToolKeyboardShortcuts';
 import { useDrawingState } from '../utils/useDrawingState';
 import { DrawingPath } from '../types';
 import { getToolCursor } from '../utils/toolCursors';
-import { exportAsZip, exportAsPdf, ExportProjectData, ExportStep } from '../utils/exportUtils';
+import { exportAsZip, exportAsPdf, importFromZip, ExportProjectData, ExportStep, CanvasState, SerializableNode, SerializableEdge } from '../utils/exportUtils';
 
 // Maximum number of step images to generate
 const MAX_STEP_IMAGES = 6;
@@ -2234,6 +2234,63 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
   }, [nodes, edges]);
 
   /**
+   * Import project from ZIP file
+   */
+  const handleImportZip = useCallback(async (file: File) => {
+    if (readOnly) return;
+
+    console.log('=== IMPORT ZIP START ===');
+    console.log('File:', file.name);
+
+    const importedData = await importFromZip(file, (msg) => console.log('Import:', msg));
+    console.log('Imported data:', importedData);
+
+    // Convert serializable nodes to React Flow nodes with callbacks
+    const importedNodes: Node[] = importedData.canvasState.nodes.map(n => {
+      const node: Node = {
+        id: n.id,
+        type: n.type,
+        position: n.position,
+        data: { ...n.data },
+      };
+
+      // Re-attach callbacks for master nodes
+      if (n.type === 'masterNode') {
+        node.data.onDissect = handleDissect;
+        node.data.onDissectSelected = handleDissectSelected;
+        node.data.onSelect = handleMasterNodeSelect;
+        node.data.onDeselect = handleMasterNodeDeselect;
+      }
+
+      return node;
+    });
+
+    // Convert serializable edges to React Flow edges
+    const importedEdges: Edge[] = importedData.canvasState.edges.map(e => ({
+      id: e.id,
+      source: e.source,
+      sourceHandle: e.sourceHandle,
+      target: e.target,
+      targetHandle: e.targetHandle,
+      animated: e.animated ?? true,
+      style: e.style as React.CSSProperties,
+    }));
+
+    // Set nodes and edges
+    setNodes(importedNodes);
+    setEdges(importedEdges);
+
+    // Fit view to show imported content
+    setTimeout(() => {
+      fitView({ padding: 0.2 });
+    }, 100);
+
+    console.log('=== IMPORT ZIP COMPLETE ===');
+    console.log('Imported nodes:', importedNodes.length);
+    console.log('Imported edges:', importedEdges.length);
+  }, [readOnly, setNodes, setEdges, fitView, handleDissect, handleDissectSelected, handleMasterNodeSelect, handleMasterNodeDeselect]);
+
+  /**
    * Collect project data for export
    */
   const collectExportData = useCallback((): ExportProjectData | null => {
@@ -2270,6 +2327,46 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
       ? (materialNodes[0].data.items as string[]) || []
       : [];
 
+    // Collect all connected nodes for canvas state
+    const allConnectedNodeIds = [masterNode.id, ...connectedNodeIds];
+    const connectedNodes = nodes.filter(n => allConnectedNodeIds.includes(n.id));
+
+    // Serialize nodes (remove functions, keep only serializable data)
+    const serializableNodes: SerializableNode[] = connectedNodes.map(n => ({
+      id: n.id,
+      type: n.type || 'unknown',
+      position: n.position,
+      data: {
+        ...n.data,
+        // Remove callback functions - they will be re-attached on import
+        onDissect: undefined,
+        onDissectSelected: undefined,
+        onSelect: undefined,
+        onDeselect: undefined,
+        onContextMenu: undefined,
+        onDelete: undefined,
+      },
+    }));
+
+    // Serialize edges
+    const connectedEdgesForExport = edges.filter(
+      e => allConnectedNodeIds.includes(e.source) || allConnectedNodeIds.includes(e.target)
+    );
+    const serializableEdges: SerializableEdge[] = connectedEdgesForExport.map(e => ({
+      id: e.id,
+      source: e.source,
+      sourceHandle: e.sourceHandle || undefined,
+      target: e.target,
+      targetHandle: e.targetHandle || undefined,
+      animated: e.animated,
+      style: e.style as Record<string, unknown> | undefined,
+    }));
+
+    const canvasState: CanvasState = {
+      nodes: serializableNodes,
+      edges: serializableEdges,
+    };
+
     return {
       name: masterLabel,
       category,
@@ -2277,6 +2374,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
       materials,
       steps,
       createdAt: new Date(),
+      canvasState,
     };
   }, [nodes, edges]);
 
@@ -2545,6 +2643,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
           onFitView={() => fitView({ padding: 0.2 })}
           onExportZip={handleExportZip}
           onExportPdf={handleExportPdf}
+          onImport={handleImportZip}
           canExport={canExport()}
         />
       )}

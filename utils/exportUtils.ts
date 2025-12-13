@@ -13,6 +13,32 @@ export interface ExportStep {
     imageUrl?: string;
 }
 
+// Serializable node structure for export/import
+export interface SerializableNode {
+    id: string;
+    type: string;
+    position: { x: number; y: number };
+    data: Record<string, unknown>;
+}
+
+// Serializable edge structure for export/import
+export interface SerializableEdge {
+    id: string;
+    source: string;
+    sourceHandle?: string;
+    target: string;
+    targetHandle?: string;
+    animated?: boolean;
+    style?: Record<string, unknown>;
+}
+
+// Full canvas state for restoration
+export interface CanvasState {
+    nodes: SerializableNode[];
+    edges: SerializableEdge[];
+    viewport?: { x: number; y: number; zoom: number };
+}
+
 export interface ExportProjectData {
     name: string;
     category: string;
@@ -20,6 +46,18 @@ export interface ExportProjectData {
     materials: string[];
     steps: ExportStep[];
     createdAt?: Date;
+    // Optional canvas state for full project restoration
+    canvasState?: CanvasState;
+}
+
+// Result from importing a ZIP file
+export interface ImportedProjectData {
+    name: string;
+    category: string;
+    materials: string[];
+    steps: ExportStep[];
+    canvasState: CanvasState;
+    createdAt?: string;
 }
 
 /**
@@ -59,7 +97,7 @@ async function loadImage(url: string): Promise<{ img: HTMLImageElement; width: n
 
 /**
  * Export project as a ZIP archive
- * Contains: master.png, step-N.png files, materials.txt, instructions.json
+ * Contains: master.png, step-N.png files, materials.txt, instructions.json, crafternia-project.json
  */
 export async function exportAsZip(
     project: ExportProjectData,
@@ -103,7 +141,7 @@ export async function exportAsZip(
         zip.file('materials.txt', materialsText);
     }
 
-    // Add instructions JSON
+    // Add instructions JSON (legacy format for human readability)
     report('Adding project metadata...');
     const metadata = {
         name: project.name,
@@ -119,6 +157,27 @@ export async function exportAsZip(
         })),
     };
     zip.file('instructions.json', JSON.stringify(metadata, null, 2));
+
+    // Add full project state for import/restoration
+    report('Adding canvas state for import...');
+    const projectState = {
+        version: '1.0',
+        name: project.name,
+        category: project.category,
+        createdAt: project.createdAt?.toISOString() || new Date().toISOString(),
+        materials: project.materials,
+        steps: project.steps.map(s => ({
+            stepNumber: s.stepNumber,
+            title: s.title,
+            description: s.description,
+            safetyWarning: s.safetyWarning,
+            // Reference to the image file in the ZIP
+            imageFile: s.imageUrl ? `step-${s.stepNumber}.png` : null,
+        })),
+        // Include canvas state if provided
+        canvasState: project.canvasState || null,
+    };
+    zip.file('crafternia-project.json', JSON.stringify(projectState, null, 2));
 
     // Generate and download
     report('Generating ZIP file...');
@@ -323,4 +382,231 @@ function downloadBlob(blob: Blob, filename: string): void {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+}
+
+/**
+ * Convert a Blob to a data URL
+ */
+async function blobToDataUrl(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+}
+
+/**
+ * Import a Crafternia project from a ZIP file
+ * Returns the parsed project data with images as data URLs
+ */
+export async function importFromZip(
+    file: File,
+    onProgress?: (message: string) => void
+): Promise<ImportedProjectData> {
+    const report = onProgress || console.log;
+
+    report('Reading ZIP file...');
+    const zip = await JSZip.loadAsync(file);
+
+    // Check for project file (new format with canvas state)
+    let projectJson = zip.file('crafternia-project.json');
+    let projectData: {
+        version?: string;
+        name: string;
+        category: string;
+        createdAt?: string;
+        materials: string[];
+        steps: {
+            stepNumber: number;
+            title: string;
+            description: string;
+            safetyWarning?: string;
+            imageFile?: string | null;
+            hasImage?: boolean;
+        }[];
+        canvasState?: CanvasState | null;
+    } | null = null;
+
+    if (projectJson) {
+        report('Found project file...');
+        const content = await projectJson.async('text');
+        projectData = JSON.parse(content);
+    } else {
+        // Fallback to legacy instructions.json
+        const instructionsJson = zip.file('instructions.json');
+        if (!instructionsJson) {
+            throw new Error('Invalid ZIP file: no project data found');
+        }
+        report('Using legacy format...');
+        const content = await instructionsJson.async('text');
+        projectData = JSON.parse(content);
+    }
+
+    if (!projectData) {
+        throw new Error('Failed to parse project data');
+    }
+
+    report('Loading master image...');
+    // Load master image
+    let masterImageUrl = '';
+    const masterFile = zip.file('master.png');
+    if (masterFile) {
+        const masterBlob = await masterFile.async('blob');
+        masterImageUrl = await blobToDataUrl(masterBlob);
+    }
+
+    report('Loading step images...');
+    // Load step images
+    const steps: ExportStep[] = [];
+    for (const step of projectData.steps) {
+        let imageUrl: string | undefined = undefined;
+
+        // Try to load image from ZIP
+        const imageFileName = step.imageFile || `step-${step.stepNumber}.png`;
+        const imageFile = zip.file(imageFileName);
+        if (imageFile) {
+            try {
+                const imageBlob = await imageFile.async('blob');
+                imageUrl = await blobToDataUrl(imageBlob);
+            } catch (err) {
+                console.error(`Failed to load step ${step.stepNumber} image:`, err);
+            }
+        }
+
+        steps.push({
+            stepNumber: step.stepNumber,
+            title: step.title,
+            description: step.description,
+            safetyWarning: step.safetyWarning,
+            imageUrl,
+        });
+    }
+
+    report('Reconstructing canvas state...');
+    // Build or restore canvas state
+    let canvasState: CanvasState;
+
+    if (projectData.canvasState) {
+        // Restore saved canvas state, updating image URLs
+        canvasState = { ...projectData.canvasState };
+
+        // Update image URLs in nodes
+        canvasState.nodes = canvasState.nodes.map(node => {
+            if (node.type === 'masterNode' && masterImageUrl) {
+                return {
+                    ...node,
+                    data: {
+                        ...node.data,
+                        imageUrl: masterImageUrl,
+                    },
+                };
+            }
+            if (node.type === 'instructionNode') {
+                const stepNumber = node.data.stepNumber as number;
+                const step = steps.find(s => s.stepNumber === stepNumber);
+                if (step?.imageUrl) {
+                    return {
+                        ...node,
+                        data: {
+                            ...node.data,
+                            imageUrl: step.imageUrl,
+                        },
+                    };
+                }
+            }
+            return node;
+        });
+    } else {
+        // Generate canvas state from steps (for legacy imports)
+        const masterNodeId = `master-imported-${Date.now()}`;
+        const nodes: SerializableNode[] = [];
+        const edges: SerializableEdge[] = [];
+
+        // Create master node
+        nodes.push({
+            id: masterNodeId,
+            type: 'masterNode',
+            position: { x: 0, y: 0 },
+            data: {
+                label: projectData.name,
+                imageUrl: masterImageUrl,
+                category: projectData.category,
+                isDissecting: false,
+                isDissected: steps.length > 0,
+            },
+        });
+
+        // Create material node if we have materials
+        if (projectData.materials.length > 0) {
+            const matNodeId = `${masterNodeId}-mat`;
+            nodes.push({
+                id: matNodeId,
+                type: 'materialNode',
+                position: { x: -400, y: 0 },
+                data: { items: projectData.materials },
+            });
+            edges.push({
+                id: `e-${masterNodeId}-${matNodeId}`,
+                source: masterNodeId,
+                sourceHandle: 'source-left',
+                target: matNodeId,
+                targetHandle: 'target-right',
+                animated: true,
+                style: { stroke: '#3b82f6', strokeWidth: 2 },
+            });
+        }
+
+        // Create step nodes in a 2-column grid
+        const gapX = 400;
+        const gapY = 500;
+        const startX = 500;
+        const startY = -((Math.ceil(steps.length / 2) - 1) * gapY) / 2;
+
+        steps.forEach((step, index) => {
+            const stepNodeId = `${masterNodeId}-step-${step.stepNumber}`;
+            const col = index % 2;
+            const row = Math.floor(index / 2);
+
+            nodes.push({
+                id: stepNodeId,
+                type: 'instructionNode',
+                position: {
+                    x: startX + (col * gapX),
+                    y: startY + (row * gapY),
+                },
+                data: {
+                    stepNumber: step.stepNumber,
+                    title: step.title,
+                    description: step.description,
+                    safetyWarning: step.safetyWarning,
+                    imageUrl: step.imageUrl,
+                    isGeneratingImage: false,
+                },
+            });
+
+            edges.push({
+                id: `e-${masterNodeId}-${stepNodeId}`,
+                source: masterNodeId,
+                sourceHandle: 'source-right',
+                target: stepNodeId,
+                targetHandle: 'target-left',
+                animated: true,
+                style: { stroke: '#10b981', strokeWidth: 2 },
+            });
+        });
+
+        canvasState = { nodes, edges };
+    }
+
+    report('Import complete!');
+
+    return {
+        name: projectData.name,
+        category: projectData.category,
+        materials: projectData.materials,
+        steps,
+        canvasState,
+        createdAt: projectData.createdAt,
+    };
 }

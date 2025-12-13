@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MousePointer2, Hand, Plus, Type, Maximize, Download, FileArchive, FileText, Loader2 } from 'lucide-react';
+import { MousePointer2, Hand, Plus, Type, Maximize, Download, FileArchive, FileText, Loader2, Upload } from 'lucide-react';
 // TODO: Re-import when re-enabling tools: Square, Pencil
 import { ToolButton } from './ToolButton';
 
@@ -12,6 +12,7 @@ interface LeftToolbarProps {
   onFitView?: () => void;
   onExportZip?: () => Promise<void>;
   onExportPdf?: () => Promise<void>;
+  onImport?: (file: File) => Promise<void>;
   canExport?: boolean;
 }
 
@@ -22,12 +23,15 @@ export const LeftToolbar: React.FC<LeftToolbarProps> = ({
   onFitView,
   onExportZip,
   onExportPdf,
+  onImport,
   canExport = false,
 }) => {
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
   const [exportType, setExportType] = useState<'zip' | 'pdf' | null>(null);
   const exportMenuRef = useRef<HTMLDivElement>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   const tools = [
     {
@@ -125,6 +129,30 @@ export const LeftToolbar: React.FC<LeftToolbarProps> = ({
     }
   };
 
+  const handleImportClick = () => {
+    setShowExportMenu(false);
+    importInputRef.current?.click();
+  };
+
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !onImport) return;
+
+    setIsImporting(true);
+    try {
+      await onImport(file);
+    } catch (error) {
+      console.error('Import failed:', error);
+      alert(error instanceof Error ? error.message : 'Import failed. Please try again.');
+    } finally {
+      setIsImporting(false);
+      // Reset file input
+      if (importInputRef.current) {
+        importInputRef.current.value = '';
+      }
+    }
+  };
+
   return (
     <div className="fixed left-4 top-1/2 -translate-y-1/2 z-40 animate-fade-in-opacity" data-toolbar>
       <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-2xl shadow-2xl p-2">
@@ -156,16 +184,15 @@ export const LeftToolbar: React.FC<LeftToolbarProps> = ({
             />
           </div>
 
-          {/* Export Button with Dropdown */}
+          {/* Export/Import Button with Dropdown */}
           <div className="relative" ref={exportMenuRef}>
             <div
-              onClick={() => canExport && setShowExportMenu(!showExportMenu)}
-              className={!canExport ? 'opacity-50 cursor-not-allowed' : ''}
-              title={canExport ? 'Export Project' : 'Generate a craft first to enable export'}
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              title="Export/Import Project"
             >
               <ToolButton
-                icon={isExporting ? Loader2 : Download}
-                label={isExporting ? 'Exporting...' : 'Export'}
+                icon={isExporting || isImporting ? Loader2 : Download}
+                label={isExporting ? 'Exporting...' : isImporting ? 'Importing...' : 'Export'}
                 isActive={showExportMenu}
                 onClick={() => { }}
                 keyboardShortcut="E"
@@ -173,28 +200,61 @@ export const LeftToolbar: React.FC<LeftToolbarProps> = ({
               />
             </div>
 
-            {/* Export Options Dropdown */}
-            {showExportMenu && canExport && (
+            {/* Export/Import Options Dropdown */}
+            {showExportMenu && (
               <div className="absolute left-full ml-2 top-0 bg-slate-900/95 backdrop-blur-xl border border-slate-700/50 rounded-xl shadow-2xl p-2 min-w-[160px] animate-fade-in-opacity">
+                {/* Export options - only available when canExport */}
                 <button
                   onClick={() => handleExport('zip')}
-                  className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800/50 rounded-lg transition-colors"
+                  disabled={!canExport}
+                  className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${canExport
+                      ? 'text-slate-200 hover:bg-slate-800/50'
+                      : 'text-slate-500 cursor-not-allowed'
+                    }`}
+                  title={canExport ? 'Export as ZIP Archive' : 'Generate a craft first to enable export'}
                 >
                   <FileArchive className="w-4 h-4 text-emerald-400" />
                   <span>ZIP Archive</span>
                 </button>
                 <button
                   onClick={() => handleExport('pdf')}
-                  className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800/50 rounded-lg transition-colors"
+                  disabled={!canExport}
+                  className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${canExport
+                      ? 'text-slate-200 hover:bg-slate-800/50'
+                      : 'text-slate-500 cursor-not-allowed'
+                    }`}
+                  title={canExport ? 'Export as PDF Document' : 'Generate a craft first to enable export'}
                 >
                   <FileText className="w-4 h-4 text-red-400" />
                   <span>PDF Document</span>
+                </button>
+
+                {/* Divider */}
+                <div className="h-px bg-slate-700/50 my-2" />
+
+                {/* Import option - always available */}
+                <button
+                  onClick={handleImportClick}
+                  className="w-full flex items-center gap-3 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800/50 rounded-lg transition-colors"
+                >
+                  <Upload className="w-4 h-4 text-blue-400" />
+                  <span>Import ZIP</span>
                 </button>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Hidden file input for import */}
+      <input
+        ref={importInputRef}
+        type="file"
+        accept=".zip"
+        onChange={handleImportFile}
+        className="hidden"
+      />
     </div>
   );
 };
+
