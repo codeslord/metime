@@ -28,6 +28,7 @@ import { handleFileUpload } from '../utils/fileUpload';
 import { dissectCraft, dissectSelectedObject, generateStepImage, identifySelectedObject, generateCraftFromImage, generateSVGPatternSheet, generateTurnTableView, TurnTableView } from '../services/agentService';
 import { CraftCategory, DissectionResponse } from '../types';
 import { useProjects } from '../contexts/ProjectsContext';
+import { useCanvasState } from '../contexts/CanvasStateContext';
 import { useKeyboardShortcuts } from '../utils/useKeyboardShortcuts';
 import { useToolKeyboardShortcuts } from '../utils/useToolKeyboardShortcuts';
 import { useDrawingState } from '../utils/useDrawingState';
@@ -171,8 +172,30 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
   const { state: projectsState, saveProject, updateProject } = useProjects();
   const { screenToFlowPosition, fitView, getViewport, setCenter } = useReactFlow();
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  // Get canvas state from context to persist across navigation
+  const { state: canvasSessionState, updateNodes: persistNodes, updateEdges: persistEdges, updateViewport: persistViewport } = useCanvasState();
+
+  // Initialize from persisted state (if any) instead of empty arrays
+  const [nodes, setNodes, onNodesChange] = useNodesState(canvasSessionState.nodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(canvasSessionState.edges);
+
+  // Track if we've initialized from context to avoid resetting on remount
+  const isInitializedRef = useRef(false);
+
+  // Persist nodes to context whenever they change
+  useEffect(() => {
+    // Skip the initial render that comes from context initialization
+    if (!isInitializedRef.current) {
+      isInitializedRef.current = true;
+      return;
+    }
+    persistNodes(nodes);
+  }, [nodes, persistNodes]);
+
+  // Persist edges to context whenever they change
+  useEffect(() => {
+    persistEdges(edges);
+  }, [edges, persistEdges]);
 
   // Custom handler for node changes to sync dimensions for ShapeNodes
   const handleNodesChange = useCallback((changes: any[]) => {
