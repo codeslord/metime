@@ -33,6 +33,7 @@ import { useToolKeyboardShortcuts } from '../utils/useToolKeyboardShortcuts';
 import { useDrawingState } from '../utils/useDrawingState';
 import { DrawingPath } from '../types';
 import { getToolCursor } from '../utils/toolCursors';
+import { exportAsZip, exportAsPdf, ExportProjectData, ExportStep } from '../utils/exportUtils';
 
 // Maximum number of step images to generate
 const MAX_STEP_IMAGES = 6;
@@ -267,7 +268,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
   useEffect(() => {
     nodesRef.current = nodes;
   }, [nodes]);
-  
+
   // Track hover state for craft menu auto-dismiss
   const menuHoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isHoveringMenu, setIsHoveringMenu] = useState(false);
@@ -283,7 +284,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
       setDrawingStartPos(null);
     },
   });
-  
+
   // Enable keyboard shortcuts for canvas navigation
   useKeyboardShortcuts(!readOnly);
 
@@ -334,7 +335,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
   });
 
   // Get current project for displaying name in menu bar
-  const currentProject = projectId 
+  const currentProject = projectId
     ? projectsState.projects.find(p => p.id === projectId)
     : null;
 
@@ -422,7 +423,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
       nodeId: null,
       selectedCategory: null,
     });
-    
+
     // Clear selection state from ImageNode
     setNodes((nds) =>
       nds.map((node) => {
@@ -970,8 +971,8 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
         setIsCanvasReady(true);
       }
     }
-  // Only run once on mount - don't re-run when projects change (causes infinite loop with auto-save)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Only run once on mount - don't re-run when projects change (causes infinite loop with auto-save)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   // Debounce timer ref for auto-save
@@ -1129,10 +1130,10 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
 
     // Remove the node
     setNodes((nds) => nds.filter((n) => n.id !== nodeId));
-    
+
     // Remove any connected edges
     setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId));
-    
+
     console.log('Deleted image node:', nodeId);
   }, [readOnly, setNodes, setEdges]);
 
@@ -1143,14 +1144,14 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/jpeg,image/jpg,image/png,image/gif,image/webp';
-    
+
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
       try {
         const { dataUrl, fileName } = await handleFileUpload(file);
-        
+
         // Create image element to get dimensions
         const img = new Image();
         img.onload = () => {
@@ -1158,7 +1159,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
           const maxSize = 400;
           let width = img.width;
           let height = img.height;
-          
+
           if (width > maxSize || height > maxSize) {
             const ratio = Math.min(maxSize / width, maxSize / height);
             width = width * ratio;
@@ -1192,13 +1193,13 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
 
           setNodes((nds) => [...nds, newNode]);
         };
-        
+
         img.src = dataUrl;
       } catch (error) {
         console.error('Upload error:', error);
         alert(error instanceof Error ? error.message : 'Failed to upload image');
       }
-      
+
       // Close submenu after file selection
       handleCloseToolSubmenu();
     };
@@ -1396,7 +1397,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
    */
   const handlePaneMouseDown = useCallback((event: React.MouseEvent) => {
     const target = event.target as HTMLElement;
-    
+
     // Only handle if clicking on the pane (not on nodes or controls)
     if (!target.classList.contains('react-flow__pane')) {
       return;
@@ -1422,10 +1423,10 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
 
     // Create a new drawing node at the click position
     const id = `drawing-${Date.now()}`;
-    
+
     // Start drawing with relative coordinates (0, 0)
     drawingState.startDrawing(0, 0);
-    
+
     // Create node with empty paths initially
     const newNode: Node = {
       id,
@@ -1440,24 +1441,24 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
     setNodes((nds) => [...nds, newNode]);
     setCurrentDrawingNodeId(id);
     setDrawingStartPos(position);
-    
+
     // Immediately update with the initial point
     setTimeout(() => {
       setNodes((nds) =>
         nds.map((node) =>
           node.id === id
             ? {
-                ...node,
-                data: {
-                  ...node.data,
-                  paths: [
-                    {
-                      points: drawingState.currentPath,
-                      tool: pencilMode,
-                    },
-                  ],
-                },
-              }
+              ...node,
+              data: {
+                ...node.data,
+                paths: [
+                  {
+                    points: drawingState.currentPath,
+                    tool: pencilMode,
+                  },
+                ],
+              },
+            }
             : node
         )
       );
@@ -1491,6 +1492,27 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
         nds.map((node) =>
           node.id === currentDrawingNodeId
             ? {
+              ...node,
+              data: {
+                ...node.data,
+                paths: [
+                  {
+                    points: drawingState.currentPath,
+                    tool: pencilMode,
+                  },
+                ],
+              },
+            }
+            : node
+        )
+      );
+    } else if (updateFrameRef.current === null && drawingState.currentPath.length > 0) {
+      // Throttle subsequent updates using requestAnimationFrame
+      updateFrameRef.current = requestAnimationFrame(() => {
+        setNodes((nds) =>
+          nds.map((node) =>
+            node.id === currentDrawingNodeId
+              ? {
                 ...node,
                 data: {
                   ...node.data,
@@ -1502,27 +1524,6 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
                   ],
                 },
               }
-            : node
-        )
-      );
-    } else if (updateFrameRef.current === null && drawingState.currentPath.length > 0) {
-      // Throttle subsequent updates using requestAnimationFrame
-      updateFrameRef.current = requestAnimationFrame(() => {
-        setNodes((nds) =>
-          nds.map((node) =>
-            node.id === currentDrawingNodeId
-              ? {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    paths: [
-                      {
-                        points: drawingState.currentPath,
-                        tool: pencilMode,
-                      },
-                    ],
-                  },
-                }
               : node
           )
         );
@@ -1564,8 +1565,8 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
     console.log('Total nodes in ref:', currentNodes.length);
 
     if (!masterNode) {
-        console.error('Master node not found for positioning');
-        return;
+      console.error('Master node not found for positioning');
+      return;
     }
 
     // Generate unique prefix for this breakdown to avoid duplicate node IDs
@@ -1589,280 +1590,280 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
 
     // Create placeholder step nodes
     for (let i = 1; i <= DEFAULT_STEP_COUNT; i++) {
-        const stepNodeId = `${breakdownId}-step-${i}`;
-        const col = (i - 1) % 2;
-        const row = Math.floor((i - 1) / 2);
+      const stepNodeId = `${breakdownId}-step-${i}`;
+      const col = (i - 1) % 2;
+      const row = Math.floor((i - 1) / 2);
 
-        placeholderNodes.push({
-            id: stepNodeId,
-            type: 'instructionNode',
-            position: {
-                x: firstStepPosition.x + (col * gapX),
-                y: firstStepPosition.y + (row * gapY)
-            },
-            data: {
-                stepNumber: i,
-                title: `Step ${i}`,
-                description: 'Analyzing craft structure...',
-                safetyWarning: undefined,
-                isGeneratingImage: true,
-                imageUrl: undefined
-            }
-        });
+      placeholderNodes.push({
+        id: stepNodeId,
+        type: 'instructionNode',
+        position: {
+          x: firstStepPosition.x + (col * gapX),
+          y: firstStepPosition.y + (row * gapY)
+        },
+        data: {
+          stepNumber: i,
+          title: `Step ${i}`,
+          description: 'Analyzing craft structure...',
+          safetyWarning: undefined,
+          isGeneratingImage: true,
+          imageUrl: undefined
+        }
+      });
 
-        placeholderEdges.push({
-            id: `e-${nodeId}-${stepNodeId}`,
-            source: nodeId,
-            sourceHandle: 'source-right',
-            target: stepNodeId,
-            targetHandle: 'target-left',
-            animated: true,
-            style: { stroke: '#10b981', strokeWidth: 2 },
-        });
+      placeholderEdges.push({
+        id: `e-${nodeId}-${stepNodeId}`,
+        source: nodeId,
+        sourceHandle: 'source-right',
+        target: stepNodeId,
+        targetHandle: 'target-left',
+        animated: true,
+        style: { stroke: '#10b981', strokeWidth: 2 },
+      });
     }
 
     // Add placeholders immediately and set loading state
     setNodes((nds) => {
-        const updatedNodes = nds.map((node) => {
-            if (node.id === nodeId) {
-                return { ...node, data: { ...node.data, isDissecting: true } };
-            }
-            return node;
-        });
-        return [...updatedNodes, ...placeholderNodes];
+      const updatedNodes = nds.map((node) => {
+        if (node.id === nodeId) {
+          return { ...node, data: { ...node.data, isDissecting: true } };
+        }
+        return node;
+      });
+      return [...updatedNodes, ...placeholderNodes];
     });
     setEdges((eds) => [...eds, ...placeholderEdges]);
 
     try {
-        // 2. First, let AI identify what object was selected
-        console.log('\n🔍 === AI IDENTIFICATION PHASE ===');
-        console.log('Selected Object Image (base64 length):', selectedObjectImageUrl.length);
-        console.log('Full Image URL (base64 length):', fullImageUrl.length);
-        console.log('Asking AI to identify the selected object...\n');
+      // 2. First, let AI identify what object was selected
+      console.log('\n🔍 === AI IDENTIFICATION PHASE ===');
+      console.log('Selected Object Image (base64 length):', selectedObjectImageUrl.length);
+      console.log('Full Image URL (base64 length):', fullImageUrl.length);
+      console.log('Asking AI to identify the selected object...\n');
 
-        const identifiedLabel = await identifySelectedObject(
-          selectedObjectImageUrl,
-          fullImageUrl
-        );
+      const identifiedLabel = await identifySelectedObject(
+        selectedObjectImageUrl,
+        fullImageUrl
+      );
 
-        console.log('✅ AI Identified Object as:', identifiedLabel);
-        console.log('=== IDENTIFICATION COMPLETE ===\n');
+      console.log('✅ AI Identified Object as:', identifiedLabel);
+      console.log('=== IDENTIFICATION COMPLETE ===\n');
 
-        // 3. Now call Gemini API to get TEXT instructions for the identified object
-        console.log('🔍 === AI DISSECTION PHASE ===');
-        console.log('Object to dissect:', identifiedLabel);
-        console.log('Sending to AI for instructions...\n');
+      // 3. Now call Gemini API to get TEXT instructions for the identified object
+      console.log('🔍 === AI DISSECTION PHASE ===');
+      console.log('Object to dissect:', identifiedLabel);
+      console.log('Sending to AI for instructions...\n');
 
-        const dissection = await dissectSelectedObject(
-          selectedObjectImageUrl,
-          fullImageUrl,
-          identifiedLabel
-        );
+      const dissection = await dissectSelectedObject(
+        selectedObjectImageUrl,
+        fullImageUrl,
+        identifiedLabel
+      );
 
-        console.log('\n📊 === AI OUTPUT DEBUG ===');
-        console.log('Complexity:', dissection.complexity);
-        console.log('Complexity Score:', dissection.complexityScore);
-        console.log('Materials:', dissection.materials);
-        console.log('Number of Steps Generated:', dissection.steps.length);
-        console.log('\nGenerated Steps:');
-        dissection.steps.forEach((step) => {
-            console.log(`  Step ${step.stepNumber}: ${step.title}`);
-            console.log(`    Description: ${step.description.substring(0, 100)}...`);
-            if (step.safetyWarning) {
-                console.log(`    ⚠️ Safety: ${step.safetyWarning}`);
+      console.log('\n📊 === AI OUTPUT DEBUG ===');
+      console.log('Complexity:', dissection.complexity);
+      console.log('Complexity Score:', dissection.complexityScore);
+      console.log('Materials:', dissection.materials);
+      console.log('Number of Steps Generated:', dissection.steps.length);
+      console.log('\nGenerated Steps:');
+      dissection.steps.forEach((step) => {
+        console.log(`  Step ${step.stepNumber}: ${step.title}`);
+        console.log(`    Description: ${step.description.substring(0, 100)}...`);
+        if (step.safetyWarning) {
+          console.log(`    ⚠️ Safety: ${step.safetyWarning}`);
+        }
+      });
+      console.log('\n🔍 VERIFICATION CHECK:');
+      console.log(`Does the AI output match "${identifiedLabel}"? Review the steps above to verify.`);
+      console.log('=== AI OUTPUT DEBUG END ===\n');
+
+      // 4. Create materials node now that we have the data
+      const matNodeId = `${breakdownId}-mat`;
+      const matPosition = findEmptyPosition(nodesRef.current, masterNode, -400, 0, 300, 200);
+      const materialNode: Node = {
+        id: matNodeId,
+        type: 'materialNode',
+        position: matPosition,
+        data: { items: dissection.materials },
+      };
+      const materialEdge: Edge = {
+        id: `e-${nodeId}-${matNodeId}`,
+        source: nodeId,
+        sourceHandle: 'source-left',
+        target: matNodeId,
+        targetHandle: 'target-right',
+        animated: true,
+        style: { stroke: '#3b82f6', strokeWidth: 2 },
+      };
+
+      // 5. Update placeholder nodes with actual step data OR remove extras if fewer steps
+      setNodes((nds) => {
+        let updatedNodes = nds.map((node) => {
+          // Update master node
+          if (node.id === nodeId) {
+            return { ...node, data: { ...node.data, isDissecting: false, isDissected: true } };
+          }
+          // Update existing placeholder step nodes with actual data
+          const stepMatch = node.id.match(new RegExp(`^${breakdownId}-step-(\\d+)$`));
+          if (stepMatch) {
+            const stepNum = parseInt(stepMatch[1], 10);
+            const stepData = dissection.steps.find(s => s.stepNumber === stepNum);
+            if (stepData) {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  title: stepData.title,
+                  description: stepData.description,
+                  safetyWarning: stepData.safetyWarning,
+                  // Keep isGeneratingImage true - images will be generated next
+                }
+              };
+            } else {
+              // This placeholder is extra (more placeholders than actual steps)
+              return null; // Mark for removal
             }
-        });
-        console.log('\n🔍 VERIFICATION CHECK:');
-        console.log(`Does the AI output match "${identifiedLabel}"? Review the steps above to verify.`);
-        console.log('=== AI OUTPUT DEBUG END ===\n');
+          }
+          return node;
+        }).filter((node): node is Node => node !== null);
 
-        // 4. Create materials node now that we have the data
-        const matNodeId = `${breakdownId}-mat`;
-        const matPosition = findEmptyPosition(nodesRef.current, masterNode, -400, 0, 300, 200);
-        const materialNode: Node = {
-            id: matNodeId,
-            type: 'materialNode',
-            position: matPosition,
-            data: { items: dissection.materials },
-        };
-        const materialEdge: Edge = {
-            id: `e-${nodeId}-${matNodeId}`,
-            source: nodeId,
-            sourceHandle: 'source-left',
-            target: matNodeId,
-            targetHandle: 'target-right',
-            animated: true,
-            style: { stroke: '#3b82f6', strokeWidth: 2 },
-        };
-
-        // 5. Update placeholder nodes with actual step data OR remove extras if fewer steps
-        setNodes((nds) => {
-            let updatedNodes = nds.map((node) => {
-                // Update master node
-                if (node.id === nodeId) {
-                    return { ...node, data: { ...node.data, isDissecting: false, isDissected: true } };
-                }
-                // Update existing placeholder step nodes with actual data
-                const stepMatch = node.id.match(new RegExp(`^${breakdownId}-step-(\\d+)$`));
-                if (stepMatch) {
-                    const stepNum = parseInt(stepMatch[1], 10);
-                    const stepData = dissection.steps.find(s => s.stepNumber === stepNum);
-                    if (stepData) {
-                        return {
-                            ...node,
-                            data: {
-                                ...node.data,
-                                title: stepData.title,
-                                description: stepData.description,
-                                safetyWarning: stepData.safetyWarning,
-                                // Keep isGeneratingImage true - images will be generated next
-                            }
-                        };
-                    } else {
-                        // This placeholder is extra (more placeholders than actual steps)
-                        return null; // Mark for removal
-                    }
-                }
-                return node;
-            }).filter((node): node is Node => node !== null);
-
-            // Add any additional steps beyond the default placeholder count
-            dissection.steps.forEach((step) => {
-                if (step.stepNumber > DEFAULT_STEP_COUNT) {
-                    const stepNodeId = `${breakdownId}-step-${step.stepNumber}`;
-                    const col = (step.stepNumber - 1) % 2;
-                    const row = Math.floor((step.stepNumber - 1) / 2);
-                    updatedNodes.push({
-                        id: stepNodeId,
-                        type: 'instructionNode',
-                        position: {
-                            x: firstStepPosition.x + (col * gapX),
-                            y: firstStepPosition.y + (row * gapY) - ((dissection.steps.length * gapY) / 4)
-                        },
-                        data: {
-                            stepNumber: step.stepNumber,
-                            title: step.title,
-                            description: step.description,
-                            safetyWarning: step.safetyWarning,
-                            isGeneratingImage: true,
-                            imageUrl: undefined
-                        }
-                    });
-                }
+        // Add any additional steps beyond the default placeholder count
+        dissection.steps.forEach((step) => {
+          if (step.stepNumber > DEFAULT_STEP_COUNT) {
+            const stepNodeId = `${breakdownId}-step-${step.stepNumber}`;
+            const col = (step.stepNumber - 1) % 2;
+            const row = Math.floor((step.stepNumber - 1) / 2);
+            updatedNodes.push({
+              id: stepNodeId,
+              type: 'instructionNode',
+              position: {
+                x: firstStepPosition.x + (col * gapX),
+                y: firstStepPosition.y + (row * gapY) - ((dissection.steps.length * gapY) / 4)
+              },
+              data: {
+                stepNumber: step.stepNumber,
+                title: step.title,
+                description: step.description,
+                safetyWarning: step.safetyWarning,
+                isGeneratingImage: true,
+                imageUrl: undefined
+              }
             });
-
-            // Add materials node
-            return [...updatedNodes, materialNode];
-        });
-
-        // Update edges - remove extras and add materials edge + any new step edges
-        setEdges((eds) => {
-            // Filter out edges for removed placeholder steps
-            const validStepNums = dissection.steps.map(s => s.stepNumber);
-            const filteredEdges = eds.filter((edge) => {
-                const stepMatch = edge.target.match(new RegExp(`^${breakdownId}-step-(\\d+)$`));
-                if (stepMatch) {
-                    const stepNum = parseInt(stepMatch[1], 10);
-                    return validStepNums.includes(stepNum);
-                }
-                return true;
-            });
-
-            // Add edges for any new steps beyond default count
-            const newStepEdges: Edge[] = [];
-            dissection.steps.forEach((step) => {
-                if (step.stepNumber > DEFAULT_STEP_COUNT) {
-                    newStepEdges.push({
-                        id: `e-${nodeId}-${breakdownId}-step-${step.stepNumber}`,
-                        source: nodeId,
-                        sourceHandle: 'source-right',
-                        target: `${breakdownId}-step-${step.stepNumber}`,
-                        targetHandle: 'target-left',
-                        animated: true,
-                        style: { stroke: '#10b981', strokeWidth: 2 },
-                    });
-                }
-            });
-
-            return [...filteredEdges, materialEdge, ...newStepEdges];
-        });
-
-        // 5. Generate step images in the background using the selected object as reference
-        console.log('\n=== IMAGE GENERATION PHASE ===');
-        console.log('Using category:', category);
-        console.log('Target object:', identifiedLabel);
-        console.log('Total steps:', dissection.steps.length);
-        console.log('All steps:', dissection.steps.map(s => `${s.stepNumber}: ${s.title}`));
-        console.log('Format: Multi-Panel with 4K resolution for Step 1');
-
-        // Generate ALL step images in PARALLEL for faster generation
-        // Pass the identifiedLabel to ensure images focus on the selected object only
-        console.log(`\n🚀 Generating ${dissection.steps.length} step images IN PARALLEL...`);
-
-        const stepGenerationPromises = dissection.steps.map(async (step) => {
-          const stepNodeId = `${breakdownId}-step-${step.stepNumber}`;
-
-          console.log(`🎨 Starting Step ${step.stepNumber}: ${step.title}`);
-          console.log(`   Target object: ${identifiedLabel} | Category: ${category}`);
-
-          try {
-            // Generate image with SELECTED OBJECT as reference to match exact style/appearance
-            const imageUrl = await generateStepImage(
-              selectedObjectImageUrl, // Use selected object (not full image) as style reference
-              `${step.title}: ${step.description}`,
-              category,
-              identifiedLabel, // Pass the identified object label
-              step.stepNumber // Pass step number for 4K resolution on step 1
-            );
-
-            console.log(`✅ Step ${step.stepNumber} complete`);
-
-            // Update node with generated image
-            setNodes((nds) =>
-              nds.map((node) => {
-                if (node.id === stepNodeId) {
-                  return {
-                    ...node,
-                    data: {
-                      ...node.data,
-                      imageUrl,
-                      isGeneratingImage: false
-                    }
-                  };
-                }
-                return node;
-              })
-            );
-
-            return { stepNumber: step.stepNumber, success: true };
-          } catch (error) {
-            console.error(`❌ Step ${step.stepNumber} failed:`, error);
-            // Clear loading state on error
-            setNodes((nds) =>
-              nds.map((node) => {
-                if (node.id === stepNodeId) {
-                  return {
-                    ...node,
-                    data: {
-                      ...node.data,
-                      isGeneratingImage: false
-                    }
-                  };
-                }
-                return node;
-              })
-            );
-
-            return { stepNumber: step.stepNumber, success: false, error };
           }
         });
 
-        // Wait for all step images to complete (success or failure)
-        const results = await Promise.all(stepGenerationPromises);
-        const successCount = results.filter(r => r.success).length;
-        console.log(`\n📊 Parallel generation complete: ${successCount}/${results.length} steps succeeded`);
+        // Add materials node
+        return [...updatedNodes, materialNode];
+      });
 
-        console.log('=== DISSECT SELECTED COMPLETE ===\n');
+      // Update edges - remove extras and add materials edge + any new step edges
+      setEdges((eds) => {
+        // Filter out edges for removed placeholder steps
+        const validStepNums = dissection.steps.map(s => s.stepNumber);
+        const filteredEdges = eds.filter((edge) => {
+          const stepMatch = edge.target.match(new RegExp(`^${breakdownId}-step-(\\d+)$`));
+          if (stepMatch) {
+            const stepNum = parseInt(stepMatch[1], 10);
+            return validStepNums.includes(stepNum);
+          }
+          return true;
+        });
+
+        // Add edges for any new steps beyond default count
+        const newStepEdges: Edge[] = [];
+        dissection.steps.forEach((step) => {
+          if (step.stepNumber > DEFAULT_STEP_COUNT) {
+            newStepEdges.push({
+              id: `e-${nodeId}-${breakdownId}-step-${step.stepNumber}`,
+              source: nodeId,
+              sourceHandle: 'source-right',
+              target: `${breakdownId}-step-${step.stepNumber}`,
+              targetHandle: 'target-left',
+              animated: true,
+              style: { stroke: '#10b981', strokeWidth: 2 },
+            });
+          }
+        });
+
+        return [...filteredEdges, materialEdge, ...newStepEdges];
+      });
+
+      // 5. Generate step images in the background using the selected object as reference
+      console.log('\n=== IMAGE GENERATION PHASE ===');
+      console.log('Using category:', category);
+      console.log('Target object:', identifiedLabel);
+      console.log('Total steps:', dissection.steps.length);
+      console.log('All steps:', dissection.steps.map(s => `${s.stepNumber}: ${s.title}`));
+      console.log('Format: Multi-Panel with 4K resolution for Step 1');
+
+      // Generate ALL step images in PARALLEL for faster generation
+      // Pass the identifiedLabel to ensure images focus on the selected object only
+      console.log(`\n🚀 Generating ${dissection.steps.length} step images IN PARALLEL...`);
+
+      const stepGenerationPromises = dissection.steps.map(async (step) => {
+        const stepNodeId = `${breakdownId}-step-${step.stepNumber}`;
+
+        console.log(`🎨 Starting Step ${step.stepNumber}: ${step.title}`);
+        console.log(`   Target object: ${identifiedLabel} | Category: ${category}`);
+
+        try {
+          // Generate image with SELECTED OBJECT as reference to match exact style/appearance
+          const imageUrl = await generateStepImage(
+            selectedObjectImageUrl, // Use selected object (not full image) as style reference
+            `${step.title}: ${step.description}`,
+            category,
+            identifiedLabel, // Pass the identified object label
+            step.stepNumber // Pass step number for 4K resolution on step 1
+          );
+
+          console.log(`✅ Step ${step.stepNumber} complete`);
+
+          // Update node with generated image
+          setNodes((nds) =>
+            nds.map((node) => {
+              if (node.id === stepNodeId) {
+                return {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    imageUrl,
+                    isGeneratingImage: false
+                  }
+                };
+              }
+              return node;
+            })
+          );
+
+          return { stepNumber: step.stepNumber, success: true };
+        } catch (error) {
+          console.error(`❌ Step ${step.stepNumber} failed:`, error);
+          // Clear loading state on error
+          setNodes((nds) =>
+            nds.map((node) => {
+              if (node.id === stepNodeId) {
+                return {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    isGeneratingImage: false
+                  }
+                };
+              }
+              return node;
+            })
+          );
+
+          return { stepNumber: step.stepNumber, success: false, error };
+        }
+      });
+
+      // Wait for all step images to complete (success or failure)
+      const results = await Promise.all(stepGenerationPromises);
+      const successCount = results.filter(r => r.success).length;
+      console.log(`\n📊 Parallel generation complete: ${successCount}/${results.length} steps succeeded`);
+
+      console.log('=== DISSECT SELECTED COMPLETE ===\n');
     } catch (error) {
       console.error('Dissection failed:', error);
       // Remove placeholder nodes on error and reset master node state
@@ -1908,8 +1909,8 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
     console.log('Total nodes in ref:', currentNodes.length);
 
     if (!masterNode) {
-        console.error('Master node not found');
-        return;
+      console.error('Master node not found');
+      return;
     }
 
     // Generate unique prefix for this breakdown to avoid duplicate node IDs
@@ -1933,280 +1934,358 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
 
     // Create placeholder step nodes
     for (let i = 1; i <= DEFAULT_STEP_COUNT; i++) {
-        const stepNodeId = `${breakdownId}-step-${i}`;
-        const col = (i - 1) % 2;
-        const row = Math.floor((i - 1) / 2);
+      const stepNodeId = `${breakdownId}-step-${i}`;
+      const col = (i - 1) % 2;
+      const row = Math.floor((i - 1) / 2);
 
-        placeholderNodes.push({
-            id: stepNodeId,
-            type: 'instructionNode',
-            position: {
-                x: startX + (col * gapX),
-                y: startY + (row * gapY)
-            },
-            data: {
-                stepNumber: i,
-                title: `Step ${i}`,
-                description: 'Analyzing craft structure...',
-                safetyWarning: undefined,
-                isGeneratingImage: true,
-                imageUrl: undefined
-            }
-        });
+      placeholderNodes.push({
+        id: stepNodeId,
+        type: 'instructionNode',
+        position: {
+          x: startX + (col * gapX),
+          y: startY + (row * gapY)
+        },
+        data: {
+          stepNumber: i,
+          title: `Step ${i}`,
+          description: 'Analyzing craft structure...',
+          safetyWarning: undefined,
+          isGeneratingImage: true,
+          imageUrl: undefined
+        }
+      });
 
-        placeholderEdges.push({
-            id: `e-${nodeId}-${stepNodeId}`,
-            source: nodeId,
-            sourceHandle: 'source-right',
-            target: stepNodeId,
-            targetHandle: 'target-left',
-            animated: true,
-            style: { stroke: '#10b981', strokeWidth: 2 },
-        });
+      placeholderEdges.push({
+        id: `e-${nodeId}-${stepNodeId}`,
+        source: nodeId,
+        sourceHandle: 'source-right',
+        target: stepNodeId,
+        targetHandle: 'target-left',
+        animated: true,
+        style: { stroke: '#10b981', strokeWidth: 2 },
+      });
     }
 
     // Add placeholders immediately and set loading state
     setNodes((nds) => {
-        const updatedNodes = nds.map((node) => {
-            if (node.id === nodeId) {
-                return { ...node, data: { ...node.data, isDissecting: true } };
-            }
-            return node;
-        });
-        return [...updatedNodes, ...placeholderNodes];
+      const updatedNodes = nds.map((node) => {
+        if (node.id === nodeId) {
+          return { ...node, data: { ...node.data, isDissecting: true } };
+        }
+        return node;
+      });
+      return [...updatedNodes, ...placeholderNodes];
     });
     setEdges((eds) => [...eds, ...placeholderEdges]);
 
     try {
-        // 2. Call Gemini API to get TEXT instructions
-        console.log('\n🔍 === AI DISSECTION PHASE ===');
-        console.log('Craft to dissect:', promptContext);
-        console.log('Sending to AI for instructions...\n');
+      // 2. Call Gemini API to get TEXT instructions
+      console.log('\n🔍 === AI DISSECTION PHASE ===');
+      console.log('Craft to dissect:', promptContext);
+      console.log('Sending to AI for instructions...\n');
 
-        const dissection = await dissectCraft(imageUrl, promptContext);
+      const dissection = await dissectCraft(imageUrl, promptContext);
 
-        console.log('\n📊 === AI OUTPUT DEBUG ===');
-        console.log('Complexity:', dissection.complexity);
-        console.log('Complexity Score:', dissection.complexityScore);
-        console.log('Materials:', dissection.materials);
-        console.log('Number of Steps Generated:', dissection.steps.length);
-        console.log('\nGenerated Steps:');
-        dissection.steps.forEach((step) => {
-            console.log(`  Step ${step.stepNumber}: ${step.title}`);
-            console.log(`    Description: ${step.description.substring(0, 100)}...`);
-            if (step.safetyWarning) {
-                console.log(`    ⚠️ Safety: ${step.safetyWarning}`);
+      console.log('\n📊 === AI OUTPUT DEBUG ===');
+      console.log('Complexity:', dissection.complexity);
+      console.log('Complexity Score:', dissection.complexityScore);
+      console.log('Materials:', dissection.materials);
+      console.log('Number of Steps Generated:', dissection.steps.length);
+      console.log('\nGenerated Steps:');
+      dissection.steps.forEach((step) => {
+        console.log(`  Step ${step.stepNumber}: ${step.title}`);
+        console.log(`    Description: ${step.description.substring(0, 100)}...`);
+        if (step.safetyWarning) {
+          console.log(`    ⚠️ Safety: ${step.safetyWarning}`);
+        }
+      });
+      console.log('=== AI OUTPUT DEBUG END ===\n');
+
+      // 3. Create materials node now that we have the data
+      const matNodeId = `${nodeId}-mat`;
+      const materialNode: Node = {
+        id: matNodeId,
+        type: 'materialNode',
+        position: { x: masterNode.position.x - 400, y: masterNode.position.y },
+        data: { items: dissection.materials },
+      };
+      const materialEdge: Edge = {
+        id: `e-${nodeId}-${matNodeId}`,
+        source: nodeId,
+        sourceHandle: 'source-left',
+        target: matNodeId,
+        targetHandle: 'target-right',
+        animated: true,
+        style: { stroke: '#3b82f6', strokeWidth: 2 },
+      };
+
+      // 4. Update placeholder nodes with actual step data OR remove extras if fewer steps
+      setNodes((nds) => {
+        let updatedNodes = nds.map((node) => {
+          // Update master node
+          if (node.id === nodeId) {
+            return { ...node, data: { ...node.data, isDissecting: false, isDissected: true } };
+          }
+          // Update existing placeholder step nodes with actual data
+          const stepMatch = node.id.match(new RegExp(`^${breakdownId}-step-(\\d+)$`));
+          if (stepMatch) {
+            const stepNum = parseInt(stepMatch[1], 10);
+            const stepData = dissection.steps.find(s => s.stepNumber === stepNum);
+            if (stepData) {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  title: stepData.title,
+                  description: stepData.description,
+                  safetyWarning: stepData.safetyWarning,
+                  // Keep isGeneratingImage true - images will be generated next
+                }
+              };
+            } else {
+              // This placeholder is extra (more placeholders than actual steps)
+              return null; // Mark for removal
             }
-        });
-        console.log('=== AI OUTPUT DEBUG END ===\n');
+          }
+          return node;
+        }).filter((node): node is Node => node !== null);
 
-        // 3. Create materials node now that we have the data
-        const matNodeId = `${nodeId}-mat`;
-        const materialNode: Node = {
-            id: matNodeId,
-            type: 'materialNode',
-            position: { x: masterNode.position.x - 400, y: masterNode.position.y },
-            data: { items: dissection.materials },
-        };
-        const materialEdge: Edge = {
-            id: `e-${nodeId}-${matNodeId}`,
-            source: nodeId,
-            sourceHandle: 'source-left',
-            target: matNodeId,
-            targetHandle: 'target-right',
-            animated: true,
-            style: { stroke: '#3b82f6', strokeWidth: 2 },
-        };
-
-        // 4. Update placeholder nodes with actual step data OR remove extras if fewer steps
-        setNodes((nds) => {
-            let updatedNodes = nds.map((node) => {
-                // Update master node
-                if (node.id === nodeId) {
-                    return { ...node, data: { ...node.data, isDissecting: false, isDissected: true } };
-                }
-                // Update existing placeholder step nodes with actual data
-                const stepMatch = node.id.match(new RegExp(`^${breakdownId}-step-(\\d+)$`));
-                if (stepMatch) {
-                    const stepNum = parseInt(stepMatch[1], 10);
-                    const stepData = dissection.steps.find(s => s.stepNumber === stepNum);
-                    if (stepData) {
-                        return {
-                            ...node,
-                            data: {
-                                ...node.data,
-                                title: stepData.title,
-                                description: stepData.description,
-                                safetyWarning: stepData.safetyWarning,
-                                // Keep isGeneratingImage true - images will be generated next
-                            }
-                        };
-                    } else {
-                        // This placeholder is extra (more placeholders than actual steps)
-                        return null; // Mark for removal
-                    }
-                }
-                return node;
-            }).filter((node): node is Node => node !== null);
-
-            // Add any additional steps beyond the default placeholder count
-            dissection.steps.forEach((step) => {
-                if (step.stepNumber > DEFAULT_STEP_COUNT) {
-                    const stepNodeId = `${breakdownId}-step-${step.stepNumber}`;
-                    const col = (step.stepNumber - 1) % 2;
-                    const row = Math.floor((step.stepNumber - 1) / 2);
-                    updatedNodes.push({
-                        id: stepNodeId,
-                        type: 'instructionNode',
-                        position: {
-                            x: startX + (col * gapX),
-                            y: startY + (row * gapY) - ((dissection.steps.length * gapY) / 4)
-                        },
-                        data: {
-                            stepNumber: step.stepNumber,
-                            title: step.title,
-                            description: step.description,
-                            safetyWarning: step.safetyWarning,
-                            isGeneratingImage: true,
-                            imageUrl: undefined
-                        }
-                    });
-                }
+        // Add any additional steps beyond the default placeholder count
+        dissection.steps.forEach((step) => {
+          if (step.stepNumber > DEFAULT_STEP_COUNT) {
+            const stepNodeId = `${breakdownId}-step-${step.stepNumber}`;
+            const col = (step.stepNumber - 1) % 2;
+            const row = Math.floor((step.stepNumber - 1) / 2);
+            updatedNodes.push({
+              id: stepNodeId,
+              type: 'instructionNode',
+              position: {
+                x: startX + (col * gapX),
+                y: startY + (row * gapY) - ((dissection.steps.length * gapY) / 4)
+              },
+              data: {
+                stepNumber: step.stepNumber,
+                title: step.title,
+                description: step.description,
+                safetyWarning: step.safetyWarning,
+                isGeneratingImage: true,
+                imageUrl: undefined
+              }
             });
-
-            // Add materials node
-            return [...updatedNodes, materialNode];
-        });
-
-        // Update edges - remove extras and add materials edge + any new step edges
-        setEdges((eds) => {
-            // Filter out edges for removed placeholder steps
-            const validStepNums = dissection.steps.map(s => s.stepNumber);
-            const filteredEdges = eds.filter((edge) => {
-                const stepMatch = edge.target.match(new RegExp(`^${breakdownId}-step-(\\d+)$`));
-                if (stepMatch) {
-                    const stepNum = parseInt(stepMatch[1], 10);
-                    return validStepNums.includes(stepNum);
-                }
-                return true;
-            });
-
-            // Add edges for any new steps beyond default count
-            const newStepEdges: Edge[] = [];
-            dissection.steps.forEach((step) => {
-                if (step.stepNumber > DEFAULT_STEP_COUNT) {
-                    newStepEdges.push({
-                        id: `e-${nodeId}-${breakdownId}-step-${step.stepNumber}`,
-                        source: nodeId,
-                        sourceHandle: 'source-right',
-                        target: `${breakdownId}-step-${step.stepNumber}`,
-                        targetHandle: 'target-left',
-                        animated: true,
-                        style: { stroke: '#10b981', strokeWidth: 2 },
-                    });
-                }
-            });
-
-            return [...filteredEdges, materialEdge, ...newStepEdges];
-        });
-
-        // 5. Generate ALL step images in PARALLEL for faster generation
-        console.log('\n=== IMAGE GENERATION PHASE ===');
-        console.log('Using category:', category);
-        console.log('Target craft:', promptContext);
-        console.log('Total steps:', dissection.steps.length);
-        console.log('All steps:', dissection.steps.map(s => `${s.stepNumber}: ${s.title}`));
-        console.log('Format: Multi-Panel with 1K resolution for all steps');
-        console.log(`\n🚀 Generating ${dissection.steps.length} step images IN PARALLEL...`);
-
-        const stepGenerationPromises = dissection.steps.map(async (step) => {
-          const stepNodeId = `${breakdownId}-step-${step.stepNumber}`;
-
-          console.log(`🎨 Starting Step ${step.stepNumber}: ${step.title}`);
-          console.log(`   Target craft: ${promptContext} | Category: ${category}`);
-
-          try {
-            // Generate image with full image as reference to match exact style/appearance
-            const stepImageUrl = await generateStepImage(
-              imageUrl, // Use full image as style reference
-              `${step.title}: ${step.description}`,
-              category,
-              undefined, // No specific object label for full craft dissection
-              step.stepNumber // Pass step number
-            );
-
-            console.log(`✅ Step ${step.stepNumber} complete`);
-
-            // Update node with generated image
-            setNodes((nds) =>
-              nds.map((node) => {
-                if (node.id === stepNodeId) {
-                  return {
-                    ...node,
-                    data: {
-                      ...node.data,
-                      imageUrl: stepImageUrl,
-                      isGeneratingImage: false
-                    }
-                  };
-                }
-                return node;
-              })
-            );
-
-            return { stepNumber: step.stepNumber, success: true };
-          } catch (error) {
-            console.error(`❌ Step ${step.stepNumber} failed:`, error);
-            // Clear loading state on error
-            setNodes((nds) =>
-              nds.map((node) => {
-                if (node.id === stepNodeId) {
-                  return {
-                    ...node,
-                    data: {
-                      ...node.data,
-                      isGeneratingImage: false
-                    }
-                  };
-                }
-                return node;
-              })
-            );
-
-            return { stepNumber: step.stepNumber, success: false, error };
           }
         });
 
-        // Wait for all step images to complete (success or failure)
-        const results = await Promise.all(stepGenerationPromises);
-        const successCount = results.filter(r => r.success).length;
-        console.log(`\n📊 Parallel generation complete: ${successCount}/${results.length} steps succeeded`);
+        // Add materials node
+        return [...updatedNodes, materialNode];
+      });
 
-        console.log('=== DISSECT FULL CRAFT COMPLETE ===\n');
-    } catch (error) {
-        console.error("Dissection error", error);
-        // Remove placeholder nodes and reset master node state
-        setNodes((nds) =>
-            nds.filter((node) => {
-              // Remove placeholder step nodes for this breakdown
-              if (node.id.startsWith(`${breakdownId}-step-`)) {
-                return false;
-              }
-              return true;
-            }).map((node) => {
-              if (node.id === nodeId) {
-                return { ...node, data: { ...node.data, isDissecting: false } };
+      // Update edges - remove extras and add materials edge + any new step edges
+      setEdges((eds) => {
+        // Filter out edges for removed placeholder steps
+        const validStepNums = dissection.steps.map(s => s.stepNumber);
+        const filteredEdges = eds.filter((edge) => {
+          const stepMatch = edge.target.match(new RegExp(`^${breakdownId}-step-(\\d+)$`));
+          if (stepMatch) {
+            const stepNum = parseInt(stepMatch[1], 10);
+            return validStepNums.includes(stepNum);
+          }
+          return true;
+        });
+
+        // Add edges for any new steps beyond default count
+        const newStepEdges: Edge[] = [];
+        dissection.steps.forEach((step) => {
+          if (step.stepNumber > DEFAULT_STEP_COUNT) {
+            newStepEdges.push({
+              id: `e-${nodeId}-${breakdownId}-step-${step.stepNumber}`,
+              source: nodeId,
+              sourceHandle: 'source-right',
+              target: `${breakdownId}-step-${step.stepNumber}`,
+              targetHandle: 'target-left',
+              animated: true,
+              style: { stroke: '#10b981', strokeWidth: 2 },
+            });
+          }
+        });
+
+        return [...filteredEdges, materialEdge, ...newStepEdges];
+      });
+
+      // 5. Generate ALL step images in PARALLEL for faster generation
+      console.log('\n=== IMAGE GENERATION PHASE ===');
+      console.log('Using category:', category);
+      console.log('Target craft:', promptContext);
+      console.log('Total steps:', dissection.steps.length);
+      console.log('All steps:', dissection.steps.map(s => `${s.stepNumber}: ${s.title}`));
+      console.log('Format: Multi-Panel with 1K resolution for all steps');
+      console.log(`\n🚀 Generating ${dissection.steps.length} step images IN PARALLEL...`);
+
+      const stepGenerationPromises = dissection.steps.map(async (step) => {
+        const stepNodeId = `${breakdownId}-step-${step.stepNumber}`;
+
+        console.log(`🎨 Starting Step ${step.stepNumber}: ${step.title}`);
+        console.log(`   Target craft: ${promptContext} | Category: ${category}`);
+
+        try {
+          // Generate image with full image as reference to match exact style/appearance
+          const stepImageUrl = await generateStepImage(
+            imageUrl, // Use full image as style reference
+            `${step.title}: ${step.description}`,
+            category,
+            undefined, // No specific object label for full craft dissection
+            step.stepNumber // Pass step number
+          );
+
+          console.log(`✅ Step ${step.stepNumber} complete`);
+
+          // Update node with generated image
+          setNodes((nds) =>
+            nds.map((node) => {
+              if (node.id === stepNodeId) {
+                return {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    imageUrl: stepImageUrl,
+                    isGeneratingImage: false
+                  }
+                };
               }
               return node;
             })
           );
-        // Remove placeholder edges
-        setEdges((eds) =>
-            eds.filter((edge) => !edge.target.startsWith(`${breakdownId}-step-`))
-        );
-        alert("Failed to dissect. Please try again.");
+
+          return { stepNumber: step.stepNumber, success: true };
+        } catch (error) {
+          console.error(`❌ Step ${step.stepNumber} failed:`, error);
+          // Clear loading state on error
+          setNodes((nds) =>
+            nds.map((node) => {
+              if (node.id === stepNodeId) {
+                return {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    isGeneratingImage: false
+                  }
+                };
+              }
+              return node;
+            })
+          );
+
+          return { stepNumber: step.stepNumber, success: false, error };
+        }
+      });
+
+      // Wait for all step images to complete (success or failure)
+      const results = await Promise.all(stepGenerationPromises);
+      const successCount = results.filter(r => r.success).length;
+      console.log(`\n📊 Parallel generation complete: ${successCount}/${results.length} steps succeeded`);
+
+      console.log('=== DISSECT FULL CRAFT COMPLETE ===\n');
+    } catch (error) {
+      console.error("Dissection error", error);
+      // Remove placeholder nodes and reset master node state
+      setNodes((nds) =>
+        nds.filter((node) => {
+          // Remove placeholder step nodes for this breakdown
+          if (node.id.startsWith(`${breakdownId}-step-`)) {
+            return false;
+          }
+          return true;
+        }).map((node) => {
+          if (node.id === nodeId) {
+            return { ...node, data: { ...node.data, isDissecting: false } };
+          }
+          return node;
+        })
+      );
+      // Remove placeholder edges
+      setEdges((eds) =>
+        eds.filter((edge) => !edge.target.startsWith(`${breakdownId}-step-`))
+      );
+      alert("Failed to dissect. Please try again.");
     }
   };
+
+  /**
+   * Export project as ZIP archive
+   */
+  const handleExportZip = useCallback(async () => {
+    const exportData = collectExportData();
+    if (!exportData) {
+      alert('No craft to export. Generate a craft first.');
+      return;
+    }
+    await exportAsZip(exportData, (msg) => console.log('Export:', msg));
+  }, [nodes, edges]);
+
+  /**
+   * Export project as PDF document
+   */
+  const handleExportPdf = useCallback(async () => {
+    const exportData = collectExportData();
+    if (!exportData) {
+      alert('No craft to export. Generate a craft first.');
+      return;
+    }
+    await exportAsPdf(exportData, (msg) => console.log('Export:', msg));
+  }, [nodes, edges]);
+
+  /**
+   * Collect project data for export
+   */
+  const collectExportData = useCallback((): ExportProjectData | null => {
+    // Find master nodes
+    const masterNodes = nodes.filter(n => n.type === 'masterNode');
+    if (masterNodes.length === 0) return null;
+
+    // Use the first master node (could enhance to let user select)
+    const masterNode = masterNodes[0];
+    const masterLabel = (masterNode.data.label as string) || 'Untitled Craft';
+    const masterImageUrl = masterNode.data.imageUrl as string;
+    const category = (masterNode.data.category as CraftCategory) || CraftCategory.PAPERCRAFT;
+
+    // Find connected instruction nodes via edges
+    const connectedEdges = edges.filter(e => e.source === masterNode.id);
+    const connectedNodeIds = connectedEdges.map(e => e.target);
+
+    // Get instruction nodes (steps)
+    const instructionNodes = nodes
+      .filter(n => n.type === 'instructionNode' && connectedNodeIds.includes(n.id))
+      .sort((a, b) => (a.data.stepNumber as number) - (b.data.stepNumber as number));
+
+    const steps: ExportStep[] = instructionNodes.map(node => ({
+      stepNumber: node.data.stepNumber as number,
+      title: node.data.title as string,
+      description: node.data.description as string,
+      safetyWarning: node.data.safetyWarning as string | undefined,
+      imageUrl: node.data.imageUrl as string | undefined,
+    }));
+
+    // Get material nodes
+    const materialNodes = nodes.filter(n => n.type === 'materialNode' && connectedNodeIds.includes(n.id));
+    const materials: string[] = materialNodes.length > 0
+      ? (materialNodes[0].data.items as string[]) || []
+      : [];
+
+    return {
+      name: masterLabel,
+      category,
+      masterImageUrl,
+      materials,
+      steps,
+      createdAt: new Date(),
+    };
+  }, [nodes, edges]);
+
+  /**
+   * Check if there's exportable content
+   */
+  const canExport = useCallback(() => {
+    return nodes.some(n => n.type === 'masterNode' && n.data.imageUrl);
+  }, [nodes]);
 
   /**
    * Step 1: Add the Master Generated Node
@@ -2464,6 +2543,9 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
           onToolChange={setActiveTool}
           onToolSubmenuOpen={handleToolSubmenuOpen}
           onFitView={() => fitView({ padding: 0.2 })}
+          onExportZip={handleExportZip}
+          onExportPdf={handleExportPdf}
+          canExport={canExport()}
         />
       )}
 
@@ -2546,10 +2628,10 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
           maxZoom={8}
         >
           <Background
-              color="#334155"
-              variant={BackgroundVariant.Dots}
-              gap={24}
-              size={2}
+            color="#334155"
+            variant={BackgroundVariant.Dots}
+            gap={24}
+            size={2}
           />
         </ReactFlow>
       </div>
