@@ -18,14 +18,15 @@ export class WoodcraftAgent extends CategoryAgentBase {
 
     protected getMasterImagePrompt(userPrompt: string): string {
         return `
-Create a photorealistic studio photograph of a DIY woodcraft project: ${userPrompt}.
+Create a photorealistic photograph of a HANDCRAFTED wooden object: ${userPrompt}.
 Category: Woodcraft.
 Style: 
-- Neutral background with soft studio lighting
-- Highly detailed textures showing wood grain, natural patterns, and finish
-- The object should look tangible, handcrafted from real wood
-- Show characteristic wood textures, knots, and craftsmanship details
-View: Isometric or front-facing, centered.
+- Authentic workshop aesthetic (NOT 3D furniture render)
+- Visible wood grain, saw marks at joints, and natural wood finish
+- Real joinery details and physically accurate construction
+- Natural warmth of wood captured in lighting
+- Looks like a finished piece sitting on a workbench
+View: Isometric or perspective view.
 `;
     }
 

@@ -18,14 +18,15 @@ export class PapercraftAgent extends CategoryAgentBase {
 
     protected getMasterImagePrompt(userPrompt: string): string {
         return `
-Create a photorealistic studio photograph of a DIY papercraft project: ${userPrompt}.
+Create a photorealistic photograph of a PHYSICAL papercraft model: ${userPrompt}.
 Category: Papercraft.
 Style: 
-- Neutral background with soft studio lighting
-- Highly detailed textures showing paper fibers, creases, and fold lines
-- The object should look tangible, handmade from paper/cardstock
-- Show the characteristic paper textures and clean geometric folds
-View: Isometric or front-facing, centered.
+- Real paper texture and fiber visibility (NOT smooth 3D polygon render)
+- Visible fold lines, scored edges, and paper thickness
+- Natural shadows where paper layers overlap or stand up
+- Matte or semi-gloss paper finish depending on context
+- Looks folded and glued by hand
+View: Isometric or front-facing to show depth.
 `;
     }
 

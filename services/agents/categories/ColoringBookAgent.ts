@@ -18,15 +18,14 @@ export class ColoringBookAgent extends CategoryAgentBase {
 
     protected getMasterImagePrompt(userPrompt: string): string {
         return `
-Create a high-quality black and white line art coloring page of: ${userPrompt}.
+Create a high-quality hand-drawn black and white coloring page of: ${userPrompt}.
 CRITICAL REQUIREMENTS:
-- BLACK OUTLINES ONLY - No colors, no shading, no fills, no gray tones
-- Pure line art suitable for coloring with pencils or crayons
-- Clean, crisp black lines on pure white background
-- Professional coloring book quality
-- Detailed but not overly complex for comfortable coloring
-- Clear defined areas for coloring
-DO NOT include any colors, shading, gradients, or fills - ONLY black outlines on white background.
+- BLACK OUTLINES ONLY - No colors, no shading, no gray tones
+- Hand-drawn artistic style (NOT perfect vector/digital lines)
+- Clean, crisp black ink lines on pure white paper texture
+- Natural line weight variations typical of ink pens
+- Professional illustration quality suitable for coloring
+DO NOT include any colors, shading, gradients, or fills.
 `;
     }
 

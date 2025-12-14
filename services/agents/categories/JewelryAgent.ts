@@ -18,14 +18,15 @@ export class JewelryAgent extends CategoryAgentBase {
 
     protected getMasterImagePrompt(userPrompt: string): string {
         return `
-Create a photorealistic studio photograph of handmade jewelry: ${userPrompt}.
+Create a macro photograph of a HANDMADE jewelry piece: ${userPrompt}.
 Category: Jewelry Making.
 Style: 
-- Neutral background with professional jewelry photography lighting
-- Highly detailed showing bead textures, wire details, metal finishes
-- The piece should look elegant, handcrafted with quality materials
-- Show sparkle, reflections, and material qualities
-View: Product photography style, centered with elegant presentation.
+- Authentic handcrafted aesthetic (NOT CAD/3D render)
+- Visible wire wrapping craftsmanship, slight irregularities of handmade work
+- Realistic metallic luster and natural gemstone/bead textures
+- Soft natural lighting catching the facets and curves
+- Looks like an artisan piece on a display surface
+View: High-angle product shot, close-up details.
 `;
     }
 

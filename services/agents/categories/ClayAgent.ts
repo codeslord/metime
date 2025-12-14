@@ -18,13 +18,13 @@ export class ClayAgent extends CategoryAgentBase {
 
     protected getMasterImagePrompt(userPrompt: string): string {
         return `
-Create a photorealistic studio photograph of a DIY clay craft project: ${userPrompt}.
+Create a photorealistic studio photograph of a HANDMADE DIY clay craft project: ${userPrompt}.
 Category: Clay Sculpting.
 Style: 
-- Neutral background with soft studio lighting
-- Highly detailed textures showing clay surface, fingerprint impressions, tool marks
-- The object should look tangible, handmade from polymer or air-dry clay
-- Show characteristic smooth and textured clay surfaces
+- Authentic handmade aesthetic (NOT 3D render/CGI)
+- Visible clay texture, minor fingerprints, and natural surface imperfections
+- Soft, natural studio lighting showing the matte or glossy finish of real clay
+- Tangible, physical presence with realistic weight and form
 View: Isometric or front-facing, centered.
 `;
     }

@@ -82,11 +82,45 @@ export class BriaService {
     }
 
     /**
+     * Generates a structured prompt from an input image.
+     */
+    static async generateStructuredPrompt(image: string): Promise<any> {
+        const token = this.getApiToken();
+        const url = `${BRIA_API_BASE_URL}/structured_prompt/generate`;
+
+        try {
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'api_token': token
+                },
+                body: JSON.stringify({
+                    images: [image],
+                    prompt: "Describe this image structure"
+                })
+            });
+
+            if (!resp.ok) {
+                const errorText = await resp.text();
+                throw new Error(`Bria structured prompt generation failed: ${resp.status} - ${errorText}`);
+            }
+
+            const data: any = await resp.json();
+            return data.result.structured_prompt;
+        } catch (error) {
+            console.error('Bria Structured Prompt Error:', error);
+            throw error;
+        }
+    }
+
+    /**
      * Generates an image using Bria AI v2.
-   * @param prompt The text prompt for generation.
-   * @param images Optional array of reference images (URLs or Base64 depending on API support).
-   */
-    static async generateImage(prompt: string, images?: string[]): Promise<string> {
+     * @param prompt The text prompt for generation.
+     * @param images Optional array of reference images.
+     * @param structuredPrompt Optional structured prompt for consistency.
+     */
+    static async generateImage(prompt: string, images?: string[], structuredPrompt?: any): Promise<string> {
         const token = this.getApiToken();
         const url = `${BRIA_API_BASE_URL}/image/generate`;
 
@@ -94,6 +128,9 @@ export class BriaService {
             const payload: any = { prompt };
             if (images && images.length > 0) {
                 payload.images = images;
+            }
+            if (structuredPrompt) {
+                payload.structured_prompt = structuredPrompt;
             }
 
             const resp = await fetch(url, {

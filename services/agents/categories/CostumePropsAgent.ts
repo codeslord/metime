@@ -18,14 +18,15 @@ export class CostumePropsAgent extends CategoryAgentBase {
 
     protected getMasterImagePrompt(userPrompt: string): string {
         return `
-Create a photorealistic studio photograph of a DIY costume prop or armor piece: ${userPrompt}.
+Create a photorealistic photograph of a REAL physical costume prop: ${userPrompt}.
 Category: Costume & Props.
 Style: 
-- Professional cosplay photography lighting with neutral background
-- Highly detailed showing foam textures, paint finishes, battle damage effects
-- The piece should look screen-accurate and professionally crafted
-- Show material qualities like EVA foam, Worbla, leather textures
-View: Dynamic angle showcasing the prop's best features, centered.
+- Authentic physical prop photography (NOT CGI/Game Asset)
+- Visible texture of EVA foam, thermoplastics, or fabric
+- Real paint application with weathering, brush strokes, and dry brushing
+- Natural lighting revealing surface imperfections and material behavior
+- Looks like a finished project from a workshop
+View: Dynamic angle showcasing the prop's physical construction.
 `;
     }
 

@@ -18,14 +18,14 @@ export class DrawingAgent extends CategoryAgentBase {
 
     protected getMasterImagePrompt(userPrompt: string): string {
         return `
-Create a beautiful, polished illustration or drawing of: ${userPrompt}.
+Create a high-quality hand-drawn illustration/sketch of: ${userPrompt}.
 Category: Drawing/Illustration.
 Style: 
-- Clean, professional digital or traditional art style
-- Well-defined lines and balanced composition
-- Appealing colors or shading (if colored)
-- The finished piece should inspire someone to learn to draw it
-View: Best angle to showcase the subject, centered composition.
+- Artistic, hand-drawn aesthetic (NOT a photograph)
+- Clean lines, visible pencil/brush strokes
+- Artistic composition typical of a professional sketchbook or illustration portfolio
+- White or neutral paper background
+View: Centered, clear view of the subject.
 `;
     }
 

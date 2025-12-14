@@ -18,14 +18,15 @@ export class KidsCraftsAgent extends CategoryAgentBase {
 
     protected getMasterImagePrompt(userPrompt: string): string {
         return `
-Create a photorealistic studio photograph of a fun kids craft project: ${userPrompt}.
+Create a bright, cheerful photograph of a REAL kids craft project: ${userPrompt}.
 Category: Kids Crafts.
 Style: 
-- Bright, cheerful lighting with a clean background
-- Colorful and playful appearance
-- The craft should look achievable by children with adult supervision
-- Show child-safe materials like construction paper, pipe cleaners, googly eyes, pom poms
-View: Front-facing, inviting, centered.
+- Authentic "classroom/home project" look (NOT perfectly polished commercial product)
+- Visible cut marks, glue textures, and child-safe materials (felt, construction paper)
+- Playful, slightly imperfect assembly typical of children's crafts
+- Bright, even lighting on a clean table surface
+- Looks achievable and fun
+View: Front-facing, eye-level.
 `;
     }
 

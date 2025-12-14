@@ -129,7 +129,11 @@ export abstract class CategoryAgentBase extends AgentBase {
         const prompt = this.getStepImagePrompt(stepDescription, targetObjectLabel);
 
         try {
-            const imageUrl = await BriaService.generateImage(prompt, [originalImageBase64]);
+            // 1. Generate structured prompt from original image for consistency
+            const structuredPrompt = await BriaService.generateStructuredPrompt(originalImageBase64);
+
+            // 2. Generate step image using the structured prompt to maintain style/subject
+            const imageUrl = await BriaService.generateImage(prompt, [originalImageBase64], structuredPrompt);
             return imageUrl;
         } catch (error) {
             throw new Error("Failed to generate step image");
