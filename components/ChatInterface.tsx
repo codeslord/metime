@@ -196,7 +196,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerate, onStar
         {/* Footer Hint */}
         <div className="absolute top-full left-0 right-0 mt-3 md:mt-4 text-center pointer-events-none smooth-transition">
           <p className={`text-[9px] md:text-[10px] uppercase tracking-widest font-medium smooth-transition ${isLoading ? 'text-indigo-400 opacity-100' : 'text-slate-600 opacity-0'}`}>
-            Running Gemini 3 Pro
+            Using BRIA FIBO
           </p>
         </div>
       </div>

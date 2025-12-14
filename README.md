@@ -2,6 +2,8 @@
 
 > **Dissect your imagination. Build reality.**
 
+**Powered by [BRIA FIBO](https://bria.ai/fibo)** — Showcasing JSON-native control and production-ready multiagent workflows
+
 **[🚀 Try the Live App](https://crafternia.vercel.app/)** • **[🎥 Watch the Demo](https://youtu.be/DVyiDgaXrns)**
 
 ---
@@ -14,18 +16,15 @@
 
 **That world is gone.**
 
-Today, when someone asks *"How do I make a paper craner?"*, they face:
+Today, when someone asks *"How do I make a paper crane?"*, they face:
 - 47-minute YouTube tutorials with unskippable ads
 - Blog posts buried under SEO filler
 - Pinterest boards leading to broken links
 - Instagram reels that flash by too fast to follow
 
-
-**The beautiful simplicity of visual instruction sheets died with the 90s.** Except the IKEA manuals. The Tamiya model kits. The Simplicity sewing patterns. All gone. 
+**The beautiful simplicity of visual instruction sheets died with the 90s.** Except the IKEA manuals. The Tamiya model kits. The Simplicity sewing patterns. All gone.
 
 *"We all have a hobby. Whether it's woodworking, origami, or just tinkering — we love building things.*
->
-
 >
 > ***The beautiful art of visual instruction sheets is dead.***
 >
@@ -35,13 +34,13 @@ Today, when someone asks *"How do I make a paper craner?"*, they face:
 
 Because professional instruction sheets were **expensive** — you needed expert makers, photographers, graphic designers, and print production. Only big companies could afford this.
 
-**Crafternia brings it back for everyone.**
+**Crafternia brings it back for everyone — powered by BRIA FIBO's professional-grade visual AI.**
 
 ---
 
 ## ✨ The Solution — What Crafternia Does
 
-Crafternia is an **AI-powered Infinite Craft Workbench** that transforms any craft idea into professional-quality visual instruction guides.
+Crafternia is an **AI-powered Infinite Craft Workbench** that transforms any craft idea into professional-quality visual instruction guides using **BRIA FIBO's JSON-native control and multiagent workflows**.
 
 **Give it any idea:**
 - *"Paper crane"*
@@ -52,128 +51,160 @@ Crafternia is an **AI-powered Infinite Craft Workbench** that transforms any cra
 
 | Component | What It Does |
 |-----------|--------------|
-| 📷 **Master Reference Image** | Studio-quality photograph of your finished craft |
-| 📦 **Materials List** | Everything you need, nothing you don't |
-| 📋 **Step-by-Step Cards** | Chronological breakdown of the build process |
-| 🎯 **Isolated Step Images** | Knolling-style visuals showing *only* the components for each step |
+| 📷 **Master Reference Image** | Studio-quality photograph generated with FIBO's disentangled control |
+| 📦 **Materials List** | AI-extracted from VLM dissection |
+| 📋 **Step-by-Step Cards** | Progressive refinement using FIBO's Refine mode |
+| 🎯 **Isolated Step Images** | Consistent background, progressive craft — human hands performing actions |
 
 ### 8 Supported Craft Categories
 
 | | | | |
 |:-:|:-:|:-:|:-:|
 | 📄 Papercraft | 🏺 Clay | 🧵 Fabric | 🎭 Costumes & Props |
-| 🪵 Woodcraft | 💎 Jewelry | 🧒 Kids Crafts | 🎨 Coloring Book | Drawing
+| 🪵 Woodcraft | 💎 Jewelry | 🧒 Kids Crafts | 🎨 Coloring Book |
+
+Each category has a **specialized agent** with domain-specific prompts and refinement logic.
 
 ---
 
-## 🤖 The Architecture — Multi-Agent System with A2A Protocol
+## 🤖 The Architecture — BRIA FIBO + Multiagent System
 
-**This is the core innovation.** Crafternia is built on a **multi-agent architecture** where specialized AI agents communicate and collaborate using the **Agent-to-Agent (A2A) Protocol**.
+**This is the core innovation.** Crafternia showcases BRIA FIBO's unique capabilities through a **production-ready multiagent architecture** where specialized AI agents collaborate to generate visually consistent craft instructions.
 
-### Architecture Diagram
+### FIBO Integration Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          🎭 AGENT ORCHESTRATOR                              │
-│                                                                             │
-│   • Routes tasks based on capabilities & categories                         │
-│   • Manages agent registration                                              │
-│   • Tracks task state via A2A Protocol                                      │
-└─────────────────────────────────────┬───────────────────────────────────────┘
-                                      │
-            ┌─────────────────────────┼─────────────────────────┐
-            │                         │                         │
-            ▼                         ▼                         ▼
-   ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-   │ 📷 VISUALIZER   │     │ 🔬 DISSECTION   │     │ 📐 PATTERN      │
-   │    AGENT        │     │    AGENT        │     │    AGENT        │
-   │                 │     │                 │     │                 │
-   │ Generates       │     │ Analyzes &      │     │ Creates         │
-   │ master images   │     │ breaks down     │     │ templates &     │
-   │ & step photos   │     │ complexity      │     │ pattern sheets  │
-   └─────────────────┘     └─────────────────┘     └─────────────────┘
-            │                         │                         │
-            └─────────────────────────┼─────────────────────────┘
-                                      │
-                    ┌─────────────────▼─────────────────┐
-                    │     🎨 CATEGORY-SPECIFIC AGENTS    │
-                    │                                   │
-                    │  ┌─────────────┬─────────────┐   │
-                    │  │ Papercraft  │    Clay     │   │
-                    │  ├─────────────┼─────────────┤   │
-                    │  │ Woodcraft   │  Jewelry    │   │
-                    │  ├─────────────┼─────────────┤   │
-                    │  │ Kids Crafts │ Costumes    │   │
-                    │  ├─────────────┼─────────────┤   │
-                    │  │ Coloring    │  Drawing    │   │
-                    │  └─────────────┴─────────────┘   │
-                    │                                   │
-                    │  Each agent has domain-specific   │
-                    │  prompts & visual understanding   │
-                    └───────────────────────────────────┘
+┌───────────────────────────────────────────────────────────────────────┐
+│                    🎭 AGENT ORCHESTRATOR                              │
+│  Routes tasks to specialized category agents based on craft type      │
+└─────────────────────────────┬─────────────────────────────────────────┘
+                              │
+         ┌────────────────────┼────────────────────┐
+         │                    │                    │
+         ▼                    ▼                    ▼
+┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
+│ 📷 MASTER IMAGE  │  │ 🔬 DISSECTION    │  │ 🎯 STEP IMAGES   │
+│   GENERATION     │  │   VLM ANALYSIS   │  │   REFINEMENT     │
+└──────────────────┘  └──────────────────┘  └──────────────────┘
+         │                    │                    │
+         │                    │                    │
+   ┌─────▼────────────────────▼────────────────────▼─────┐
+   │         BRIA FIBO API (JSON-Native Control)         │
+   ├─────────────────────────────────────────────────────┤
+   │  • VLM-to-JSON Translator (1000+ word prompts)      │
+   │  • Structured Prompt Generation (lighting, camera)  │
+   │  • Refine Mode (same seed + progressive changes)    │
+   │  • Disentangled Control (modify only specific parts)│
+   └─────────────────────────────────────────────────────┘
 ```
 
-### A2A Protocol — Agent Communication
+### How FIBO Powers Each Step
 
-Every agent speaks the same language through our **Agent-to-Agent Protocol**:
-
+#### 1. Master Image Generation
 ```typescript
-interface A2AMessage {
-    taskId: string;      // Unique identifier for tracking
-    sender: string;      // Source agent
-    recipient: string;   // Target agent or 'orchestrator'
-    type: MessageType;   // TASK_REQUEST | TASK_RESPONSE | ERROR | STATUS_UPDATE
-    payload: any;        // Task data
-    timestamp: number;   // For observability
+// User prompt → VLM translates to structured JSON
+const structuredPrompt = await createMasterPrompt(userPrompt, category);
+const result = await BriaService.generateImage('', undefined, structuredPrompt);
+// Returns: { imageUrl, structuredPrompt, seed }
+```
+
+**FIBO's VLM** creates a 1000+ word structured JSON with:
+- **Objects**: Detailed craft components with materials
+- **Lighting**: Studio photography (soft box, diffused)
+- **Camera**: Angle, FOV, depth of field
+- **Aesthetics**: Color palette, mood, texture
+- **Background**: Neutral, professional setting
+
+#### 2. Step Refinement (The Innovation)
+```typescript
+// Progressive refinement with FIBO's Refine mode
+for each step:
+  refinementInstruction = createRefinementInstruction(step, completionPercent);
+  // Example: "show human hands folding paper, beginning the craft. 
+  //  Keep the paper, table surface, and background exactly the same."
+  
+  result = await BriaService.refineImage(
+    masterStructuredPrompt,  // Full JSON from master
+    masterSeed,              // Same seed for consistency
+    refinementInstruction    // Short text: what changes
+  );
+```
+
+**Key insight**: FIBO's **disentangled control** allows us to:
+- ✅ Keep background, lighting, materials **identical**
+- ✅ Modify only craft progress and hand position
+- ✅ Maintain compositional consistency (same seed)
+- ✅ Show progressive construction naturally
+
+#### 3. Final Step = Master Image
+```typescript
+// Step 6 uses exact master structured prompt
+if (stepNumber === totalSteps) {
+  return BriaService.generateImage('', undefined, masterStructuredPrompt, masterSeed);
+  // Perfect visual match - full circle
 }
 ```
 
-**Key Features:**
-- ✅ **Unique Task IDs** for every operation
-- ✅ **Full message tracking** from request to response
-- ✅ **Standardized error handling** across all agents
-- ✅ **Timestamps** for complete observability
+### Category-Specific Agents
 
-### How Agents Collaborate
+Each craft category has specialized refinement prompts:
 
-**Example: User requests *"Make a paper fox"***
+| Category | Hand Actions | Preservation Context |
+|----------|-------------|---------------------|
+| **Papercraft** | "human hands folding paper" | Keep paper, table surface same |
+| **Clay** | "human hands molding clay" | Keep work surface, tools same |
+| **Woodcraft** | "human hands cutting wood" | Keep workbench, tools same |
+| **Jewelry** | "human hands threading beads" | Keep jewelry mat, components same |
+| **Kids Crafts** | "child's hands gluing pieces" | Keep craft table, supplies same |
+| **Coloring** | "human hand drawing outlines" | Keep paper, coloring tools same |
 
-```
-1️⃣  User Input → Orchestrator receives request, identifies category
-2️⃣  Orchestrator routes to PapercraftAgent via capability matching
-3️⃣  PapercraftAgent generates domain-specific master image prompt
-4️⃣  Master image generated → passed to DissectionAgent
-5️⃣  DissectionAgent analyzes complexity, materials, steps
-6️⃣  For each step → PapercraftAgent generates isolated step images
-7️⃣  All results combined → displayed on infinite canvas
-```
-
-**Each step's output becomes input for the next — agents truly build on each other's work.**
-
-### Why Specialized Agents?
-
-A clay craft and a papercraft have *completely different* visual requirements:
-
-| Papercraft Agent | Clay Agent |
-|-----------------|------------|
-| Flat pattern pieces | Rolled shapes, slabs |
-| Fold lines & scoring | Fingerprint textures |
-| Cut templates | Sculpting marks |
-| Glue tabs | Blending surfaces |
-
-**One generic prompt cannot do both well.** Specialized agents = specialized excellence.
+**Why specialized agents?**
+- A papercraft needs fold lines and flat patterns
+- A clay craft needs sculpting textures and 3D forms
+- **One generic prompt cannot do both well**
 
 ---
 
-## 🏆 Hackathon Criteria
+## 🏆 BRIA FIBO Hackathon Showcase
 
-| Criteria | How Crafternia Delivers |
-|----------|------------------------|
-| **Business Value** | Democratizes professional craft instruction creation |
-| **Observability** | A2A Protocol with full message tracking, task IDs, timestamps |
-| **Functionality** | End-to-end: idea → master image → dissection → step images |
-| **Creativity** | Resurrects a dead medium with AI + spatial infinite canvas |
-| **Impact** | Makes crafting accessible to millions struggling with tutorials |
+### Targeting These Tracks:
+
+#### ✅ **Best JSON-Native or Agentic Workflow** (Primary)
+- **VLM-to-JSON Pipeline**: Gemini 2.5 Flash → 1000+ word structured prompts
+- **Multiagent Architecture**: 8 category-specific agents + orchestrator
+- **Production-Ready**: Complete pipeline from idea → master → steps → export
+- **Scalable**: Easy to add new categories, each with specialized logic
+
+#### ✅ **Best Controllability** (Secondary)
+- **Disentangled Control**: Modify hands/craft while preserving background
+- **Structured Parameters**: Precise control over lighting, camera, aesthetics
+- **FIBO Refine Mode**: Same seed + refinement instruction = perfect consistency
+- **Category Awareness**: Prompts adapt to material properties (paper vs clay vs wood)
+
+#### ✅ **Best New User Experience**
+- **Infinite Canvas**: Spatial UI for organizing instructions
+- **Progressive Refinement**: Clear visual progression from raw materials → finished
+- **Export Ready**: Download complete instruction sets as production assets
+
+### Technical Innovation
+
+```
+User Prompt → VLM Analysis
+           ↓
+  Structured JSON (1000+ words)
+           ↓
+  FIBO Master Generation (with seed)
+           ↓
+  VLM Dissection (materials + steps)
+           ↓
+  FIBO Refine Mode (5 steps)
+  • Same seed for consistency
+  • Same structured prompt base
+  • Progressive refinement instructions
+  • Human hands performing actions
+           ↓
+  Final Step = Master Exact Match
+```
 
 ---
 
@@ -184,9 +215,9 @@ A clay craft and a papercraft have *completely different* visual requirements:
 | **React 19** | Modern UI framework |
 | **TypeScript** | Type-safe development |
 | **React Flow** (@xyflow/react) | Infinite canvas with pan/zoom |
-| **Google Gemini AI** | Powers all generation |
-| • `gemini-3-pro-image-preview` | Image generation |
-| • `gemini-2.5-flash` | Text reasoning & dissection |
+| **BRIA FIBO** | **🌟 JSON-native image generation** |
+| **Google Gemini AI** | VLM reasoning & structured prompts |
+| • `gemini-2.5-flash` | Text reasoning, JSON generation, dissection |
 | **TailwindCSS** | Dark-mode UI styling |
 | **Vite** | Fast build tool & dev server |
 | **Lucide React** | Beautiful icons |
@@ -198,7 +229,8 @@ A clay craft and a papercraft have *completely different* visual requirements:
 ### Prerequisites
 
 - Node.js 16+ installed
-- A Google Gemini API key — [Get one here](https://aistudio.google.com/apikey)
+- **BRIA API Key** — [Get one from Bria](https://bria.ai/)
+- Gemini API Key (for VLM) — [Get one here](https://aistudio.google.com/apikey)
 
 ### Installation
 
@@ -212,7 +244,8 @@ npm install
 
 # 3. Configure environment
 # Create a .env.local file in the root directory
-echo "VITE_GEMINI_API_KEY=your_api_key_here" > .env.local
+echo "VITE_BRIA_API_KEY=your_bria_key_here" > .env.local
+echo "VITE_GEMINI_API_KEY=your_gemini_key_here" >> .env.local
 
 # 4. Start the development server
 npm run dev
@@ -234,49 +267,90 @@ npm run preview
 ```
 Crafternia/
 ├── services/
-│   ├── a2a/                    # Agent-to-Agent Protocol
-│   │   ├── AgentBase.ts        # Abstract base class for agents
-│   │   └── types.ts            # A2A message types
+│   ├── briaService.ts          # FIBO API integration
+│   │   ├── generateImage()     # Master generation
+│   │   └── refineImage()       # Step refinement (FIBO Refine mode)
+│   ├── promptEngineering.ts    # VLM-to-JSON translation
+│   │   ├── createMasterPrompt() # Gemini → Structured JSON
+│   │   └── (Simplified for FIBO Refine)
 │   ├── agents/
-│   │   ├── CategoryAgentBase.ts    # Base for category agents
-│   │   ├── DissectionAgent.ts      # Analyzes craft complexity
-│   │   ├── VisualizerAgent.ts      # Generates images
-│   │   ├── PatternAgent.ts         # Creates pattern sheets
-│   │   └── categories/             # Specialized agents
-│   │       ├── PapercraftAgent.ts
-│   │       ├── ClayAgent.ts
-│   │       ├── WoodcraftAgent.ts
-│   │       └── ... (8 total)
-│   └── orchestrator/
-│       └── AgentOrchestrator.ts    # Central task router
+│   │   ├── CategoryAgentBase.ts           # Base for all agents
+│   │   │   ├── generateMasterImage()      # Uses FIBO
+│   │   │   ├── generateStepImage()        # Uses FIBO Refine
+│   │   │   ├── createRefinementInstruction()  # Category-aware
+│   │   │   ├── getHandActionForCategory()     # Dynamic hand prompts
+│   │   │   └── getPreservationContext()       # Background consistency
+│   │   ├── categories/                    # 8 specialized agents
+│   │   │   ├── PapercraftAgent.ts
+│   │   │   ├── ClayAgent.ts
+│   │   │   ├── WoodcraftAgent.ts
+│   │   │   ├── JewelryAgent.ts
+│   │   │   ├── KidsCraftsAgent.ts
+│   │   │   ├── ColoringBookAgent.ts
+│   │   │   └── CostumePropsAgent.ts
+│   │   └── orchestrator/
+│   │       └── AgentOrchestrator.ts       # Routes to category agents
+│   └── agentService.ts        # Public API
 ├── components/                 # React UI components
 ├── pages/                      # Page components
-├── contexts/                   # React Context providers
-├── utils/                      # Helper functions
 └── types.ts                    # TypeScript definitions
 ```
 
 ---
 
-## 🎬 How It Works
+## 🎬 How It Works (End-to-End)
 
-1. **Describe It** — Type your craft idea and select a category
-2. **See It** — A master reference image appears showing the finished craft
-3. **Dissect It** — Click "Dissect" to analyze and generate steps
-4. **Build It** — Step cards with isolated visuals expand on the canvas
+### Example: "Make a clay turtle"
 
 ```
-User: "Make a clay turtle"
-└─> Select: Clay category
-    └─> Master Image: Studio photo of finished clay turtle
-        └─> Click: Dissect
-            └─> Materials Node: List of clay colors, tools
-            └─> Step Cards:
-                • Roll clay balls for body parts
-                • Shape the shell dome
-                • Attach legs and head
-                • Add texture details
-                (Each with isolated knolling images!)
+1️⃣  User types "clay turtle" → Selects Clay category
+    └─> Agent Orchestrator routes to ClayAgent
+
+2️⃣  MASTER GENERATION
+    ClayAgent.generateMasterImage()
+    └─> Gemini 2.5 Flash: Creates 1000+ word structured JSON
+        {
+          "objects": [{
+            "name": "hand-sculpted clay turtle",
+            "material": "polymer clay",
+            "color": "earthy green with brown shell",
+            ...
+          }],
+          "lighting": "soft diffused studio lighting",
+          "camera": { "angle": "three-quarter view", "fov": 50 },
+          "aesthetics": { "mood": "warm handmade", "texture": "matte clay" }
+        }
+    └─> BRIA FIBO: Generates master image (returns seed)
+    
+3️⃣  DISSECTION
+    User clicks "Dissect"
+    └─> Gemini 2.5 Flash: Analyzes master, generates 5 steps
+        • Step 1: Roll clay balls for body parts
+        • Step 2: Shape the shell dome
+        • Step 3: Attach legs and head
+        • Step 4: Add texture details with tool
+        • Step 5: Final assembly
+
+4️⃣  STEP REFINEMENT (FIBO Refine Mode)
+    For Step 1 (20% complete):
+      refinementInstruction = "Roll clay balls for body parts. 
+        show human hands molding clay beginning the craft. 
+        Keep work surface, tools, and background exactly the same."
+      
+      FIBO.refineImage(masterJSON, masterSeed, refinementInstruction)
+      └─> Same composition, same background
+          Only change: Shows hands + clay balls
+    
+    For Step 5 (100% complete):
+      Uses exact masterJSON + masterSeed
+      └─> Perfect visual match with master image!
+
+5️⃣  EXPORT
+    User downloads as ZIP or PDF
+    • All images (seed-consistent)
+    • Materials list
+    • Step instructions
+    • Ready for production use
 ```
 
 ---
@@ -289,16 +363,42 @@ User: "Make a clay turtle"
 > 
 > *Every hobbyist should be able to share their craft in a format that actually works.*
 
-**Crafternia isn't just an app. It's the resurrection of a superior instructional format — powered by an orchestra of AI agents working together.**
+**Crafternia isn't just an app. It's the resurrection of a superior instructional format — powered by BRIA FIBO's professional-grade visual AI and a scalable multiagent architecture.**
+
+---
+
+## 🎯 Why This Matters for BRIA FIBO
+
+### Showcasing Core FIBO Capabilities:
+
+1. **JSON-Native Control** 
+   - VLM translates simple prompts to 1000+ word structured JSON
+   - Professional parameters: lighting, camera, aesthetics
+   - Production-ready structured output
+
+2. **Disentangled Generation**
+   - Modify hands/craft progress
+   - Keep background/lighting/materials identical
+   - True compositional control
+
+3. **Refine Mode**
+   - Same seed + same base JSON = consistency
+   - Progressive refinement with short instructions
+   - Perfect for production workflows
+
+4. **Agentic Workflows**
+   - 8 specialized category agents
+   - Orchestrator routes intelligently
+   - Scalable, production-ready architecture
 
 ---
 
 ## 📄 License
 
-This project is created for the Epiminds Multi-Agent Hackathon — December 2025.
+This project is created for the BRIA FIBO Hackathon — December 2024.
 
 ---
 
-**Built with ❤️ and a symphony of AI agents**
+**Built with ❤️ powered by BRIA FIBO**
 
-[🚀 Try the Live App](https://crafternia.vercel.app/)
+[🚀 Try the Live App](https://crafternia.vercel.app/) • [🎥 Watch the Demo](https://youtu.be/DVyiDgaXrns)

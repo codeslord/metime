@@ -204,7 +204,10 @@ export class BriaService {
                 }
 
                 // Bria API expects structured_prompt as a JSON STRING (not an object)
-                const structuredPromptString = JSON.stringify(structuredPrompt);
+                const structuredPromptString = typeof structuredPrompt === 'string'
+                    ? structuredPrompt
+                    : JSON.stringify(structuredPrompt);
+
                 payload.structured_prompt = structuredPromptString;
 
                 // Debug logging

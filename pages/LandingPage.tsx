@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Box, 
-  Sparkles, 
-  Layers, 
-  Scissors, 
-  Hammer, 
-  Palette, 
-  Gem, 
-  Baby, 
+import {
+  Box,
+  Sparkles,
+  Layers,
+  Scissors,
+  Hammer,
+  Palette,
+  Gem,
+  Baby,
   Swords,
   ArrowRight,
   Github as GithubIcon,
@@ -28,7 +28,7 @@ export const LandingPage: React.FC = () => {
 
     window.addEventListener('scroll', handleScroll);
     window.addEventListener('mousemove', handleMouseMove);
-    
+
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('mousemove', handleMouseMove);
@@ -54,7 +54,7 @@ export const LandingPage: React.FC = () => {
     <div className="min-h-screen bg-slate-950 text-white">
       {/* Animated Background Grid */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <div 
+        <div
           className="absolute inset-0 opacity-20"
           style={{
             backgroundImage: `
@@ -66,13 +66,13 @@ export const LandingPage: React.FC = () => {
             transition: 'transform 0.3s ease-out',
           }}
         />
-        
+
         {/* Gradient Orbs */}
-        <div 
+        <div
           className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl"
           style={{ transform: `translate(${-parallaxOffset}px, ${parallaxOffset * 0.5}px)` }}
         />
-        <div 
+        <div
           className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-emerald-600/20 rounded-full blur-3xl"
           style={{ transform: `translate(${parallaxOffset}px, ${-parallaxOffset * 0.5}px)` }}
         />
@@ -82,7 +82,7 @@ export const LandingPage: React.FC = () => {
       <section className="relative min-h-screen flex items-center justify-center px-6">
         <div className="max-w-6xl mx-auto text-center z-10">
           {/* Logo */}
-          <div 
+          <div
             className="inline-flex items-center gap-4 mb-8 animate-in fade-in slide-in-from-top duration-700"
             style={{ transform: `translateY(${parallaxOffset * 0.3}px)` }}
           >
@@ -93,7 +93,7 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* Tagline */}
-          <h2 
+          <h2
             className="text-5xl md:text-6xl font-bold mb-6 leading-tight animate-in fade-in slide-in-from-bottom duration-700 delay-150"
             style={{ transform: `translateY(${parallaxOffset * 0.2}px)` }}
           >
@@ -105,12 +105,12 @@ export const LandingPage: React.FC = () => {
           </h2>
 
           {/* Subtext */}
-          <p 
+          <p
             className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom duration-700 delay-300"
             style={{ transform: `translateY(${parallaxOffset * 0.15}px)` }}
           >
-            Resurrecting the lost art of craft instruction sheets — with AI.
-            Transform your ideas into visual, step-by-step masterpieces.
+            Powered by <span className="text-indigo-400 font-semibold">BRIA FIBO</span>  showcasing JSON-native control and multiagent workflows.
+            Transform craft ideas into professional step-by-step instructions with disentangled visual generation.
           </p>
 
           {/* CTA Button */}
@@ -122,13 +122,13 @@ export const LandingPage: React.FC = () => {
             <Sparkles className="w-6 h-6" />
             Start Crafting
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            
+
             {/* Glow effect */}
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-indigo-600 to-emerald-600 blur-xl opacity-50 group-hover:opacity-75 transition-opacity -z-10" />
           </button>
 
           {/* Scroll Indicator */}
-          <div 
+          <div
             className="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce"
             style={{ opacity: Math.max(0, 1 - scrollY / 300) }}
           >
@@ -142,9 +142,9 @@ export const LandingPage: React.FC = () => {
       {/* How It Works Section */}
       <section className="relative py-32 px-6">
         <div className="max-w-6xl mx-auto">
-          <h3 
+          <h3
             className="text-4xl font-bold text-center mb-20 bg-gradient-to-r from-slate-100 to-slate-400 bg-clip-text text-transparent"
-            style={{ 
+            style={{
               opacity: Math.min(1, Math.max(0, (scrollY - 300) / 200)),
               transform: `translateY(${Math.max(0, 50 - (scrollY - 300) * 0.2)}px)`
             }}
@@ -214,7 +214,7 @@ export const LandingPage: React.FC = () => {
       {/* Categories Section */}
       <section className="relative py-32 px-6">
         <div className="max-w-6xl mx-auto">
-          <h3 
+          <h3
             className="text-4xl font-bold text-center mb-6 bg-gradient-to-r from-slate-100 to-slate-400 bg-clip-text text-transparent"
             style={{
               opacity: Math.min(1, Math.max(0, (scrollY - 1200) / 200)),
@@ -223,7 +223,7 @@ export const LandingPage: React.FC = () => {
           >
             Supported Craft Categories
           </h3>
-          <p 
+          <p
             className="text-center text-slate-400 mb-16 text-lg"
             style={{
               opacity: Math.min(1, Math.max(0, (scrollY - 1250) / 200)),
@@ -265,7 +265,7 @@ export const LandingPage: React.FC = () => {
       {/* Features Showcase Section */}
       <section className="relative py-32 px-6 bg-slate-900/30">
         <div className="max-w-6xl mx-auto">
-          <h3 
+          <h3
             className="text-4xl font-bold text-center mb-6 bg-gradient-to-r from-slate-100 to-slate-400 bg-clip-text text-transparent"
             style={{
               opacity: Math.min(1, Math.max(0, (scrollY - 2000) / 200)),
@@ -274,7 +274,7 @@ export const LandingPage: React.FC = () => {
           >
             Powered by AI, Built for Makers
           </h3>
-          <p 
+          <p
             className="text-center text-slate-400 mb-16 text-lg"
             style={{
               opacity: Math.min(1, Math.max(0, (scrollY - 2050) / 200)),
@@ -286,23 +286,23 @@ export const LandingPage: React.FC = () => {
           <div className="grid md:grid-cols-2 gap-8">
             {[
               {
-                title: 'Studio-Quality Images',
-                description: 'Generate photorealistic reference images with proper lighting, textures, and materials using Gemini 3 Pro.',
+                title: 'JSON-Native Control',
+                description: 'FIBO\'s VLM-to-JSON pipeline creates 1000+ word structured prompts with precise control over lighting, camera, aesthetics, and composition.',
                 gradient: 'from-indigo-500 to-purple-500',
               },
               {
-                title: 'Extreme Isolation',
-                description: 'Each step shows only the components you need, eliminating confusion with knolled layouts and macro views.',
+                title: 'Multiagent Workflow',
+                description: 'Category-specific agents route tasks intelligently. Each craft type (paper, clay, wood) has specialized generation logic for optimal results.',
                 gradient: 'from-emerald-500 to-teal-500',
               },
               {
-                title: 'Infinite Canvas',
-                description: 'Spatial workspace with pan, zoom, and drag. Arrange your project visually the way you think.',
+                title: 'FIBO Refine Mode',
+                description: 'Progressive refinement with same seed + structured prompt ensures visual consistency. Only the craft progresses while background stays identical.',
                 gradient: 'from-orange-500 to-red-500',
               },
               {
-                title: 'Smart Dissection',
-                description: 'AI analyzes complexity, extracts materials, and breaks down construction into logical steps automatically.',
+                title: 'Disentangled Generation',
+                description: 'Modify specific attributes (hands position, craft stage) without breaking the scene. Professional-grade parameter control for production workflows.',
                 gradient: 'from-blue-500 to-cyan-500',
               },
             ].map((feature, index) => (
@@ -328,7 +328,7 @@ export const LandingPage: React.FC = () => {
       {/* Pricing Section */}
       <section className="relative py-32 px-6">
         <div className="max-w-6xl mx-auto">
-          <h3 
+          <h3
             className="text-4xl font-bold text-center mb-6 bg-gradient-to-r from-slate-100 to-slate-400 bg-clip-text text-transparent"
             style={{
               opacity: Math.min(1, Math.max(0, (scrollY - 2800) / 200)),
@@ -337,7 +337,7 @@ export const LandingPage: React.FC = () => {
           >
             Simple, Transparent Pricing
           </h3>
-          <p 
+          <p
             className="text-center text-slate-400 mb-16 text-lg"
             style={{
               opacity: Math.min(1, Math.max(0, (scrollY - 2850) / 200)),
@@ -411,14 +411,14 @@ export const LandingPage: React.FC = () => {
                       Most Popular
                     </div>
                   )}
-                  
+
                   <h4 className="text-2xl font-bold mb-2 text-slate-100">{plan.name}</h4>
                   <div className="mb-4">
                     <span className="text-5xl font-black text-slate-100">{plan.price}</span>
                     <span className="text-slate-400 ml-2">/ {plan.period}</span>
                   </div>
                   <p className="text-slate-400 mb-8">{plan.description}</p>
-                  
+
                   <ul className="space-y-3 mb-8">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-3 text-slate-300">
@@ -429,7 +429,7 @@ export const LandingPage: React.FC = () => {
                       </li>
                     ))}
                   </ul>
-                  
+
                   <button className={`w-full py-3 rounded-xl font-bold transition-all duration-300 ${plan.highlighted ? 'bg-gradient-to-r from-indigo-600 to-emerald-600 hover:shadow-lg hover:shadow-indigo-900/50' : 'bg-slate-800 hover:bg-slate-700'}`}>
                     {plan.cta}
                   </button>
@@ -443,7 +443,7 @@ export const LandingPage: React.FC = () => {
       {/* FAQ Section */}
       <section className="relative py-32 px-6 bg-slate-900/30">
         <div className="max-w-4xl mx-auto">
-          <h3 
+          <h3
             className="text-4xl font-bold text-center mb-6 bg-gradient-to-r from-slate-100 to-slate-400 bg-clip-text text-transparent"
             style={{
               opacity: Math.min(1, Math.max(0, (scrollY - 3800) / 200)),
@@ -452,7 +452,7 @@ export const LandingPage: React.FC = () => {
           >
             Frequently Asked Questions
           </h3>
-          <p 
+          <p
             className="text-center text-slate-400 mb-16 text-lg"
             style={{
               opacity: Math.min(1, Math.max(0, (scrollY - 3850) / 200)),
@@ -464,28 +464,28 @@ export const LandingPage: React.FC = () => {
           <div className="space-y-6">
             {[
               {
-                question: 'How does Crafternia generate the images?',
-                answer: 'Crafternia uses Google\'s Gemini 3 Pro image generation model to create studio-quality reference images and isolated step visuals. The AI understands craft materials, textures, and construction techniques to produce accurate, helpful instructions.',
+                question: 'How does FIBO power this application?',
+                answer: 'Crafternia uses BRIA FIBO\'s VLM-to-JSON translator to create structured prompts with 1000+ words controlling lighting, camera, composition, and aesthetics. Each step uses FIBO\'s Refine mode: same seed + master structured prompt + refinement instruction for perfect visual consistency.',
               },
               {
-                question: 'Can I use Crafternia offline?',
-                answer: 'The canvas and saved projects work offline, but generating new images requires an internet connection to access the AI models. Your projects are saved locally in your browser.',
+                question: 'What makes the multiagent workflow unique?',
+                answer: 'Each craft category (Papercraft, Clay, Woodcraft, etc.) has a specialized agent with category-specific prompts and refinement logic. The orchestrator routes tasks intelligently, showcasing scalable agentic workflows built on FIBO\'s JSON-native architecture.',
               },
               {
-                question: 'What craft categories are supported?',
-                answer: 'Crafternia supports 8 categories: Papercraft, Clay, Fabric/Sewing, Costume & Props, Woodcraft, Jewelry, Kids Crafts, and Tabletop Figures. Each category has specialized visual rules for optimal instruction clarity.',
+                question: 'How does disentangled control work?',
+                answer: 'FIBO allows us to modify specific aspects (showing human hands, changing craft progress) while keeping everything else identical (background, lighting, materials). This is achieved through structured JSON prompts that separate elements like "objects", "lighting", and "aesthetics".',
               },
               {
-                question: 'Can I export my projects?',
-                answer: 'Pro users can export projects as PDF instruction booklets with all images and steps. Free users can save projects locally and share them via the community gallery.',
+                question: 'What\'s the technical innovation here?',
+                answer: 'We built a production-ready pipeline: VLM extracts context → generates structured JSON → FIBO renders master → Steps refine progressively with same seed → Final step matches master exactly. This demonstrates FIBO\'s controllability and repeatability for professional workflows.',
               },
               {
-                question: 'Is there a limit to project complexity?',
-                answer: 'The AI can handle projects of any complexity, from simple kids crafts to intricate tabletop miniatures. More complex projects will generate more detailed step-by-step instructions automatically.',
+                question: 'Can I export projects as production assets?',
+                answer: 'Yes! Projects export as complete instruction sets with all images, steps, and materials. The consistent visual style (thanks to FIBO\'s seed-based generation) makes them production-ready for manuals, tutorials, or educational content.',
               },
               {
-                question: 'How accurate are the generated images?',
-                answer: 'The AI is trained on millions of craft images and understands material properties, textures, and construction techniques. While highly accurate, we recommend using the images as guides and adapting to your specific materials.',
+                question: 'What categories are supported?',
+                answer: 'Eight craft categories with specialized agents: Papercraft, Clay, Woodcraft, Jewelry, Kids Crafts, Coloring Book, Costume & Props, and each uses category-aware refinement prompts (e.g., "human hands folding paper" vs "human hands molding clay").',
               },
             ].map((faq, index) => (
               <div
@@ -508,7 +508,7 @@ export const LandingPage: React.FC = () => {
 
       {/* Final CTA Section */}
       <section className="relative py-32 px-6">
-        <div 
+        <div
           className="max-w-4xl mx-auto text-center"
           style={{
             opacity: Math.min(1, Math.max(0, (scrollY - 4800) / 300)),
@@ -518,7 +518,7 @@ export const LandingPage: React.FC = () => {
           <div className="relative bg-gradient-to-br from-indigo-900/30 to-emerald-900/30 backdrop-blur-xl border border-indigo-500/30 rounded-3xl p-16 overflow-hidden">
             {/* Animated background pattern */}
             <div className="absolute inset-0 opacity-10">
-              <div 
+              <div
                 className="absolute inset-0"
                 style={{
                   backgroundImage: `
@@ -561,16 +561,16 @@ export const LandingPage: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-8 text-sm text-slate-400">
-            <a 
-              href="https://github.com" 
-              target="_blank" 
+            <a
+              href="https://github.com"
+              target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 hover:text-slate-200 transition-colors"
             >
               <GithubIcon className="w-5 h-5" />
               GitHub
             </a>
-            <span>Built with Kiro & Gemini</span>
+            <span>Powered by <span className="text-indigo-400 font-semibold">BRIA FIBO</span></span>
           </div>
         </div>
       </footer>

@@ -10,11 +10,11 @@ interface GeneratorModalProps {
 }
 
 const LOADING_MESSAGES = [
-  "Summoning creative spirits...",
-  "Weaving pixels into matter...",
-  "Consulting the digital oracle...",
-  "Gathering virtual materials...",
-  "Constructing reality..."
+  "FIBO translating prompt to structured JSON...",
+  "VLM generating professional parameters...",
+  "Multiagent workflow routing to specialist...",
+  "JSON-native control composing your craft...",
+  "FIBO rendering with disentangled control..."
 ];
 
 export const GeneratorModal: React.FC<GeneratorModalProps> = ({ isOpen, onClose, onGenerate }) => {
@@ -91,7 +91,7 @@ export const GeneratorModal: React.FC<GeneratorModalProps> = ({ isOpen, onClose,
                 <Loader2 className="w-16 h-16 text-indigo-500 animate-spin relative z-10" />
               </div>
               <p className="text-lg font-medium text-indigo-200 animate-pulse">{loadingMsg}</p>
-              <p className="text-sm text-slate-500">Generating 1K studio reference...</p>
+              <p className="text-sm text-slate-500">Using BRIA FIBO with JSON-native prompting...</p>
             </div>
           ) : (
             <form onSubmit={handleGenerate} className="space-y-5">
@@ -132,7 +132,7 @@ export const GeneratorModal: React.FC<GeneratorModalProps> = ({ isOpen, onClose,
 
         {/* Footer Note */}
         <div className="bg-slate-950/50 px-6 py-3 border-t border-slate-800 text-center">
-          <p className="text-xs text-slate-500">Powered by Gemini 3 Pro Image Preview</p>
+          <p className="text-xs text-slate-500">Powered by <span className="text-indigo-400 font-semibold">BRIA FIBO</span> • JSON-Native Control • Multiagent Workflow</p>
         </div>
       </div>
     </div>

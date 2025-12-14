@@ -7,17 +7,17 @@ import { CategoryAgentBase } from '../CategoryAgentBase';
  * Specializes in foam armor patterns and wearable craft templates.
  */
 export class CostumePropsAgent extends CategoryAgentBase {
-    readonly category = CraftCategory.COSTUME_PROPS;
+  readonly category = CraftCategory.COSTUME_PROPS;
 
-    readonly card: AgentCard = {
-        name: 'CostumePropsAgent',
-        version: '1.0.0',
-        description: 'Specialized agent for costume and prop making including foam armor, wearables, and cosplay.',
-        capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.COSTUME_PROPS)
-    };
+  readonly card: AgentCard = {
+    name: 'CostumePropsAgent',
+    version: '1.0.0',
+    description: 'Specialized agent for costume and prop making including foam armor, wearables, and cosplay.',
+    capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.COSTUME_PROPS)
+  };
 
-    protected getMasterImagePrompt(userPrompt: string): string {
-        return `
+  protected getMasterImagePrompt(userPrompt: string): string {
+    return `
 Create a photorealistic photograph of a REAL physical costume prop: ${userPrompt}.
 Category: Costume & Props.
 Style: 
@@ -28,10 +28,10 @@ Style:
 - Looks like a finished project from a workshop
 View: Dynamic angle showcasing the prop's physical construction.
 `;
-    }
+  }
 
-    protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
-        return `
+  protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
+    return `
 🎯 YOUR TASK: Generate a MULTI-PANEL INSTRUCTION IMAGE for building this EXACT costume prop.
 📷 REFERENCE IMAGE: This is the FINISHED prop/armor piece.
 ${targetObjectLabel ? `🎨 PROP: ${targetObjectLabel}` : ''}
@@ -49,10 +49,10 @@ PANEL 4 - RESULT: Show completed component from this step.
 CONSISTENCY: Match colors, weathering, and scale EXACTLY.
 Show heat gun usage, contact cement application where applicable.
 `;
-    }
+  }
 
-    protected getDissectionPrompt(userPrompt: string): string {
-        return `
+  protected getDissectionPrompt(userPrompt: string): string {
+    return `
 You are an expert prop maker and cosplayer analyzing the SPECIFIC costume prop shown in this image.
 
 📷 IMAGE ANALYSIS: Carefully examine THIS exact prop: "${userPrompt}".
@@ -104,10 +104,10 @@ STEP 6 - FINISHED PROP (100% complete):
 For each step, focus on describing what the IMAGE should LOOK LIKE at that stage.
 Return strict JSON matching the schema.
 `;
-    }
+  }
 
-    protected getPatternSheetPrompt(craftLabel?: string): string {
-        return `
+  protected getPatternSheetPrompt(craftLabel?: string): string {
+    return `
 🎯 YOUR TASK: Create a FOAM ARMOR/PROP PATTERN TEMPLATE for THIS EXACT piece from the reference image.
 📷 REFERENCE IMAGE: Finished prop or armor piece.
 ${craftLabel ? `🎨 PROP: ${craftLabel}` : ''}
@@ -127,5 +127,5 @@ OUTPUT FORMAT:
 - Technical drawing style with measurements
 - Professional foam crafting pattern quality
 `;
-    }
+  }
 }
