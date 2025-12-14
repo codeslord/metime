@@ -6,7 +6,7 @@ import { generateCraftImage } from '../services/agentService';
 interface GeneratorModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onGenerate: (imageUrl: string, prompt: string, category: CraftCategory) => void;
+  onGenerate: (imageUrl: string, prompt: string, category: CraftCategory, structuredPrompt: any, seed: number) => void;
 }
 
 const LOADING_MESSAGES = [
@@ -47,8 +47,8 @@ export const GeneratorModal: React.FC<GeneratorModalProps> = ({ isOpen, onClose,
     setIsLoading(true);
 
     try {
-      const imageUrl = await generateCraftImage(prompt, category);
-      onGenerate(imageUrl, prompt, category);
+      const result = await generateCraftImage(prompt, category);
+      onGenerate(result.imageUrl, prompt, category, result.structuredPrompt, result.seed);
       setPrompt('');
       onClose();
     } catch (error) {

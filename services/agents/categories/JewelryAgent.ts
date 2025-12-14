@@ -53,20 +53,55 @@ Show close-up detail for intricate techniques.
 
     protected getDissectionPrompt(userPrompt: string): string {
         return `
-You are an expert jewelry maker. Analyze this image of handmade jewelry: "${userPrompt}".
-YOUR TASK: Create step-by-step instructions to make THIS piece.
+You are an expert jewelry maker analyzing the SPECIFIC jewelry piece shown in this image.
 
-1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10.
-2. List the essential materials (beads, wire gauge, findings, tools).
-3. Break down the construction into EXACTLY 4 STEPS.
+📷 IMAGE ANALYSIS: Carefully examine THIS exact jewelry piece: "${userPrompt}".
+🎯 YOUR TASK: Create step-by-step instructions to make THIS EXACT piece as shown in the image.
 
-🚨 MANDATORY 4-STEP JEWELRY GROUPING 🚨
-STEP 1 - PREPARATION: Gather materials, cut wire/thread to length, organize beads.
-STEP 2 - FOUNDATION: Create base structure, main chain or foundation element.
-STEP 3 - EMBELLISHMENT: Add decorative elements, beads, charms.
-STEP 4 - FINISHING: Add clasps, clean up wire ends, polish.
+CRITICAL - ANALYZE THE SPECIFIC DESIGN:
+- Identify the EXACT bead types, colors, sizes, and arrangement visible in THIS piece
+- Note the SPECIFIC wire gauge, metal finish, and findings used
+- Observe the ACTUAL construction technique and assembly pattern for THIS design
+- Determine how THIS particular piece is structured and connected
 
-Include bead counts and wire lengths where applicable.
+1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10 based on THIS specific design.
+2. List the essential materials needed for THIS exact piece (specific beads with colors/sizes, wire gauge, findings, tools).
+3. Break down the construction of THIS SPECIFIC JEWELRY into EXACTLY 6 STEPS that progressively build toward the finished piece.
+
+🚨 MANDATORY 6-STEP PROGRESSIVE CONSTRUCTION 🚨
+Each step describes what the IMAGE should show at that stage of completion:
+
+STEP 1 - MATERIALS LAID OUT (~15% complete): 
+  - VISUAL: All beads, wire, and findings organized flat (knolling style)
+  - Show components sorted by type and color
+  - Tools visible beside materials
+
+STEP 2 - WIRE PREPARATION (~30% complete):
+  - VISUAL: Wire cut to length, findings attached to ends
+  - Clasps/closures attached but stringing not started
+  - Beads still separate nearby
+
+STEP 3 - INITIAL STRINGING (~50% complete):
+  - VISUAL: First portion of beads strung
+  - Pattern starting to emerge
+  - Remaining beads nearby
+
+STEP 4 - PATTERN COMPLETE (~70% complete):
+  - VISUAL: Main bead pattern finished
+  - Decorative elements being added
+  - Nearly complete but unfinished ends
+
+STEP 5 - NEAR COMPLETE (~85% complete):
+  - VISUAL: All beads strung and positioned
+  - Final connections in progress
+  - Just needs finishing touches
+
+STEP 6 - FINISHED PIECE (100% complete):
+  - VISUAL: EXACTLY match the original image
+  - All connections complete
+  - Identical to the master reference
+
+For each step, focus on describing what the IMAGE should LOOK LIKE at that stage.
 Return strict JSON matching the schema.
 `;
     }

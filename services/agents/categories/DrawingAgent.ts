@@ -60,44 +60,49 @@ YOUR TASK: Create step-by-step instructions to DRAW this subject from scratch, w
 
 1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10.
 2. List the essential materials (pencil grades like 2H, HB, 2B, 4B; paper type; eraser; optional: colors).
-3. Break down into EXACTLY 4 PROGRESSIVE DRAWING STEPS.
+3. Break down into EXACTLY 6 PROGRESSIVE DRAWING STEPS.
 
-🚨 MANDATORY 4-STEP PROGRESSIVE DRAWING TUTORIAL 🚨
+🚨 MANDATORY 6-STEP PROGRESSIVE DRAWING TUTORIAL 🚨
+Each step describes what the IMAGE should show at that stage of completion:
 
-STEP 1 - FOUNDATION (Easiest - 10% complexity):
-"Basic Shapes & Guidelines"
-- Start with ONLY simple geometric shapes (circles, ovals, rectangles, triangles)
-- Draw light construction lines to establish proportions
-- Focus on PLACEMENT and SIZE relationships
-- NO details yet - just the skeletal framework
-- Example description: "Lightly sketch a large oval for the head and a smaller circle for the snout..."
+STEP 1 - BASIC SHAPES (~15% complete):
+  - VISUAL: Only simple geometric shapes (circles, ovals, rectangles)
+  - Light construction lines for proportions
+  - Guide marks and alignment lines
+  - NO details yet - just the skeletal framework
 
-STEP 2 - STRUCTURE (Building up - 30% complexity):
-"Connecting & Outlining"
-- Connect the basic shapes with smooth contour lines
-- Define the main silhouette and form
-- Add secondary shapes for features (ears, limbs, etc.)
-- Still using light lines that can be adjusted
-- Example description: "Connect the head oval to the body with curved neck lines, then outline the ears..."
+STEP 2 - CONNECTING SHAPES (~30% complete):
+  - VISUAL: Shapes connected with smooth contour lines
+  - Main silhouette becoming visible
+  - Still using light pencil lines
+  - Secondary shapes for major features added
 
-STEP 3 - DETAILS (More complex - 60% complexity):
-"Features & Character"
-- Add facial features (eyes, nose, mouth) with proper placement
-- Draw textures, patterns, or distinctive features
-- Add smaller details within the main forms
-- Lines can be more confident now
-- Example description: "Draw almond-shaped eyes along the guideline, add the nose triangle, and sketch in the fur texture..."
+STEP 3 - MAIN FEATURES (~50% complete):
+  - VISUAL: Primary features drawn (eyes, major elements)
+  - Contour lines refined
+  - Basic proportions established
+  - Ready for detail work
 
-STEP 4 - FINISHING (Full complexity - 100%):
-"Shading & Polish"
-- Add shadows and highlights for depth
-- Refine all lines to final weight
-- Erase construction/guide lines
-- Add final details, texture, and atmosphere
-- Example description: "Use 4B pencil to add shadows under the chin and ears, blend with paper stump, then add whisker details..."
+STEP 4 - DETAILS (~70% complete):
+  - VISUAL: Detailed features added
+  - Textures and patterns emerging
+  - Lines becoming more confident
+  - Recognizable as the subject
 
-IMPORTANT: Each step should build upon the previous one. A beginner should be able to follow along by completing each step before moving to the next.
+STEP 5 - REFINEMENT (~85% complete):
+  - VISUAL: Nearly complete drawing
+  - Fine details and textures added
+  - Initial shading started
+  - Construction lines being erased
 
+STEP 6 - FINISHED DRAWING (100% complete):
+  - VISUAL: EXACTLY match the original image
+  - Full shading and highlights
+  - All details complete
+  - Polished final artwork
+
+For each step, focus on describing what the IMAGE should LOOK LIKE at that stage.
+Each step should build upon the previous one.
 Return strict JSON matching the schema.
 `;
     }

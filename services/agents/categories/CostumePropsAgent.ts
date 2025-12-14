@@ -53,20 +53,55 @@ Show heat gun usage, contact cement application where applicable.
 
     protected getDissectionPrompt(userPrompt: string): string {
         return `
-You are an expert prop maker and cosplayer. Analyze this image of a costume prop: "${userPrompt}".
-YOUR TASK: Create step-by-step instructions to build THIS prop.
+You are an expert prop maker and cosplayer analyzing the SPECIFIC costume prop shown in this image.
 
-1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10.
-2. List essential materials (EVA foam thickness, adhesives, paints, strapping).
-3. Break down the construction into EXACTLY 4 STEPS.
+📷 IMAGE ANALYSIS: Carefully examine THIS exact prop: "${userPrompt}".
+🎯 YOUR TASK: Create step-by-step instructions to build THIS EXACT prop as shown in the image.
 
-🚨 MANDATORY 4-STEP PROP GROUPING 🚨
-STEP 1 - PATTERNING: Create templates, transfer to foam, cut base pieces.
-STEP 2 - SHAPING: Heat form foam, add bevels, create 3D contours.
-STEP 3 - ASSEMBLY: Glue pieces, add straps/mounting, structural reinforcement.
-STEP 4 - FINISHING: Prime, paint, weather, add details and final touches.
+CRITICAL - ANALYZE THE SPECIFIC DESIGN:
+- Identify the EXACT shapes, dimensions, and components visible in THIS prop
+- Note the SPECIFIC materials, colors, and weathering effects used
+- Observe the ACTUAL construction method and assembly technique for THIS design
+- Determine how THIS particular prop is structured and built
 
-Include safety notes for heat guns and adhesives.
+1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10 based on THIS specific design.
+2. List essential materials needed for THIS exact prop (EVA foam thickness, specific adhesives, paint colors, strapping).
+3. Break down the construction of THIS SPECIFIC PROP into EXACTLY 6 STEPS that progressively build toward the finished piece.
+
+🚨 MANDATORY 6-STEP PROGRESSIVE CONSTRUCTION 🚨
+Each step describes what the IMAGE should show at that stage of completion:
+
+STEP 1 - MATERIALS & PATTERNS (~15% complete): 
+  - VISUAL: Foam sheets with traced patterns, NOT cut yet
+  - Show materials organized flat (knolling style)
+  - Tools and patterns visible beside materials
+
+STEP 2 - CUT PIECES (~30% complete):
+  - VISUAL: Individual foam pieces cut out and separated
+  - All pieces flat, not heat-formed yet
+  - Bevels may be cut but not shaped
+
+STEP 3 - SHAPED PIECES (~50% complete):
+  - VISUAL: Pieces heat-formed to 3D contours
+  - Individual pieces shaped but not assembled
+  - Ready for gluing
+
+STEP 4 - INITIAL ASSEMBLY (~70% complete):
+  - VISUAL: Main pieces glued together
+  - Core structure formed
+  - Secondary pieces nearby
+
+STEP 5 - PRIMED & DETAILED (~85% complete):
+  - VISUAL: Assembled and primed
+  - Base painting started
+  - Details being added
+
+STEP 6 - FINISHED PROP (100% complete):
+  - VISUAL: EXACTLY match the original image
+  - Fully painted and weathered
+  - Identical to the master reference
+
+For each step, focus on describing what the IMAGE should LOOK LIKE at that stage.
 Return strict JSON matching the schema.
 `;
     }

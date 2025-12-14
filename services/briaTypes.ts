@@ -53,6 +53,23 @@ export interface StructuredPrompt {
     text_render?: any[];
 }
 
+export interface ConsistentContext {
+    background: string;
+    subjects: string[];
+    lighting_style: string;
+    color_palette: string;
+    camera_style: string;
+    overall_mood: string;
+    material_appearance: string;
+}
+
+export interface BriaGenerationResult {
+    imageUrl: string;
+    structuredPrompt?: StructuredPrompt;
+    seed: number;
+    context?: ConsistentContext;
+}
+
 export interface BriaGeneratePayload {
     structured_prompt?: StructuredPrompt;
     prompt?: string; // Fallback or V1 prompt

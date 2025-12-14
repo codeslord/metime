@@ -6,9 +6,9 @@ import { validatePrompt } from '../utils/validation';
 import { sanitizeText } from '../utils/security';
 
 interface ChatInterfaceProps {
-  onGenerate: (imageUrl: string, prompt: string, category: CraftCategory) => void;
+  onGenerate: (imageUrl: string, prompt: string, category: CraftCategory, structuredPrompt: any, seed: number) => void;
   onStartGeneration?: (nodeId: string, prompt: string, category: CraftCategory) => void;
-  onGenerationComplete?: (nodeId: string, imageUrl: string) => void;
+  onGenerationComplete?: (nodeId: string, imageUrl: string, structuredPrompt: any, seed: number) => void;
   onGenerationError?: (nodeId: string) => void;
 }
 
@@ -85,14 +85,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerate, onStar
     setIsCategoryOpen(false);
 
     try {
-      const imageUrl = await generateCraftImage(sanitizedPrompt, category);
+      const result = await generateCraftImage(sanitizedPrompt, category);
 
       // Update the placeholder node with the generated image
       if (onGenerationComplete) {
-        onGenerationComplete(nodeId, imageUrl);
+        onGenerationComplete(nodeId, result.imageUrl, result.structuredPrompt, result.seed);
       } else {
         // Fallback to original behavior if new callbacks not provided
-        onGenerate(imageUrl, sanitizedPrompt, category);
+        onGenerate(result.imageUrl, sanitizedPrompt, category, result.structuredPrompt, result.seed);
       }
     } catch (error) {
       console.error("Generation failed:", error);
@@ -127,8 +127,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerate, onStar
                     setIsCategoryOpen(false);
                   }}
                   className={`w-full text-left px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm smooth-transition flex items-center gap-2 ${category === cat
-                      ? 'bg-indigo-600/20 text-indigo-300 border-l-2 border-indigo-500'
-                      : 'text-slate-300 hover:bg-slate-800 border-l-2 border-transparent'
+                    ? 'bg-indigo-600/20 text-indigo-300 border-l-2 border-indigo-500'
+                    : 'text-slate-300 hover:bg-slate-800 border-l-2 border-transparent'
                     }`}
                 >
                   {cat}

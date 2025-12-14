@@ -53,20 +53,55 @@ Keep instructions visually simple and easy for children to follow.
 
     protected getDissectionPrompt(userPrompt: string): string {
         return `
-You are a kids craft activity designer. Analyze this image of a kids craft: "${userPrompt}".
-YOUR TASK: Create SIMPLE step-by-step instructions a child can follow.
+You are a kids craft activity designer analyzing the SPECIFIC kids craft shown in this image.
 
-1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10.
-2. List child-safe materials (safety scissors, school glue, construction paper, etc.).
-3. Break down into EXACTLY 4 SIMPLE STEPS.
+📷 IMAGE ANALYSIS: Carefully examine THIS exact kids craft: "${userPrompt}".
+🎯 YOUR TASK: Create SIMPLE step-by-step instructions a child can follow to make THIS EXACT craft as shown.
 
-🚨 MANDATORY 4-STEP KIDS CRAFT GROUPING 🚨
-STEP 1 - GATHER & PREP: Collect materials, cut any basic shapes needed.
-STEP 2 - BUILD BASE: Create the main body/structure.
-STEP 3 - ADD FEATURES: Attach decorative elements, faces, details.
-STEP 4 - FINISHING TOUCHES: Final decorations and cleanup.
+CRITICAL - ANALYZE THE SPECIFIC DESIGN:
+- Identify the EXACT shapes, colors, and components visible in THIS craft
+- Note the SPECIFIC materials used (paper colors, felt pieces, craft supplies)
+- Observe the ACTUAL assembly method and order for THIS design
+- Determine how THIS particular craft is put together in a child-friendly way
 
-Use simple, encouraging language. Mention adult supervision where needed.
+1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10 based on THIS specific design.
+2. List child-safe materials needed for THIS exact craft (specific colors, safety scissors, school glue, construction paper, etc.).
+3. Break down THIS SPECIFIC CRAFT into EXACTLY 6 SIMPLE STEPS that progressively build toward the finished piece.
+
+🚨 MANDATORY 6-STEP PROGRESSIVE CONSTRUCTION 🚨
+Each step describes what the IMAGE should show at that stage of completion:
+
+STEP 1 - GATHER SUPPLIES (~15% complete): 
+  - VISUAL: Colorful craft supplies organized flat
+  - Show paper, scissors, glue in a fun arrangement
+  - Nothing cut or assembled yet
+
+STEP 2 - CUT PIECES (~30% complete):
+  - VISUAL: Individual pieces cut out and separated
+  - All shapes ready for assembly
+  - Laid out in order
+
+STEP 3 - START BUILDING (~50% complete):
+  - VISUAL: Main base piece with first elements attached
+  - Core structure forming
+  - Child hands may be visible
+
+STEP 4 - ADD MORE PIECES (~70% complete):
+  - VISUAL: Most pieces attached to base
+  - Craft recognizable as final project
+  - Some details still to add
+
+STEP 5 - ALMOST DONE (~85% complete):
+  - VISUAL: Nearly complete craft
+  - Final decorations being added
+  - Just needs finishing touches
+
+STEP 6 - FINISHED CRAFT (100% complete):
+  - VISUAL: EXACTLY match the original image
+  - Complete and ready to display
+  - Identical to the master reference
+
+For each step, use simple, encouraging language.
 Return strict JSON matching the schema.
 `;
     }

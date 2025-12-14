@@ -53,20 +53,55 @@ Use dotted lines for fold marks, solid lines for cut marks.
 
     protected getDissectionPrompt(userPrompt: string): string {
         return `
-You are an expert papercraft maker. Analyze this image of a papercraft project: "${userPrompt}".
-YOUR TASK: Create step-by-step instructions to build THIS papercraft.
+You are an expert papercraft maker analyzing the SPECIFIC papercraft shown in this image.
 
-1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10.
-2. List the essential materials (paper types, cardstock weight, tools like scissors, glue, scoring tool).
-3. Break down the construction into EXACTLY 4 STEPS grouped by components.
+📷 IMAGE ANALYSIS: Carefully examine THIS exact papercraft design: "${userPrompt}".
+🎯 YOUR TASK: Create step-by-step instructions to build THIS EXACT papercraft as shown in the image.
 
-🚨 MANDATORY 4-STEP PAPERCRAFT GROUPING 🚨
-STEP 1 - BASE STRUCTURE: Main body/base pieces, core shapes.
-STEP 2 - SECONDARY ELEMENTS: Attached components, layered pieces.
-STEP 3 - DETAIL WORK: Small details, decorative elements, textures.
-STEP 4 - FINISHING: Assembly, joining, final touches.
+CRITICAL - ANALYZE THE SPECIFIC DESIGN:
+- Identify the EXACT shapes, forms, and components visible in THIS craft
+- Note the SPECIFIC colors, patterns, and paper types used
+- Observe the ACTUAL construction method and assembly order for THIS design
+- Determine how THIS particular craft is structured and built
 
-Include notes about fold directions (mountain/valley folds) where applicable.
+1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10 based on THIS specific design.
+2. List the essential materials needed for THIS exact craft (paper types, cardstock weight, colors, tools).
+3. Break down the construction of THIS SPECIFIC CRAFT into EXACTLY 6 STEPS that progressively build toward the finished piece.
+
+🚨 MANDATORY 6-STEP PROGRESSIVE CONSTRUCTION 🚨
+Each step describes what the IMAGE should show at that stage of completion:
+
+STEP 1 - PATTERN PIECES (~15% complete): 
+  - VISUAL: Flat paper sheets with traced/printed patterns, NOT cut yet
+  - Show paper laid flat with visible pattern lines (knolling style)
+  - Scissors/craft knife visible beside materials
+
+STEP 2 - CUT PIECES (~30% complete):
+  - VISUAL: Individual cut paper pieces laid flat, NOT folded
+  - All pieces cut out and separated
+  - Fold lines visible but not yet creased
+
+STEP 3 - FIRST FOLDS (~50% complete):
+  - VISUAL: Main pieces folded but not assembled
+  - Primary folds complete on key pieces
+  - Pieces still separate, ready for gluing
+
+STEP 4 - BASE ASSEMBLY (~70% complete):
+  - VISUAL: Main structure connected
+  - Core pieces glued together
+  - Secondary pieces nearby but not attached
+
+STEP 5 - NEAR COMPLETE (~85% complete):
+  - VISUAL: Most elements attached
+  - Final small pieces being added
+  - Structure recognizable as final craft
+
+STEP 6 - FINISHED CRAFT (100% complete):
+  - VISUAL: EXACTLY match the original image
+  - All pieces attached and finished
+  - Identical to the master reference
+
+For each step, focus on describing what the IMAGE should LOOK LIKE at that stage.
 Return strict JSON matching the schema.
 `;
     }

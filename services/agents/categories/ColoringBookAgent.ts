@@ -50,20 +50,56 @@ No colors, no shading, no fills - pure outlines on white background.
 
     protected getDissectionPrompt(userPrompt: string): string {
         return `
-You are a coloring book artist. Analyze this image: "${userPrompt}".
-YOUR TASK: Break down how to draw this as line art for coloring.
+You are a coloring book artist analyzing the SPECIFIC design shown in this image.
 
-1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10.
-2. List drawing materials (fine liner sizes, paper type).
-3. Break down into EXACTLY 4 DRAWING STEPS.
+📷 IMAGE ANALYSIS: Carefully examine THIS exact design: "${userPrompt}".
+🎯 YOUR TASK: Break down how to draw THIS EXACT design as line art for coloring.
 
-🚨 MANDATORY 4-STEP LINE ART GROUPING 🚨
-STEP 1 - BASIC SHAPES: Outline the main forms and proportions.
-STEP 2 - PRIMARY DETAILS: Add main detail lines and features.
-STEP 3 - SECONDARY DETAILS: Add smaller details and patterns.
-STEP 4 - FINISHING LINES: Add final decorative elements and cleanup lines.
+CRITICAL - ANALYZE THE SPECIFIC DESIGN:
+- Identify the EXACT shapes, forms, and composition visible in THIS design
+- Note the SPECIFIC details, patterns, and decorative elements used
+- Observe the ACTUAL line work and drawing structure for THIS design
+- Determine how THIS particular design is constructed as line art
 
-Focus on creating clear coloring areas.
+1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10 based on THIS specific design.
+2. List drawing materials needed for THIS exact design (fine liner sizes, paper type).
+3. Break down THIS SPECIFIC DESIGN into EXACTLY 6 DRAWING STEPS that progressively build toward the finished line art.
+
+🚨 MANDATORY 6-STEP PROGRESSIVE LINE ART 🚨
+Each step describes what the IMAGE should show at that stage of completion:
+
+STEP 1 - BASIC SHAPES (~15% complete): 
+  - VISUAL: Light construction lines and basic geometric shapes
+  - Only the roughest outline visible
+  - Guide marks for proportions
+
+STEP 2 - MAIN OUTLINES (~30% complete):
+  - VISUAL: Primary contour lines drawn
+  - Main shapes defined with clean lines
+  - No details yet
+
+STEP 3 - SECONDARY LINES (~50% complete):
+  - VISUAL: Secondary forms and divisions added
+  - Major internal lines drawn
+  - Structure clear but sparse
+
+STEP 4 - ADDING DETAILS (~70% complete):
+  - VISUAL: Detail lines being added
+  - Patterns and textures emerging
+  - Most major elements present
+
+STEP 5 - FINE DETAILS (~85% complete):
+  - VISUAL: Small details and decorative elements
+  - Nearly complete line work
+  - Final touches remaining
+
+STEP 6 - FINISHED LINE ART (100% complete):
+  - VISUAL: EXACTLY match the original image
+  - All lines complete and refined
+  - Ready for coloring
+
+For each step, focus on describing what the IMAGE should LOOK LIKE at that stage.
+BLACK AND WHITE LINES ONLY - no shading, no colors.
 Return strict JSON matching the schema.
 `;
     }

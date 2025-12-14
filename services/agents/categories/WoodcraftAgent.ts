@@ -53,20 +53,55 @@ Show appropriate safety equipment where power tools are used.
 
     protected getDissectionPrompt(userPrompt: string): string {
         return `
-You are an expert woodworker. Analyze this image of a woodcraft project: "${userPrompt}".
-YOUR TASK: Create step-by-step instructions to build THIS wooden piece.
+You are an expert woodworker analyzing the SPECIFIC woodcraft shown in this image.
 
-1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10.
-2. List the essential materials (wood types, hardware, finishes, tools needed).
-3. Break down the construction into EXACTLY 4 STEPS.
+📷 IMAGE ANALYSIS: Carefully examine THIS exact wooden piece: "${userPrompt}".
+🎯 YOUR TASK: Create step-by-step instructions to build THIS EXACT woodcraft as shown in the image.
 
-🚨 MANDATORY 4-STEP WOODCRAFT GROUPING 🚨
-STEP 1 - PREPARATION: Wood selection, measuring, marking, initial cuts.
-STEP 2 - SHAPING: Detailed cutting, drilling, routing, carving.
-STEP 3 - ASSEMBLY: Joining pieces, gluing, clamping, fastening.
-STEP 4 - FINISHING: Sanding, staining, sealing, final touches.
+CRITICAL - ANALYZE THE SPECIFIC DESIGN:
+- Identify the EXACT shapes, dimensions, and components visible in THIS wooden piece
+- Note the SPECIFIC wood type, grain patterns, and finish used
+- Observe the ACTUAL joinery methods and construction techniques for THIS design
+- Determine how THIS particular piece is structured and assembled
 
-Include safety warnings for power tool usage.
+1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10 based on THIS specific design.
+2. List the essential materials needed for THIS exact piece (wood types, hardware, finishes, specific tools).
+3. Break down the construction of THIS SPECIFIC WOODCRAFT into EXACTLY 6 STEPS that progressively build toward the finished piece.
+
+🚨 MANDATORY 6-STEP PROGRESSIVE CONSTRUCTION 🚨
+Each step describes what the IMAGE should show at that stage of completion:
+
+STEP 1 - RAW MATERIALS (~15% complete): 
+  - VISUAL: Individual wood pieces laid flat, NOT assembled
+  - Show all cut pieces separated and organized (knolling style)
+  - Tools visible beside materials
+
+STEP 2 - INITIAL SHAPING (~30% complete):
+  - VISUAL: Pieces being shaped but still separate
+  - Show cutting, drilling, or carving in progress
+  - Some pieces refined, others still raw
+
+STEP 3 - FIRST ASSEMBLY (~50% complete):
+  - VISUAL: Main structure partially assembled
+  - Primary pieces joined together
+  - Secondary pieces still separate nearby
+
+STEP 4 - MAJOR ASSEMBLY (~70% complete):
+  - VISUAL: Most components connected
+  - Structure recognizable as the final craft
+  - Some finishing work remaining
+
+STEP 5 - DETAILING (~85% complete):
+  - VISUAL: Nearly complete assembly
+  - Fine details being added
+  - Minimal work remaining
+
+STEP 6 - FINISHED CRAFT (100% complete):
+  - VISUAL: EXACTLY match the original image
+  - Fully polished and finished
+  - Identical to the master reference
+
+For each step, focus on describing what the IMAGE should LOOK LIKE at that stage.
 Return strict JSON matching the schema.
 `;
     }

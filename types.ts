@@ -26,6 +26,8 @@ export interface MasterNodeData {
   label: string;
   imageUrl: string;
   category: CraftCategory;
+  structuredPrompt?: any; // Bria structured prompt for refinement
+  seed?: number; // Bria seed for refinement
   onDissect: (id: string, imageUrl: string) => void;
   onContextMenu?: (nodeId: string, element: HTMLElement) => void;
   onDissectSelected?: (id: string, selectedObjectImageUrl: string, fullImageUrl: string, label: string) => void;

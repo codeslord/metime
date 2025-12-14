@@ -3,6 +3,7 @@ import { AgentCard, A2AMessage } from '../a2a/types';
 import { getAiClient, retryWithBackoff } from '../aiUtils';
 import { imageGenerationLimiter, dissectionLimiter, trackApiUsage } from '../../utils/rateLimiter';
 import { BriaService } from '../briaService';
+import { BriaGenerationResult } from '../briaTypes';
 import { PromptEngineeringService } from '../promptEngineering';
 import { CraftCategory, DissectionResponse } from '../../types';
 import { Type } from "@google/genai";
@@ -58,11 +59,13 @@ export abstract class CategoryAgentBase extends AgentBase {
                     result = await this.generateCraftFromImage(task.payload.imageBase64);
                     break;
                 case 'generate_step_image':
+                    // FIBO Refine mode: uses master's structured JSON + refinement prompt + seed
                     result = await this.generateStepImage(
-                        task.payload.originalImageBase64,
+                        task.payload.masterSeed,
                         task.payload.stepDescription,
-                        task.payload.targetObjectLabel,
-                        task.payload.stepNumber
+                        task.payload.masterStructuredPrompt,
+                        task.payload.stepNumber,
+                        task.payload.totalSteps
                     );
                     break;
                 case 'dissect_craft':
@@ -85,7 +88,10 @@ export abstract class CategoryAgentBase extends AgentBase {
 
     // --- Shared Implementation Methods ---
 
-    protected async generateMasterImage(prompt: string): Promise<string> {
+    /**
+     * Generate master image for refinement.
+     */
+    protected async generateMasterImage(prompt: string): Promise<{ imageUrl: string; structuredPrompt: any; seed: number }> {
         if (!imageGenerationLimiter.canMakeRequest()) {
             const waitTime = imageGenerationLimiter.getTimeUntilNextRequest();
             throw new Error(`Rate limit exceeded. Wait ${Math.ceil(waitTime / 1000)}s.`);
@@ -95,21 +101,23 @@ export abstract class CategoryAgentBase extends AgentBase {
             trackApiUsage('generateMasterImage', true);
 
             // 1. Generate Structured Prompt using Gemini (VLM Bridge)
-            // Note: We ignore getMasterImagePrompt() now, relying on the VLM to interpret the simple prompt + category context.
-            // Or we could pass the result of getMasterImagePrompt as input to the VLM.
-            // Let's pass the raw user prompt + category to the VLM service which handles the detailed instructions.
             const structuredPrompt = await PromptEngineeringService.createMasterPrompt(prompt, this.category);
 
-            // 2. Generate Image with Bria
-            const imageUrl = await BriaService.generateImage('', undefined, structuredPrompt);
-            return imageUrl;
+            // 2. Generate Image with Bria - returns full result including seed
+            const result = await BriaService.generateImage('', undefined, structuredPrompt);
+
+            return {
+                imageUrl: result.imageUrl,
+                structuredPrompt: result.structuredPrompt,
+                seed: result.seed
+            };
         } catch (error) {
             trackApiUsage('generateMasterImage', false);
             throw error;
         }
     }
 
-    protected async generateCraftFromImage(imageBase64: string): Promise<string> {
+    protected async generateCraftFromImage(imageBase64: string): Promise<{ imageUrl: string; structuredPrompt: any; seed: number }> {
         if (!imageGenerationLimiter.canMakeRequest()) {
             const waitTime = imageGenerationLimiter.getTimeUntilNextRequest();
             throw new Error(`Rate limit exceeded. Wait ${Math.ceil(waitTime / 1000)}s.`);
@@ -119,44 +127,135 @@ export abstract class CategoryAgentBase extends AgentBase {
 
         try {
             trackApiUsage('generateCraftFromImage', true);
-            // TODO: Bria V2 supports image input + structured prompt. 
-            // We might want to generate a structured prompt from the input image first if we want true "refinement".
-            // For now, let's keep it simple: Image + Text.
-            const imageUrl = await BriaService.generateImage(prompt, [imageBase64]);
-            return imageUrl;
+            const result = await BriaService.generateImage(prompt, [imageBase64]);
+            return {
+                imageUrl: result.imageUrl,
+                structuredPrompt: result.structuredPrompt,
+                seed: result.seed
+            };
         } catch (error) {
             trackApiUsage('generateCraftFromImage', false);
             throw error;
         }
     }
 
+    /**
+     * Generate step image using FIBO's Refine mode.
+     * 
+     * FIBO REFINE MODE (from Bria docs):
+     * 1. Pass master's structured_prompt (full JSON)
+     * 2. Add short text prompt describing the refinement (e.g., "show materials laid out")
+     * 3. Use same seed for compositional consistency
+     * 4. Bria modifies ONLY the aspects mentioned in the text prompt
+     * 
+     * This ensures visual consistency while allowing progressive construction.
+     * 
+     * @param masterSeed Seed from master image (MUST be same for all steps)
+     * @param stepDescription Description of what this step should show
+     * @param masterStructuredPrompt Master image's structured JSON
+     * @param stepNumber Current step (1-indexed)
+     * @param totalSteps Total number of steps
+     */
     protected async generateStepImage(
-        originalImageBase64: string,
+        masterSeed: number,
         stepDescription: string,
-        targetObjectLabel?: string,
-        stepNumber?: number
-    ): Promise<string> {
+        masterStructuredPrompt: any,
+        stepNumber: number,
+        totalSteps: number
+    ): Promise<{ imageUrl: string; structuredPrompt: any; seed: number }> {
         try {
-            // 1. Generate structured prompt from original image for consistency
-            const baseStructuredPrompt = await BriaService.generateStructuredPrompt(originalImageBase64);
+            const completionPercent = Math.round((stepNumber / totalSteps) * 100);
 
-            // 2. Adapt the structured prompt for the specific step using Gemini
-            const stepStructuredPrompt = await PromptEngineeringService.adaptPromptForStep(
-                baseStructuredPrompt,
+            console.log(`\n🔧 FIBO Refine Mode - Step ${stepNumber}/${totalSteps} (~${completionPercent}%)`);
+            console.log(`   Step Description: "${stepDescription}"`);
+            console.log(`   Master Seed: ${masterSeed} (same for consistency)`);
+
+            // FINAL STEP: Use master's exact structured prompt for 100% match
+            if (stepNumber === totalSteps) {
+                console.log(`   🎯 Final step: Using master's exact structured prompt`);
+
+                const result = await BriaService.generateImage(
+                    '',
+                    undefined,
+                    masterStructuredPrompt,
+                    masterSeed
+                );
+
+                return {
+                    imageUrl: result.imageUrl,
+                    structuredPrompt: result.structuredPrompt,
+                    seed: masterSeed
+                };
+            }
+
+            // STEPS 1-4: Use FIBO Refine Mode
+            // Create a short refinement instruction based on step description and completion
+            const refinementInstruction = this.createRefinementInstruction(
                 stepDescription,
-                this.category
+                completionPercent,
+                stepNumber,
+                totalSteps
             );
 
-            // 3. Generate step image using the structured prompt
-            // Note: We might NOT want to pass originalImageBase64 as 'images' reference here 
-            // if we are fully defining the scene via structured prompt derived from it.
-            // Passing it might force the result to look TOO much like the finished product.
-            // Let's rely on the adaptation of the JSON to carry the style.
-            const imageUrl = await BriaService.generateImage('', undefined, stepStructuredPrompt);
-            return imageUrl;
+            console.log(`   Refinement Instruction: "${refinementInstruction}"`);
+
+            // Use Bria's refineImage method which passes:
+            // - structured_prompt: master's full JSON
+            // - prompt: short refinement instruction  
+            // - seed: same seed as master
+            const result = await BriaService.refineImage(
+                masterStructuredPrompt,
+                masterSeed,
+                refinementInstruction
+            );
+
+            console.log(`✅ Step ${stepNumber}/${totalSteps} refined successfully`);
+
+            return {
+                imageUrl: result.imageUrl,
+                structuredPrompt: result.structuredPrompt,
+                seed: masterSeed
+            };
+
         } catch (error) {
-            throw new Error("Failed to generate step image");
+            console.error(`Step image generation error for step ${stepNumber}:`, error);
+            throw new Error(`Failed to generate step ${stepNumber} image`);
         }
+    }
+
+    /**
+     * Creates a short refinement instruction for FIBO's Refine mode.
+     * This is a simple text prompt that describes what should change from the master.
+     * 
+     * Examples:
+     * - Step 1 (20%): "show raw materials laid out separately"
+     * - Step 2 (40%): "show materials partially assembled"
+     * - Step 3 (60%): "show craft half completed"
+     * - Step 4 (80%): "show craft nearly finished"
+     */
+    protected createRefinementInstruction(
+        stepDescription: string,
+        completionPercent: number,
+        stepNumber: number,
+        totalSteps: number
+    ): string {
+        // Create a refinement instruction based on completion percentage
+        let progressDescriptor = "";
+
+        if (completionPercent <= 20) {
+            progressDescriptor = "show raw materials and components laid out separately, unassembled";
+        } else if (completionPercent <= 40) {
+            progressDescriptor = "show materials partially assembled, early construction stage";
+        } else if (completionPercent <= 60) {
+            progressDescriptor = "show craft halfway completed, mid-assembly";
+        } else if (completionPercent <= 80) {
+            progressDescriptor = "show craft nearly finished, almost complete";
+        } else {
+            progressDescriptor = "show craft in final assembly stage, nearly identical to finished version";
+        }
+
+        // Combine with step description
+        return `${stepDescription}. ${progressDescriptor}`;
     }
 
     protected async dissectCraft(imageBase64: string, userPrompt: string): Promise<DissectionResponse> {
@@ -243,8 +342,8 @@ export abstract class CategoryAgentBase extends AgentBase {
 
         try {
             trackApiUsage('generatePatternSheet', true);
-            const imageUrl = await BriaService.generateImage(prompt, [originalImageBase64]);
-            return imageUrl;
+            const result = await BriaService.generateImage(prompt, [originalImageBase64]);
+            return result.imageUrl;
         } catch (error) {
             trackApiUsage('generatePatternSheet', false);
             throw error;

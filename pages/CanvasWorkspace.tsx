@@ -1598,7 +1598,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
 
     // 1. Create placeholder nodes IMMEDIATELY (before any API calls)
     // This gives instant visual feedback like the pattern sheet does
-    const DEFAULT_STEP_COUNT = 4; // Most breakdowns have 4 steps
+    const DEFAULT_STEP_COUNT = 6; // 6 steps for gradual progression from foundation to master
     const placeholderNodes: Node[] = [];
     const placeholderEdges: Edge[] = [];
 
@@ -1629,7 +1629,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
           title: `Step ${i}`,
           description: 'Analyzing craft structure...',
           safetyWarning: undefined,
-          isGeneratingImage: true,
+          isGeneratingImage: false, // Will be set to true when this step starts generating
           imageUrl: undefined
         }
       });
@@ -1811,37 +1811,70 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
         return [...filteredEdges, materialEdge, ...newStepEdges];
       });
 
-      // 5. Generate step images in the background using the selected object as reference
+      // 5. Generate step images SEQUENTIALLY (each step refines the previous)
       console.log('\n=== IMAGE GENERATION PHASE ===');
       console.log('Using category:', category);
       console.log('Target object:', identifiedLabel);
       console.log('Total steps:', dissection.steps.length);
       console.log('All steps:', dissection.steps.map(s => `${s.stepNumber}: ${s.title}`));
-      console.log('Format: Multi-Panel with 4K resolution for Step 1');
+      console.log(`\n🚀 Generating ${dissection.steps.length} step images SEQUENTIALLY...`);
 
-      // Generate ALL step images in PARALLEL for faster generation
-      // Pass the identifiedLabel to ensure images focus on the selected object only
-      console.log(`\n🚀 Generating ${dissection.steps.length} step images IN PARALLEL...`);
+      // Get master node metadata for guidance
+      const masterStructuredPrompt = masterNode.data.structuredPrompt as any;
+      const masterSeed = masterNode.data.seed as number;
 
-      const stepGenerationPromises = dissection.steps.map(async (step) => {
+      // Track previous step's metadata for sequential refinement
+      // CRITICAL: Use master's seed for ALL steps to maintain composition consistency
+      let previousStepPrompt = masterStructuredPrompt;
+      let previousStepSeed = masterSeed || Math.floor(Math.random() * 1000000); // Fallback to random only if no master seed
+
+      let successCount = 0;
+
+      // Generate steps sequentially
+      for (let i = 0; i < dissection.steps.length; i++) {
+        const step = dissection.steps[i];
         const stepNodeId = `${breakdownId}-step-${step.stepNumber}`;
+        const isFirstStep = i === 0;
+        const isLastStep = i === dissection.steps.length - 1;
 
-        console.log(`🎨 Starting Step ${step.stepNumber}: ${step.title}`);
+        console.log(`\n🎨 Starting Step ${step.stepNumber} of ${dissection.steps.length}: ${step.title}`);
         console.log(`   Target object: ${identifiedLabel} | Category: ${category}`);
+        console.log(`   Type: ${isFirstStep ? 'FIRST (foundation from master)' : isLastStep ? 'FINAL (match master exactly)' : 'MIDDLE (refine previous)'}`);
+        console.log(`   Using seed: ${previousStepSeed}`);
+        console.log(`   Has previous prompt: ${previousStepPrompt ? 'Yes' : 'No'}`);
+
+        // Set this step to glow (isGeneratingImage: true)
+        setNodes((nds) =>
+          nds.map((node) => {
+            if (node.id === stepNodeId) {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  isGeneratingImage: true  // Activate glow for this step
+                }
+              };
+            }
+            return node;
+          })
+        );
 
         try {
-          // Generate image with SELECTED OBJECT as reference to match exact style/appearance
-          const imageUrl = await generateStepImage(
-            selectedObjectImageUrl, // Use selected object (not full image) as style reference
+          // Generate image using FIBO VLM-based refinement
+          const result = await generateStepImage(
+            masterSeed,              // Same seed for all steps (compositional consistency)
             `${step.title}: ${step.description}`,
-            category,
-            identifiedLabel, // Pass the identified object label
-            step.stepNumber // Pass step number for 4K resolution on step 1
+            masterStructuredPrompt,  // VLM will modify this for each step
+            step.stepNumber,
+            dissection.steps.length,
+            category
           );
 
           console.log(`✅ Step ${step.stepNumber} complete`);
+          console.log(`   Generated with seed: ${result.seed}`);
+          successCount++;
 
-          // Update node with generated image
+          // Update node with generated image and turn off glow
           setNodes((nds) =>
             nds.map((node) => {
               if (node.id === stepNodeId) {
@@ -1849,8 +1882,8 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
                   ...node,
                   data: {
                     ...node.data,
-                    imageUrl,
-                    isGeneratingImage: false
+                    imageUrl: result.imageUrl,
+                    isGeneratingImage: false  // Deactivate glow
                   }
                 };
               }
@@ -1858,7 +1891,10 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
             })
           );
 
-          return { stepNumber: step.stepNumber, success: true };
+          // Use this step's output as input for next step
+          previousStepPrompt = result.structuredPrompt;
+          previousStepSeed = result.seed;
+
         } catch (error) {
           console.error(`❌ Step ${step.stepNumber} failed:`, error);
           // Clear loading state on error
@@ -1876,15 +1912,11 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
               return node;
             })
           );
-
-          return { stepNumber: step.stepNumber, success: false, error };
+          // Continue with remaining steps even if one fails
         }
-      });
+      }
 
-      // Wait for all step images to complete (success or failure)
-      const results = await Promise.all(stepGenerationPromises);
-      const successCount = results.filter(r => r.success).length;
-      console.log(`\n📊 Parallel generation complete: ${successCount}/${results.length} steps succeeded`);
+      console.log(`\n📊 Sequential generation complete: ${successCount}/${dissection.steps.length} steps succeeded`);
 
       console.log('=== DISSECT SELECTED COMPLETE ===\n');
     } catch (error) {
@@ -1942,7 +1974,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
 
     // 1. Create placeholder nodes IMMEDIATELY (before any API calls)
     // This gives instant visual feedback like the pattern sheet does
-    const DEFAULT_STEP_COUNT = 4; // Most breakdowns have 4 steps
+    const DEFAULT_STEP_COUNT = 6; // 6 steps for gradual progression from foundation to master
     const placeholderNodes: Node[] = [];
     const placeholderEdges: Edge[] = [];
 
@@ -1973,7 +2005,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
           title: `Step ${i}`,
           description: 'Analyzing craft structure...',
           safetyWarning: undefined,
-          isGeneratingImage: true,
+          isGeneratingImage: false, // Will be set to true when this step starts generating
           imageUrl: undefined
         }
       });
@@ -2134,34 +2166,70 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
         return [...filteredEdges, materialEdge, ...newStepEdges];
       });
 
-      // 5. Generate ALL step images in PARALLEL for faster generation
+      // 5. Generate step images SEQUENTIALLY (each step refines the previous)
       console.log('\n=== IMAGE GENERATION PHASE ===');
       console.log('Using category:', category);
       console.log('Target craft:', promptContext);
       console.log('Total steps:', dissection.steps.length);
       console.log('All steps:', dissection.steps.map(s => `${s.stepNumber}: ${s.title}`));
-      console.log('Format: Multi-Panel with 1K resolution for all steps');
-      console.log(`\n🚀 Generating ${dissection.steps.length} step images IN PARALLEL...`);
+      console.log(`\n🚀 Generating ${dissection.steps.length} step images SEQUENTIALLY...`);
 
-      const stepGenerationPromises = dissection.steps.map(async (step) => {
+      // Get master node metadata for guidance
+      const masterStructuredPrompt = masterNode.data.structuredPrompt as any;
+      const masterSeed = masterNode.data.seed as number;
+
+      // Track previous step's metadata for sequential refinement
+      // CRITICAL: Use master's seed for ALL steps to maintain composition consistency
+      let previousStepPrompt = masterStructuredPrompt;
+      let previousStepSeed = masterSeed || Math.floor(Math.random() * 1000000); // Fallback to random only if no master seed
+
+      let successCount = 0;
+
+      // Generate steps sequentially
+      for (let i = 0; i < dissection.steps.length; i++) {
+        const step = dissection.steps[i];
         const stepNodeId = `${breakdownId}-step-${step.stepNumber}`;
+        const isFirstStep = i === 0;
+        const isLastStep = i === dissection.steps.length - 1;
 
-        console.log(`🎨 Starting Step ${step.stepNumber}: ${step.title}`);
+        console.log(`\n🎨 Starting Step ${step.stepNumber} of ${dissection.steps.length}: ${step.title}`);
         console.log(`   Target craft: ${promptContext} | Category: ${category}`);
+        console.log(`   Type: ${isFirstStep ? 'FIRST (foundation from master)' : isLastStep ? 'FINAL (match master exactly)' : 'MIDDLE (refine previous)'}`);
+        console.log(`   Using seed: ${previousStepSeed}`);
+        console.log(`   Has previous prompt: ${previousStepPrompt ? 'Yes' : 'No'}`);
+
+        // Set this step to glow (isGeneratingImage: true)
+        setNodes((nds) =>
+          nds.map((node) => {
+            if (node.id === stepNodeId) {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  isGeneratingImage: true  // Activate glow for this step
+                }
+              };
+            }
+            return node;
+          })
+        );
 
         try {
-          // Generate image with full image as reference to match exact style/appearance
-          const stepImageUrl = await generateStepImage(
-            imageUrl, // Use full image as style reference
+          // Generate image using FIBO VLM-based refinement
+          const result = await generateStepImage(
+            masterSeed,              // Same seed for all steps (compositional consistency)
             `${step.title}: ${step.description}`,
-            category,
-            undefined, // No specific object label for full craft dissection
-            step.stepNumber // Pass step number
+            masterStructuredPrompt,  // VLM will modify this for each step
+            step.stepNumber,
+            dissection.steps.length,
+            category
           );
 
           console.log(`✅ Step ${step.stepNumber} complete`);
+          console.log(`   Generated with seed: ${result.seed}`);
+          successCount++;
 
-          // Update node with generated image
+          // Update node with generated image and turn off glow
           setNodes((nds) =>
             nds.map((node) => {
               if (node.id === stepNodeId) {
@@ -2169,8 +2237,8 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
                   ...node,
                   data: {
                     ...node.data,
-                    imageUrl: stepImageUrl,
-                    isGeneratingImage: false
+                    imageUrl: result.imageUrl,
+                    isGeneratingImage: false  // Deactivate glow
                   }
                 };
               }
@@ -2178,7 +2246,10 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
             })
           );
 
-          return { stepNumber: step.stepNumber, success: true };
+          // Use this step's output as input for next step
+          previousStepPrompt = result.structuredPrompt;
+          previousStepSeed = result.seed;
+
         } catch (error) {
           console.error(`❌ Step ${step.stepNumber} failed:`, error);
           // Clear loading state on error
@@ -2196,15 +2267,11 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
               return node;
             })
           );
-
-          return { stepNumber: step.stepNumber, success: false, error };
+          // Continue with remaining steps even if one fails
         }
-      });
+      }
 
-      // Wait for all step images to complete (success or failure)
-      const results = await Promise.all(stepGenerationPromises);
-      const successCount = results.filter(r => r.success).length;
-      console.log(`\n📊 Parallel generation complete: ${successCount}/${results.length} steps succeeded`);
+      console.log(`\n📊 Sequential generation complete: ${successCount}/${dissection.steps.length} steps succeeded`);
 
       console.log('=== DISSECT FULL CRAFT COMPLETE ===\n');
     } catch (error) {
@@ -2411,7 +2478,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
   /**
    * Step 1: Add the Master Generated Node
    */
-  const handleGenerate = useCallback((imageUrl: string, prompt: string, category: CraftCategory) => {
+  const handleGenerate = useCallback((imageUrl: string, prompt: string, category: CraftCategory, structuredPrompt: any, seed: number) => {
     if (readOnly) return;
 
     const id = `master-${Date.now()}`;
@@ -2423,6 +2490,8 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
         label: prompt,
         imageUrl,
         category,
+        structuredPrompt,  // Store for refinement workflow
+        seed,              // Store for refinement workflow
         onDissect: handleDissect,
         onDissectSelected: handleDissectSelected,
         onSelect: handleMasterNodeSelect,
@@ -2494,7 +2563,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
   /**
    * Update placeholder node when generation completes
    */
-  const handleGenerationComplete = useCallback((nodeId: string, imageUrl: string) => {
+  const handleGenerationComplete = useCallback((nodeId: string, imageUrl: string, structuredPrompt: any, seed: number) => {
     // First, extract data from the node we need to save
     let projectToSave: Parameters<typeof saveProject>[0] | null = null;
 
@@ -2509,6 +2578,8 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
             data: {
               ...n.data,
               imageUrl,
+              structuredPrompt,  // Store for refinement workflow
+              seed,              // Store for refinement workflow
               isGeneratingImage: false,
             },
           };

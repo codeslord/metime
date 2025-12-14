@@ -52,20 +52,55 @@ Show tool usage where appropriate (sculpting tools, rollers, texture tools).
 
     protected getDissectionPrompt(userPrompt: string): string {
         return `
-You are an expert clay sculptor. Analyze this image of a clay craft project: "${userPrompt}".
-YOUR TASK: Create step-by-step instructions to sculpt THIS piece.
+You are an expert clay sculptor analyzing the SPECIFIC clay sculpture shown in this image.
 
-1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10.
-2. List the essential materials (clay type, sculpting tools, armature materials if needed).
-3. Break down the sculpting into EXACTLY 4 STEPS grouped by body parts/components.
+📷 IMAGE ANALYSIS: Carefully examine THIS exact clay piece: "${userPrompt}".
+🎯 YOUR TASK: Create step-by-step instructions to sculpt THIS EXACT piece as shown in the image.
 
-🚨 MANDATORY 4-STEP CLAY GROUPING 🚨
-STEP 1 - ARMATURE & BASE: Core structure, base form, armature if needed.
-STEP 2 - PRIMARY SHAPES: Main body masses, head, torso.
-STEP 3 - SECONDARY FORMS: Limbs, appendages, attached elements.
-STEP 4 - DETAILS & TEXTURE: Surface details, facial features, textures, finishing.
+CRITICAL - ANALYZE THE SPECIFIC DESIGN:
+- Identify the EXACT forms, shapes, and proportions visible in THIS sculpture
+- Note the SPECIFIC clay colors, textures, and surface details used
+- Observe the ACTUAL construction method and assembly order for THIS design
+- Determine how THIS particular sculpture is structured (solid, hollow, armature-based)
 
-Include notes about clay conditioning and blending where applicable.
+1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10 based on THIS specific design.
+2. List the essential materials needed for THIS exact piece (clay type, specific colors, sculpting tools, armature materials if visible).
+3. Break down the sculpting of THIS SPECIFIC PIECE into EXACTLY 6 STEPS that progressively build toward the finished sculpture.
+
+🚨 MANDATORY 6-STEP PROGRESSIVE CONSTRUCTION 🚨
+Each step describes what the IMAGE should show at that stage of completion:
+
+STEP 1 - RAW MATERIALS (~15% complete): 
+  - VISUAL: Clay balls/pieces organized flat, NOT shaped yet
+  - Show conditioned clay separated by color (knolling style)
+  - Sculpting tools visible beside materials
+
+STEP 2 - BASIC FORMS (~30% complete):
+  - VISUAL: Primary shapes roughed out but separate
+  - Main body mass shaped loosely
+  - Pieces not yet attached to each other
+
+STEP 3 - PRIMARY ASSEMBLY (~50% complete):
+  - VISUAL: Core pieces attached together
+  - Main body structure formed
+  - Secondary pieces nearby but not attached
+
+STEP 4 - SECONDARY FORMS (~70% complete):
+  - VISUAL: Most components connected
+  - Limbs/appendages attached
+  - Form recognizable as final piece
+
+STEP 5 - DETAILING (~85% complete):
+  - VISUAL: Nearly complete sculpture
+  - Fine details and textures being added
+  - Surface smoothing in progress
+
+STEP 6 - FINISHED SCULPTURE (100% complete):
+  - VISUAL: EXACTLY match the original image
+  - All details complete, surface finished
+  - Identical to the master reference
+
+For each step, focus on describing what the IMAGE should LOOK LIKE at that stage.
 Return strict JSON matching the schema.
 `;
     }
