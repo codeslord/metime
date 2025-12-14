@@ -2,6 +2,7 @@ import { AgentBase } from '../a2a/AgentBase';
 import { AgentCard, A2AMessage } from '../a2a/types';
 import { getAiClient, retryWithBackoff } from '../aiUtils';
 import { imageGenerationLimiter, dissectionLimiter, trackApiUsage } from '../../utils/rateLimiter';
+import { BriaService } from '../briaService';
 import { CraftCategory, DissectionResponse } from '../../types';
 import { Type } from "@google/genai";
 
@@ -89,28 +90,16 @@ export abstract class CategoryAgentBase extends AgentBase {
             throw new Error(`Rate limit exceeded. Wait ${Math.ceil(waitTime / 1000)}s.`);
         }
 
-        const ai = getAiClient();
         const fullPrompt = this.getMasterImagePrompt(prompt);
 
-        return retryWithBackoff(async () => {
-            const response = await ai.models.generateContent({
-                model: 'gemini-3-pro-image-preview',
-                contents: { parts: [{ text: fullPrompt }] },
-                config: { imageConfig: { aspectRatio: "1:1", imageSize: "1K" } },
-            });
-
-            for (const part of response.candidates?.[0]?.content?.parts || []) {
-                if (part.inlineData) {
-                    trackApiUsage('generateMasterImage', true);
-                    return `data:image/png;base64,${part.inlineData.data}`;
-                }
-            }
-            trackApiUsage('generateMasterImage', false);
-            throw new Error("Failed to generate master image");
-        }).catch((error) => {
+        try {
+            trackApiUsage('generateMasterImage', true);
+            const imageUrl = await BriaService.generateImage(fullPrompt);
+            return imageUrl;
+        } catch (error) {
             trackApiUsage('generateMasterImage', false);
             throw error;
-        });
+        }
     }
 
     protected async generateCraftFromImage(imageBase64: string): Promise<string> {
@@ -119,34 +108,16 @@ export abstract class CategoryAgentBase extends AgentBase {
             throw new Error(`Rate limit exceeded. Wait ${Math.ceil(waitTime / 1000)}s.`);
         }
 
-        const ai = getAiClient();
-        const cleanBase64 = imageBase64.split(',')[1] || imageBase64;
         const prompt = this.getMasterImagePrompt('Transform this into a craft reference');
 
-        return retryWithBackoff(async () => {
-            const response = await ai.models.generateContent({
-                model: 'gemini-3-pro-image-preview',
-                contents: {
-                    parts: [
-                        { inlineData: { mimeType: 'image/png', data: cleanBase64 } },
-                        { text: prompt },
-                    ],
-                },
-                config: { imageConfig: { aspectRatio: "1:1", imageSize: "1K" } },
-            });
-
-            for (const part of response.candidates?.[0]?.content?.parts || []) {
-                if (part.inlineData) {
-                    trackApiUsage('generateCraftFromImage', true);
-                    return `data:image/png;base64,${part.inlineData.data}`;
-                }
-            }
-            trackApiUsage('generateCraftFromImage', false);
-            throw new Error("Failed to generate craft from image");
-        }).catch((error) => {
+        try {
+            trackApiUsage('generateCraftFromImage', true);
+            const imageUrl = await BriaService.generateImage(prompt, [imageBase64]);
+            return imageUrl;
+        } catch (error) {
             trackApiUsage('generateCraftFromImage', false);
             throw error;
-        });
+        }
     }
 
     protected async generateStepImage(
@@ -155,32 +126,14 @@ export abstract class CategoryAgentBase extends AgentBase {
         targetObjectLabel?: string,
         stepNumber?: number
     ): Promise<string> {
-        const ai = getAiClient();
-        const cleanBase64 = originalImageBase64.split(',')[1] || originalImageBase64;
         const prompt = this.getStepImagePrompt(stepDescription, targetObjectLabel);
 
-        return retryWithBackoff(async () => {
-            const response = await ai.models.generateContent({
-                model: 'gemini-3-pro-image-preview',
-                contents: {
-                    parts: [
-                        { inlineData: { mimeType: 'image/png', data: cleanBase64 } },
-                        { text: prompt },
-                    ],
-                },
-                config: {
-                    imageConfig: { aspectRatio: "16:9" },
-                    thinkingConfig: { includeThoughts: true }
-                },
-            });
-
-            for (const part of response.candidates?.[0]?.content?.parts || []) {
-                if (part.inlineData) {
-                    return `data:image/png;base64,${part.inlineData.data}`;
-                }
-            }
+        try {
+            const imageUrl = await BriaService.generateImage(prompt, [originalImageBase64]);
+            return imageUrl;
+        } catch (error) {
             throw new Error("Failed to generate step image");
-        });
+        }
     }
 
     protected async dissectCraft(imageBase64: string, userPrompt: string): Promise<DissectionResponse> {
@@ -190,7 +143,31 @@ export abstract class CategoryAgentBase extends AgentBase {
         }
 
         const ai = getAiClient();
-        const cleanBase64 = imageBase64.split(',')[1] || imageBase64;
+
+        let cleanBase64 = imageBase64;
+
+        // Check if input is a URL (Bria Output) and fetch it to get Base64
+        if (imageBase64.startsWith('http')) {
+            try {
+                const imageResp = await fetch(imageBase64);
+                if (!imageResp.ok) throw new Error('Failed to fetch image from URL');
+                const buffer = await imageResp.arrayBuffer();
+                // Convert ArrayBuffer to Base64 string
+                let binary = '';
+                const bytes = new Uint8Array(buffer);
+                const len = bytes.byteLength;
+                for (let i = 0; i < len; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                cleanBase64 = btoa(binary);
+            } catch (e) {
+                console.error('Error fetching image for dissection:', e);
+                throw new Error('Failed to download generated image for analysis');
+            }
+        } else {
+            cleanBase64 = imageBase64.split(',')[1] || imageBase64;
+        }
+
         const prompt = this.getDissectionPrompt(userPrompt);
 
         return retryWithBackoff(async () => {
@@ -239,37 +216,16 @@ export abstract class CategoryAgentBase extends AgentBase {
             throw new Error(`Rate limit exceeded.`);
         }
 
-        const ai = getAiClient();
-        const cleanBase64 = originalImageBase64.split(',')[1] || originalImageBase64;
         const prompt = this.getPatternSheetPrompt(craftLabel);
 
-        return retryWithBackoff(async () => {
-            const response = await ai.models.generateContent({
-                model: 'gemini-3-pro-image-preview',
-                contents: {
-                    parts: [
-                        { inlineData: { mimeType: 'image/png', data: cleanBase64 } },
-                        { text: prompt },
-                    ],
-                },
-                config: {
-                    imageConfig: { aspectRatio: "16:9", imageSize: "2K" },
-                    thinkingConfig: { includeThoughts: true }
-                },
-            });
-
-            for (const part of response.candidates?.[0]?.content?.parts || []) {
-                if (part.inlineData) {
-                    trackApiUsage('generatePatternSheet', true);
-                    return `data:image/png;base64,${part.inlineData.data}`;
-                }
-            }
+        try {
+            trackApiUsage('generatePatternSheet', true);
+            const imageUrl = await BriaService.generateImage(prompt, [originalImageBase64]);
+            return imageUrl;
+        } catch (error) {
             trackApiUsage('generatePatternSheet', false);
-            throw new Error("Failed to generate pattern sheet");
-        }).catch(e => {
-            trackApiUsage('generatePatternSheet', false);
-            throw e;
-        });
+            throw error;
+        }
     }
 
     /**

@@ -21,6 +21,7 @@ interface AuthContextState {
   isLoading: boolean;
   error: string | null;
   apiKey: string | null;
+  briaApiKey: string | null;
   subscription: SubscriptionTier;
 }
 
@@ -33,6 +34,8 @@ type AuthAction =
   | { type: 'UPDATE_PROFILE'; payload: { user: User } }
   | { type: 'SET_API_KEY'; payload: { apiKey: string } }
   | { type: 'REMOVE_API_KEY' }
+  | { type: 'SET_BRIA_API_KEY'; payload: { apiKey: string } }
+  | { type: 'REMOVE_BRIA_API_KEY' }
   | { type: 'UPGRADE_SUBSCRIPTION'; payload: { subscription: SubscriptionTier } }
   | { type: 'CLEAR_ERROR' }
   | { type: 'SET_LOADING'; payload: { isLoading: boolean } };
@@ -46,6 +49,8 @@ interface AuthContextValue {
   updateProfile: (updates: Partial<User>) => Promise<void>;
   setApiKey: (apiKey: string) => void;
   removeApiKey: () => void;
+  setBriaApiKey: (apiKey: string) => void;
+  removeBriaApiKey: () => void;
   upgradeToPro: () => Promise<void>;
   clearError: () => void;
 }
@@ -56,7 +61,9 @@ const initialState: AuthContextState = {
   isAuthenticated: false,
   isLoading: true, // Start as loading to check for existing session
   error: null,
+
   apiKey: null,
+  briaApiKey: null,
   subscription: 'free',
 };
 
@@ -65,6 +72,7 @@ const STORAGE_KEYS = {
   SESSION: 'craftus_auth_session',
   USER: 'craftus_user_profile',
   API_KEY: 'craftus_user_api_key',
+  BRIA_API_KEY: 'craftus_user_bria_api_key',
   SUBSCRIPTION: 'craftus_subscription',
   USER_CREDENTIALS: 'craftus_user_credentials', // For MVP only
 };
@@ -144,7 +152,9 @@ const authReducer = (state: AuthContextState, action: AuthAction): AuthContextSt
       return {
         ...initialState,
         isLoading: false,
+
         apiKey: state.apiKey, // Preserve API key on logout
+        briaApiKey: state.briaApiKey, // Preserve Bria key on logout
       };
 
     case 'UPDATE_PROFILE':
@@ -163,6 +173,18 @@ const authReducer = (state: AuthContextState, action: AuthAction): AuthContextSt
       return {
         ...state,
         apiKey: null,
+      };
+
+    case 'SET_BRIA_API_KEY':
+      return {
+        ...state,
+        briaApiKey: action.payload.apiKey,
+      };
+
+    case 'REMOVE_BRIA_API_KEY':
+      return {
+        ...state,
+        briaApiKey: null,
       };
 
     case 'UPGRADE_SUBSCRIPTION':
@@ -210,6 +232,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const sessionData = localStorage.getItem(STORAGE_KEYS.SESSION);
       const userData = localStorage.getItem(STORAGE_KEYS.USER);
       const apiKeyData = localStorage.getItem(STORAGE_KEYS.API_KEY);
+      const briaApiKeyData = localStorage.getItem(STORAGE_KEYS.BRIA_API_KEY);
       const subscriptionData = localStorage.getItem(STORAGE_KEYS.SUBSCRIPTION);
 
       if (sessionData && userData) {
@@ -229,6 +252,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
           }
 
+
+          let briaApiKey: string | null = null;
+          if (briaApiKeyData) {
+            try {
+              briaApiKey = decryptApiKey(briaApiKeyData);
+            } catch {
+              localStorage.removeItem(STORAGE_KEYS.BRIA_API_KEY);
+            }
+          }
+
           // Restore subscription
           const subscription: SubscriptionTier =
             subscriptionData === 'pro' ? 'pro' : 'free';
@@ -236,6 +269,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           dispatch({ type: 'AUTH_SUCCESS', payload: { user, subscription } });
           if (apiKey) {
             dispatch({ type: 'SET_API_KEY', payload: { apiKey } });
+          }
+          if (briaApiKey) {
+            dispatch({ type: 'SET_BRIA_API_KEY', payload: { apiKey: briaApiKey } });
           }
         } else {
           // Invalid session, clear storage
@@ -259,6 +295,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem(STORAGE_KEYS.USER);
     localStorage.removeItem(STORAGE_KEYS.SUBSCRIPTION);
     // Don't remove API key - user may want to keep it
+    // Don't remove Bria API key either
   };
 
   // Login function
@@ -478,6 +515,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     dispatch({ type: 'REMOVE_API_KEY' });
   };
 
+  // Set Bria API key function
+  const setBriaApiKey = (apiKey: string) => {
+    try {
+      // Basic format validation if needed, or just let Bria handle it
+      if (apiKey.trim().length === 0) {
+        throw new Error('API key cannot be empty');
+      }
+
+      const encrypted = encryptApiKey(apiKey);
+      localStorage.setItem(STORAGE_KEYS.BRIA_API_KEY, encrypted);
+
+      dispatch({ type: 'SET_BRIA_API_KEY', payload: { apiKey } });
+    } catch (error: any) {
+      throw new Error(error.message || 'Failed to save Bria API key');
+    }
+  };
+
+  // Remove Bria API key function
+  const removeBriaApiKey = () => {
+    localStorage.removeItem(STORAGE_KEYS.BRIA_API_KEY);
+    dispatch({ type: 'REMOVE_BRIA_API_KEY' });
+  };
+
   // Upgrade to Pro function (placeholder for MVP)
   const upgradeToPro = async (): Promise<void> => {
     // For MVP, just update the subscription tier locally
@@ -499,6 +559,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     updateProfile,
     setApiKey,
     removeApiKey,
+    setBriaApiKey,
+    removeBriaApiKey,
     upgradeToPro,
     clearError,
   };
