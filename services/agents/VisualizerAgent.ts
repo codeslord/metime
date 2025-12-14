@@ -1,6 +1,7 @@
 import { AgentBase } from '../a2a/AgentBase';
 import { AgentCard, A2AMessage } from '../a2a/types';
 import { BriaService } from '../briaService';
+import { PromptEngineeringService } from '../promptEngineering';
 import { imageGenerationLimiter, trackApiUsage } from '../../utils/rateLimiter';
 import { CraftCategory } from '../../types';
 
@@ -79,27 +80,14 @@ export class VisualizerAgent extends AgentBase {
             throw new Error(`Rate limit exceeded. Please wait ${waitSeconds} seconds before generating another image.`);
         }
 
-        const fullPrompt = category === CraftCategory.COLORING_BOOK
-            ? `
-      Create a high-quality black and white line art coloring page of: ${prompt}.
-      CRITICAL REQUIREMENTS:
-      - BLACK OUTLINES ONLY - No colors, no shading, no fills, no gray tones
-      - Pure line art suitable for coloring with pencils or crayons
-      - Clean, crisp black lines on pure white background
-      - Professional coloring book quality
-      DO NOT include any colors, shading, gradients, or fills - ONLY black outlines on white background.
-    `
-            : `
-      Create a photorealistic studio photograph of a DIY craft project: ${prompt}.
-      Category: ${category}.
-      Style: Neutral background, even studio lighting, highly detailed textures showing materials like fabric grain, paper fibers, wood grain, or metal. 
-      The object should look tangible, handmade, and finished.
-      View: Isometric or front-facing, centered.
-    `;
-
         try {
             trackApiUsage('generateCraftImage', true); // Eagerly track attempt
-            const imageUrl = await BriaService.generateImage(fullPrompt);
+
+            // 1. Generate Structured Prompt for generic visualizer as well
+            const structuredPrompt = await PromptEngineeringService.createMasterPrompt(prompt, category);
+
+            // 2. Generate Image
+            const imageUrl = await BriaService.generateImage('', undefined, structuredPrompt);
             return imageUrl;
         } catch (error) {
             trackApiUsage('generateCraftImage', false);
@@ -114,19 +102,11 @@ export class VisualizerAgent extends AgentBase {
             throw new Error(`Rate limit exceeded. Wait ${waitSeconds}s.`);
         }
 
-        // Normalize Base64 for Bria (assuming it accepts standard base64 or data uri)
-        // If Bria expects raw base64 without prefix:
-        const cleanBase64 = imageBase64.split(',')[1] || imageBase64;
-        // Bria might want data URI or just base64. Let's pass the data URI if possible, or try raw.
-        // NOTE: Without explicit "images" format docs, we try passing the full string first.
-        // Actually, many APIs expect just the base64 part or a URL. 
-        // For now, let's assume we pass the original string.
-
         const prompt = `Transform this image into a photorealistic studio photograph of a DIY craft project. Category: ${category}. Maintain form and colors.`;
 
         try {
             trackApiUsage('generateCraftFromImage', true);
-            // Passing imageBase64 as reference
+            // Passing imageBase64 as reference - still using simple prompt for now
             const imageUrl = await BriaService.generateImage(prompt, [imageBase64]);
             return imageUrl;
         } catch (error) {
@@ -136,21 +116,11 @@ export class VisualizerAgent extends AgentBase {
     }
 
     private getCategorySpecificRules(category: CraftCategory): string {
+        // This is less relevant now that VLM handles it, but keeping it for legacy or V1 fallback if needed
         const categoryRules: Record<string, string> = {
-            'Papercraft': `
-  PAPERCRAFT MULTI-PANEL FORMAT (2-4 PANELS):
-  PANEL 1 - PATTERN SHEETS (KNOLLING LAYOUT): Show flat pattern pieces laid out side-by-side.
-  PANEL 2 - ASSEMBLY: Show hands folding/gluing pieces.
-  PANEL 3/4 - RESULT: Show completed component.
-  `,
-            'Clay': `
-  CLAY MULTI-PANEL FORMAT (2-4 PANELS):
-  PANEL 1 - CLAY PIECES (KNOLLING): Show clay pieces organized flat.
-  PANEL 2 - SHAPING: Show hands sculpting clay.
-  PANEL 3/4 - RESULT: Show completed component.
-  `,
+            'Papercraft': `PAPERCRAFT MULTI-PANEL FORMAT...`,
         };
-        return categoryRules[category] || `MULTI-PANEL FORMAT: Show materials, technique, assembly, and result.`;
+        return categoryRules[category] || `MULTI-PANEL FORMAT...`;
     }
 
     private async generateStepImage(
@@ -160,30 +130,19 @@ export class VisualizerAgent extends AgentBase {
         targetObjectLabel?: string,
         stepNumber?: number
     ): Promise<string> {
-        const categoryRules = this.getCategorySpecificRules(category);
-
-        const prompt = `
-  🎯 YOUR TASK: Generate a MULTI-PANEL INSTRUCTION IMAGE for building this EXACT craft.
-  📷 REFERENCE IMAGE: This is the FINISHED craft.
-  ${targetObjectLabel ? `🎨 CRAFT: ${targetObjectLabel}` : ''}
-  📦 CATEGORY: ${category}
-  
-  CURRENT STEP: "${stepDescription}"
-  Show ONLY the components mentioned in this step.
-  
-  MULTI-PANEL FORMAT (2-4 PANELS):
-  PANEL 1 - MATERIALS
-  PANEL 2 - ASSEMBLY
-  PANEL 3 - DETAILS
-  PANEL 4 - RESULT
-  
-  ${categoryRules}
-  
-  CONSISTENCY: Match colors and style of reference EXACTLY.
-    `;
-
         try {
-            const imageUrl = await BriaService.generateImage(prompt, [originalImageBase64]);
+            // 1. Generate structured prompt from original image
+            const baseStructuredPrompt = await BriaService.generateStructuredPrompt(originalImageBase64);
+
+            // 2. Adapt the structured prompt for step
+            const stepStructuredPrompt = await PromptEngineeringService.adaptPromptForStep(
+                baseStructuredPrompt,
+                stepDescription,
+                category
+            );
+
+            // 3. Generate image
+            const imageUrl = await BriaService.generateImage('', undefined, stepStructuredPrompt);
             return imageUrl;
         } catch (error) {
             throw new Error("Failed to generate step image");
@@ -209,3 +168,4 @@ export class VisualizerAgent extends AgentBase {
         }
     }
 }
+

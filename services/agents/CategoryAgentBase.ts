@@ -3,6 +3,7 @@ import { AgentCard, A2AMessage } from '../a2a/types';
 import { getAiClient, retryWithBackoff } from '../aiUtils';
 import { imageGenerationLimiter, dissectionLimiter, trackApiUsage } from '../../utils/rateLimiter';
 import { BriaService } from '../briaService';
+import { PromptEngineeringService } from '../promptEngineering';
 import { CraftCategory, DissectionResponse } from '../../types';
 import { Type } from "@google/genai";
 
@@ -90,11 +91,17 @@ export abstract class CategoryAgentBase extends AgentBase {
             throw new Error(`Rate limit exceeded. Wait ${Math.ceil(waitTime / 1000)}s.`);
         }
 
-        const fullPrompt = this.getMasterImagePrompt(prompt);
-
         try {
             trackApiUsage('generateMasterImage', true);
-            const imageUrl = await BriaService.generateImage(fullPrompt);
+
+            // 1. Generate Structured Prompt using Gemini (VLM Bridge)
+            // Note: We ignore getMasterImagePrompt() now, relying on the VLM to interpret the simple prompt + category context.
+            // Or we could pass the result of getMasterImagePrompt as input to the VLM.
+            // Let's pass the raw user prompt + category to the VLM service which handles the detailed instructions.
+            const structuredPrompt = await PromptEngineeringService.createMasterPrompt(prompt, this.category);
+
+            // 2. Generate Image with Bria
+            const imageUrl = await BriaService.generateImage('', undefined, structuredPrompt);
             return imageUrl;
         } catch (error) {
             trackApiUsage('generateMasterImage', false);
@@ -112,6 +119,9 @@ export abstract class CategoryAgentBase extends AgentBase {
 
         try {
             trackApiUsage('generateCraftFromImage', true);
+            // TODO: Bria V2 supports image input + structured prompt. 
+            // We might want to generate a structured prompt from the input image first if we want true "refinement".
+            // For now, let's keep it simple: Image + Text.
             const imageUrl = await BriaService.generateImage(prompt, [imageBase64]);
             return imageUrl;
         } catch (error) {
@@ -126,14 +136,23 @@ export abstract class CategoryAgentBase extends AgentBase {
         targetObjectLabel?: string,
         stepNumber?: number
     ): Promise<string> {
-        const prompt = this.getStepImagePrompt(stepDescription, targetObjectLabel);
-
         try {
             // 1. Generate structured prompt from original image for consistency
-            const structuredPrompt = await BriaService.generateStructuredPrompt(originalImageBase64);
+            const baseStructuredPrompt = await BriaService.generateStructuredPrompt(originalImageBase64);
 
-            // 2. Generate step image using the structured prompt to maintain style/subject
-            const imageUrl = await BriaService.generateImage(prompt, [originalImageBase64], structuredPrompt);
+            // 2. Adapt the structured prompt for the specific step using Gemini
+            const stepStructuredPrompt = await PromptEngineeringService.adaptPromptForStep(
+                baseStructuredPrompt,
+                stepDescription,
+                this.category
+            );
+
+            // 3. Generate step image using the structured prompt
+            // Note: We might NOT want to pass originalImageBase64 as 'images' reference here 
+            // if we are fully defining the scene via structured prompt derived from it.
+            // Passing it might force the result to look TOO much like the finished product.
+            // Let's rely on the adaptation of the JSON to carry the style.
+            const imageUrl = await BriaService.generateImage('', undefined, stepStructuredPrompt);
             return imageUrl;
         } catch (error) {
             throw new Error("Failed to generate step image");
