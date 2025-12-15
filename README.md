@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="logo.png" alt="Me Time Logo" width="200"/>
+</div>
+
 # 🧘 Me Time
 
 > **AI-guided mindful creativity. Step by step. Breath by breath.**
