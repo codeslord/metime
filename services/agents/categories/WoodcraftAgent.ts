@@ -53,56 +53,42 @@ Show appropriate safety equipment where power tools are used.
 
     protected getDissectionPrompt(userPrompt: string): string {
         return `
-You are an expert woodworker analyzing the SPECIFIC woodcraft shown in this image.
+You are an expert woodworker analyzing this image: "${userPrompt}".
+YOUR TASK: Create step-by-step instructions to BUILD this wooden item.
 
-📷 IMAGE ANALYSIS: Carefully examine THIS exact wooden piece: "${userPrompt}".
-🎯 YOUR TASK: Create step-by-step instructions to build THIS EXACT woodcraft as shown in the image.
+1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
+2. List materials. You MUST include: Wood pieces, Saw or cutting tool, Wood glue or fasteners, Sandpaper, Finish, stain, or sealant.
+3. Break down into EXACTLY 6 PROGRESSIVE STEPS.
 
-CRITICAL - ANALYZE THE SPECIFIC DESIGN:
-- Identify the EXACT shapes, dimensions, and components visible in THIS wooden piece
-- Note the SPECIFIC wood type, grain patterns, and finish used
-- Observe the ACTUAL joinery methods and construction techniques for THIS design
-- Determine how THIS particular piece is structured and assembled
+🚨 MANDATORY 6-STEP PROGRESSION 🚨
+You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACTLY as written below (verbatim, no variations):
 
-1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10 based on THIS specific design.
-2. List the essential materials needed for THIS exact piece (wood types, hardware, finishes, specific tools).
-3. Break down the construction of THIS SPECIFIC WOODCRAFT into EXACTLY 6 STEPS that progressively build toward the finished piece.
+STEP 1 - title: "Measure and mark wood pieces"
+  - VISUAL: Raw lumber with pencil markings and tape measure.
+  - Action: Mark all cut lines on the wood.
 
-🚨 MANDATORY 6-STEP PROGRESSIVE CONSTRUCTION 🚨
-Each step describes what the IMAGE should show at that stage of completion:
+STEP 2 - title: "Cut components to size"
+  - VISUAL: All wood pieces cut to correct dimensions, stacked neatly.
+  - Action: Saw/cut the components.
 
-STEP 1 - RAW MATERIALS (~15% complete): 
-  - VISUAL: Individual wood pieces laid flat, NOT assembled
-  - Show all cut pieces separated and organized (knolling style)
-  - Tools visible beside materials
+STEP 3 - title: "Assemble the structure"
+  - VISUAL: Main pieces dry-fitted or clamped together.
+  - Action: Initial assembly of the frame/box.
 
-STEP 2 - INITIAL SHAPING (~30% complete):
-  - VISUAL: Pieces being shaped but still separate
-  - Show cutting, drilling, or carving in progress
-  - Some pieces refined, others still raw
+STEP 4 - title: "Secure joints with fasteners or glue"
+  - VISUAL: Screws, nails, or glue being applied; clamps in place.
+  - Action: Permanently fasten the structure.
 
-STEP 3 - FIRST ASSEMBLY (~50% complete):
-  - VISUAL: Main structure partially assembled
-  - Primary pieces joined together
-  - Secondary pieces still separate nearby
+STEP 5 - title: "Sand all surfaces smooth"
+  - VISUAL: Assembled item with smooth, sanded wood; dust visible.
+  - Action: Sand down rough edges and surfaces.
 
-STEP 4 - MAJOR ASSEMBLY (~70% complete):
-  - VISUAL: Most components connected
-  - Structure recognizable as the final craft
-  - Some finishing work remaining
+STEP 6 - title: "Apply finish or protective coating"
+  - VISUAL: FINISHED ITEM, stained/painted/sealed, EXACT match to master.
+  - Action: Apply varnish, paint, or oil.
 
-STEP 5 - DETAILING (~85% complete):
-  - VISUAL: Nearly complete assembly
-  - Fine details being added
-  - Minimal work remaining
-
-STEP 6 - FINISHED CRAFT (100% complete):
-  - VISUAL: EXACTLY match the original image
-  - Fully polished and finished
-  - Identical to the master reference
-
-For each step, focus on describing what the IMAGE should LOOK LIKE at that stage.
-Return strict JSON matching the schema.
+For each step, the "description" field should describe actions specific to THIS wooden item.
+Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;
     }
 

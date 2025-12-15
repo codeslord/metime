@@ -7,17 +7,17 @@ import { CategoryAgentBase } from '../CategoryAgentBase';
  * Specializes in black and white line art suitable for coloring.
  */
 export class ColoringBookAgent extends CategoryAgentBase {
-    readonly category = CraftCategory.COLORING_BOOK;
+  readonly category = CraftCategory.COLORING_BOOK;
 
-    readonly card: AgentCard = {
-        name: 'ColoringBookAgent',
-        version: '1.0.0',
-        description: 'Specialized agent for generating coloring book style line art.',
-        capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.COLORING_BOOK)
-    };
+  readonly card: AgentCard = {
+    name: 'ColoringBookAgent',
+    version: '1.0.0',
+    description: 'Specialized agent for generating coloring book style line art.',
+    capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.COLORING_BOOK)
+  };
 
-    protected getMasterImagePrompt(userPrompt: string): string {
-        return `
+  protected getMasterImagePrompt(userPrompt: string): string {
+    return `
 Create a high-quality hand-drawn black and white coloring page of: ${userPrompt}.
 CRITICAL REQUIREMENTS:
 - BLACK OUTLINES ONLY - No colors, no shading, no gray tones
@@ -27,10 +27,10 @@ CRITICAL REQUIREMENTS:
 - Professional illustration quality suitable for coloring
 DO NOT include any colors, shading, gradients, or fills.
 `;
-    }
+  }
 
-    protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
-        return `
+  protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
+    return `
 🎯 YOUR TASK: Generate a MULTI-PANEL LINE ART instruction for this coloring page.
 📷 REFERENCE IMAGE: This is the design to recreate.
 ${targetObjectLabel ? `🎨 DESIGN: ${targetObjectLabel}` : ''}
@@ -38,74 +38,60 @@ ${targetObjectLabel ? `🎨 DESIGN: ${targetObjectLabel}` : ''}
 
 CURRENT STEP: "${stepDescription}"
 
-COLORING BOOK PANEL FORMAT:
-PANEL 1 - OUTLINE: Show basic outline structure.
-PANEL 2 - DETAILS: Show added detail lines.
-PANEL 3 - FINAL: Show complete line art ready for coloring.
+COLORING BOOK PANEL FORMAT (3-4 PANELS):
+PANEL 1 - ROUGH SKETCH: Show light pencil sketch of basic composition.
+PANEL 2 - CLEAN LINES: Show ink lines being applied over sketch.
+PANEL 3 - DETAILS: Show textures and internal patterns added.
+PANEL 4 - FINAL: Show complete line art ready for coloring.
 
 CRITICAL: BLACK AND WHITE LINE ART ONLY.
 No colors, no shading, no fills - pure outlines on white background.
 `;
-    }
+  }
 
-    protected getDissectionPrompt(userPrompt: string): string {
-        return `
-You are a coloring book artist analyzing the SPECIFIC design shown in this image.
+  protected getDissectionPrompt(userPrompt: string): string {
+    return `
+You are an expert colorist analyzing this coloring page: "${userPrompt}".
+YOUR TASK: Create step-by-step instructions to COLOR this design beautifully.
 
-📷 IMAGE ANALYSIS: Carefully examine THIS exact design: "${userPrompt}".
-🎯 YOUR TASK: Break down how to draw THIS EXACT design as line art for coloring.
+1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
+2. List materials. You MUST include: Coloring book or printed page; Colored pencils, crayons, or markers; Eraser; Blending tool or tissue (optional).
+3. Break down into EXACTLY 6 PROGRESSIVE STEPS.
 
-CRITICAL - ANALYZE THE SPECIFIC DESIGN:
-- Identify the EXACT shapes, forms, and composition visible in THIS design
-- Note the SPECIFIC details, patterns, and decorative elements used
-- Observe the ACTUAL line work and drawing structure for THIS design
-- Determine how THIS particular design is constructed as line art
+🚨 MANDATORY 6-STEP PROGRESSION 🚨
+You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACTLY as written below (verbatim, no variations):
 
-1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10 based on THIS specific design.
-2. List drawing materials needed for THIS exact design (fine liner sizes, paper type).
-3. Break down THIS SPECIFIC DESIGN into EXACTLY 6 DRAWING STEPS that progressively build toward the finished line art.
+STEP 1 - title: "Review the image and identify main areas"
+  - VISUAL: Uncolored line art with key sections highlighted/pointed out.
+  - Action: Plan the color scheme and identify main subjects.
 
-🚨 MANDATORY 6-STEP PROGRESSIVE LINE ART 🚨
-Each step describes what the IMAGE should show at that stage of completion:
+STEP 2 - title: "Choose a color palette"
+  - VISUAL: Swatches of selected colors shown next to the line art.
+  - Action: Select specific pencils/markers for harmony.
 
-STEP 1 - BASIC SHAPES (~15% complete): 
-  - VISUAL: Light construction lines and basic geometric shapes
-  - Only the roughest outline visible
-  - Guide marks for proportions
+STEP 3 - title: "Apply base colors to large sections"
+  - VISUAL: Large areas filled with solid, light base layers.
+  - Action: Apply the foundation colors to the biggest sections.
 
-STEP 2 - MAIN OUTLINES (~30% complete):
-  - VISUAL: Primary contour lines drawn
-  - Main shapes defined with clean lines
-  - No details yet
+STEP 4 - title: "Color smaller details and accents"
+  - VISUAL: Smaller elements (flowers, gems, eyes) colored in.
+  - Action: Fill in the tiny patterns and accent areas.
 
-STEP 3 - SECONDARY LINES (~50% complete):
-  - VISUAL: Secondary forms and divisions added
-  - Major internal lines drawn
-  - Structure clear but sparse
+STEP 5 - title: "Add shading or highlights"
+  - VISUAL: Gradients and depth added over base colors.
+  - Action: Add darker shades for shadow and white/lighter for highlights.
 
-STEP 4 - ADDING DETAILS (~70% complete):
-  - VISUAL: Detail lines being added
-  - Patterns and textures emerging
-  - Most major elements present
+STEP 6 - title: "Finalize and clean up edges"
+  - VISUAL: FINISHED PAGE, fully colored with vibrant depth, EXACT match to master.
+  - Action: clean up stray marks, blend final transitions.
 
-STEP 5 - FINE DETAILS (~85% complete):
-  - VISUAL: Small details and decorative elements
-  - Nearly complete line work
-  - Final touches remaining
-
-STEP 6 - FINISHED LINE ART (100% complete):
-  - VISUAL: EXACTLY match the original image
-  - All lines complete and refined
-  - Ready for coloring
-
-For each step, focus on describing what the IMAGE should LOOK LIKE at that stage.
-BLACK AND WHITE LINES ONLY - no shading, no colors.
-Return strict JSON matching the schema.
+For each step, the "description" field should describe actions specific to THIS coloring page.
+Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;
-    }
+  }
 
-    protected getPatternSheetPrompt(craftLabel?: string): string {
-        return `
+  protected getPatternSheetPrompt(craftLabel?: string): string {
+    return `
 🎯 YOUR TASK: Create a DETAILED BLACK AND WHITE LINE ART COLORING PAGE from the reference image.
 📷 REFERENCE IMAGE: Design to convert to line art.
 ${craftLabel ? `🎨 DESIGN: ${craftLabel}` : ''}
@@ -124,5 +110,5 @@ OUTPUT FORMAT:
 - CLEAN BLACK LINES only
 - Print-ready quality at high resolution
 `;
-    }
+  }
 }

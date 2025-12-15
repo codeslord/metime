@@ -15,6 +15,7 @@ import { KidsCraftsAgent } from './KidsCraftsAgent';
 import { ColoringBookAgent } from './ColoringBookAgent';
 import { CostumePropsAgent } from './CostumePropsAgent';
 import { DrawingAgent } from './DrawingAgent';
+import { TabletopFiguresAgent } from './TabletopFiguresAgent';
 
 // Export all agents individually
 export { PapercraftAgent } from './PapercraftAgent';
@@ -25,6 +26,7 @@ export { KidsCraftsAgent } from './KidsCraftsAgent';
 export { ColoringBookAgent } from './ColoringBookAgent';
 export { CostumePropsAgent } from './CostumePropsAgent';
 export { DrawingAgent } from './DrawingAgent';
+export { TabletopFiguresAgent } from './TabletopFiguresAgent';
 
 /**
  * Map of category to agent instance.
@@ -41,6 +43,7 @@ const kidsCraftsAgent = new KidsCraftsAgent();
 const coloringBookAgent = new ColoringBookAgent();
 const costumePropsAgent = new CostumePropsAgent();
 const drawingAgent = new DrawingAgent();
+const tabletopFiguresAgent = new TabletopFiguresAgent();
 
 categoryAgentMap.set(CraftCategory.PAPERCRAFT, papercraftAgent);
 categoryAgentMap.set(CraftCategory.CLAY, clayAgent);
@@ -50,6 +53,7 @@ categoryAgentMap.set(CraftCategory.KIDS_CRAFTS, kidsCraftsAgent);
 categoryAgentMap.set(CraftCategory.COLORING_BOOK, coloringBookAgent);
 categoryAgentMap.set(CraftCategory.COSTUME_PROPS, costumePropsAgent);
 categoryAgentMap.set(CraftCategory.DRAWING, drawingAgent);
+categoryAgentMap.set(CraftCategory.TABLETOP_FIGURES, tabletopFiguresAgent);
 
 /**
  * Get all category agent instances.

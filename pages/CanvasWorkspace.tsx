@@ -1824,8 +1824,9 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
       const masterSeed = masterNode.data.seed as number;
 
       // Track previous step's metadata for sequential refinement
+      // Start with null - Step 1 will use raw materials baseline
       // CRITICAL: Use master's seed for ALL steps to maintain composition consistency
-      let previousStepPrompt = masterStructuredPrompt;
+      let previousStepPrompt: any = null;  // Will be populated after each step
       let previousStepSeed = masterSeed || Math.floor(Math.random() * 1000000); // Fallback to random only if no master seed
 
       let successCount = 0;
@@ -1860,14 +1861,15 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
         );
 
         try {
-          // Generate image using FIBO VLM-based refinement
+          // Generate image using PROGRESSIVE CONSTRUCTION
           const result = await generateStepImage(
             masterSeed,              // Same seed for all steps (compositional consistency)
             `${step.title}: ${step.description}`,
-            masterStructuredPrompt,  // VLM will modify this for each step
+            masterStructuredPrompt,  // GOAL: Master is the target
             step.stepNumber,
             dissection.steps.length,
-            category
+            category,
+            previousStepPrompt       // CURRENT STATE: Previous step's output (null for Step 1)
           );
 
           console.log(`✅ Step ${step.stepNumber} complete`);
@@ -2075,6 +2077,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
       };
 
       // 4. Update placeholder nodes with actual step data OR remove extras if fewer steps
+      // 5. Update placeholder nodes with actual step data OR remove extras if fewer steps
       setNodes((nds) => {
         let updatedNodes = nds.map((node) => {
           // Update master node
@@ -2099,6 +2102,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
               };
             } else {
               // This placeholder is extra (more placeholders than actual steps)
+              console.log(`Removing extra placeholder step: ${stepNum}`);
               return null; // Mark for removal
             }
           }
@@ -2179,8 +2183,9 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
       const masterSeed = masterNode.data.seed as number;
 
       // Track previous step's metadata for sequential refinement
+      // Start with null - Step 1 will use raw materials baseline
       // CRITICAL: Use master's seed for ALL steps to maintain composition consistency
-      let previousStepPrompt = masterStructuredPrompt;
+      let previousStepPrompt: any = null;  // Will be populated after each step
       let previousStepSeed = masterSeed || Math.floor(Math.random() * 1000000); // Fallback to random only if no master seed
 
       let successCount = 0;
@@ -2215,14 +2220,15 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
         );
 
         try {
-          // Generate image using FIBO VLM-based refinement
+          // Generate image using PROGRESSIVE CONSTRUCTION
           const result = await generateStepImage(
             masterSeed,              // Same seed for all steps (compositional consistency)
             `${step.title}: ${step.description}`,
-            masterStructuredPrompt,  // VLM will modify this for each step
+            masterStructuredPrompt,  // GOAL: Master is the target
             step.stepNumber,
             dissection.steps.length,
-            category
+            category,
+            previousStepPrompt       // CURRENT STATE: Previous step's output (null for Step 1)
           );
 
           console.log(`✅ Step ${step.stepNumber} complete`);

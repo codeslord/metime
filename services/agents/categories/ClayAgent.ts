@@ -7,17 +7,17 @@ import { CategoryAgentBase } from '../CategoryAgentBase';
  * Specializes in sculpting references and clay piece organization.
  */
 export class ClayAgent extends CategoryAgentBase {
-    readonly category = CraftCategory.CLAY;
+  readonly category = CraftCategory.CLAY;
 
-    readonly card: AgentCard = {
-        name: 'ClayAgent',
-        version: '1.0.0',
-        description: 'Specialized agent for clay sculpting projects including polymer clay, air-dry clay, and ceramic work.',
-        capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.CLAY)
-    };
+  readonly card: AgentCard = {
+    name: 'ClayAgent',
+    version: '1.0.0',
+    description: 'Specialized agent for clay sculpting projects including polymer clay, air-dry clay, and ceramic work.',
+    capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.CLAY)
+  };
 
-    protected getMasterImagePrompt(userPrompt: string): string {
-        return `
+  protected getMasterImagePrompt(userPrompt: string): string {
+    return `
 Create a photorealistic studio photograph of a HANDMADE DIY clay craft project: ${userPrompt}.
 Category: Clay Sculpting.
 Style: 
@@ -27,10 +27,10 @@ Style:
 - Tangible, physical presence with realistic weight and form
 View: Isometric or front-facing, centered.
 `;
-    }
+  }
 
-    protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
-        return `
+  protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
+    return `
 🎯 YOUR TASK: Generate a MULTI-PANEL INSTRUCTION IMAGE for sculpting this EXACT clay craft.
 📷 REFERENCE IMAGE: This is the FINISHED sculpture.
 ${targetObjectLabel ? `🎨 CRAFT: ${targetObjectLabel}` : ''}
@@ -48,83 +48,69 @@ PANEL 4 - RESULT: Show completed component from this step.
 CONSISTENCY: Match colors and style of reference EXACTLY.
 Show tool usage where appropriate (sculpting tools, rollers, texture tools).
 `;
-    }
+  }
 
-    protected getDissectionPrompt(userPrompt: string): string {
-        return `
-You are an expert clay sculptor analyzing the SPECIFIC clay sculpture shown in this image.
+  protected getDissectionPrompt(userPrompt: string): string {
+    return `
+You are an expert clay sculptor analyzing this image: "${userPrompt}".
+YOUR TASK: Create step-by-step instructions to SCULPT this subject from clay.
 
-📷 IMAGE ANALYSIS: Carefully examine THIS exact clay piece: "${userPrompt}".
-🎯 YOUR TASK: Create step-by-step instructions to sculpt THIS EXACT piece as shown in the image.
+1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
+2. List materials. You MUST include: Clay (air-dry, polymer, or ceramic), Sculpting tools, Work surface, Water (if applicable), Paint, Sealant or varnish.
+3. Break down into EXACTLY 6 PROGRESSIVE STEPS that build the item.
 
-CRITICAL - ANALYZE THE SPECIFIC DESIGN:
-- Identify the EXACT forms, shapes, and proportions visible in THIS sculpture
-- Note the SPECIFIC clay colors, textures, and surface details used
-- Observe the ACTUAL construction method and assembly order for THIS design
-- Determine how THIS particular sculpture is structured (solid, hollow, armature-based)
+🚨 MANDATORY 6-STEP PROGRESSION 🚨
+You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACTLY as written below (verbatim, no variations):
 
-1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10 based on THIS specific design.
-2. List the essential materials needed for THIS exact piece (clay type, specific colors, sculpting tools, armature materials if visible).
-3. Break down the sculpting of THIS SPECIFIC PIECE into EXACTLY 6 STEPS that progressively build toward the finished sculpture.
+STEP 1 - title: "Prepare and condition the clay"
+  - VISUAL: Raw clay blocks, conditioned and ready, tools laid out.
+  - Action: Prepare clay colors, condition materials.
 
-🚨 MANDATORY 6-STEP PROGRESSIVE CONSTRUCTION 🚨
-Each step describes what the IMAGE should show at that stage of completion:
+STEP 2 - title: "Form the base shape"
+  - VISUAL: Basic armature or core shapes (spheres, cylinders) formed.
+  - Action: Build the foundational structure.
 
-STEP 1 - RAW MATERIALS (~15% complete): 
-  - VISUAL: Clay balls/pieces organized flat, NOT shaped yet
-  - Show conditioned clay separated by color (knolling style)
-  - Sculpting tools visible beside materials
+STEP 3 - title: "Sculpt primary features"
+  - VISUAL: Main body/parts assembled, recognizable silhouette.
+  - Action: Attach major components, block out forms.
 
-STEP 2 - BASIC FORMS (~30% complete):
-  - VISUAL: Primary shapes roughed out but separate
-  - Main body mass shaped loosely
-  - Pieces not yet attached to each other
+STEP 4 - title: "Add fine details and texture"
+  - VISUAL: Textures, faces, small elements added.
+  - Action: Refine shapes, add fur/scales/details.
 
-STEP 3 - PRIMARY ASSEMBLY (~50% complete):
-  - VISUAL: Core pieces attached together
-  - Main body structure formed
-  - Secondary pieces nearby but not attached
+STEP 5 - title: "Dry, bake, or fire the clay"
+  - VISUAL: Completed raw sculpt ready for oven.
+  - Action: Final smoothing, prep for baking/firing.
 
-STEP 4 - SECONDARY FORMS (~70% complete):
-  - VISUAL: Most components connected
-  - Limbs/appendages attached
-  - Form recognizable as final piece
+STEP 6 - title: "Paint and seal the finished piece"
+  - VISUAL: FINISHED PIECE, painted and glossy/sealed, EXACT match to master.
+  - Action: Apply paint, wash, glaze, and sealer.
 
-STEP 5 - DETAILING (~85% complete):
-  - VISUAL: Nearly complete sculpture
-  - Fine details and textures being added
-  - Surface smoothing in progress
-
-STEP 6 - FINISHED SCULPTURE (100% complete):
-  - VISUAL: EXACTLY match the original image
-  - All details complete, surface finished
-  - Identical to the master reference
-
-For each step, focus on describing what the IMAGE should LOOK LIKE at that stage.
-Return strict JSON matching the schema.
+For each step, the "description" field should describe actions specific to THIS craft.
+Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;
-    }
+  }
 
-    protected getPatternSheetPrompt(craftLabel?: string): string {
-        return `
+  protected getPatternSheetPrompt(craftLabel?: string): string {
+    return `
 🎯 YOUR TASK: Create a CLAY SCULPTING REFERENCE SHEET for THIS EXACT craft from the reference image.
 📷 REFERENCE IMAGE: Finished 3D sculpture.
-${craftLabel ? `🎨 CRAFT: ${craftLabel}` : ''}
+      ${craftLabel ? `🎨 CRAFT: ${craftLabel}` : ''}
 📦 CATEGORY: Clay Sculpting
 
 REFERENCE SHEET REQUIREMENTS:
-1. Show clay piece breakdown - individual shapes that combine to form the sculpture.
-2. Include SIZE REFERENCES for each piece (relative balls/coils of clay).
+    1. Show clay piece breakdown - individual shapes that combine to form the sculpture.
+2. Include SIZE REFERENCES for each piece(relative balls / coils of clay).
 3. Show COLOR MIXING guides if multiple colors are used.
 4. Label each component clearly.
 5. SAME COLORS as the reference - match exactly.
 6. SAME PROPORTIONS - pieces should combine to correct scale.
 
 OUTPUT FORMAT:
-- One organized reference sheet with all clay pieces
-- PLAIN WHITE background
-- Show pieces as simple 3D shapes (balls, coils, flat pieces)
-- Professional sculpting guide quality
-`;
-    }
+    - One organized reference sheet with all clay pieces
+      - PLAIN WHITE background
+        - Show pieces as simple 3D shapes(balls, coils, flat pieces)
+          - Professional sculpting guide quality
+            `;
+  }
 }

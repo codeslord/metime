@@ -7,17 +7,17 @@ import { CategoryAgentBase } from '../CategoryAgentBase';
  * Specializes in simple templates with child-friendly instructions.
  */
 export class KidsCraftsAgent extends CategoryAgentBase {
-    readonly category = CraftCategory.KIDS_CRAFTS;
+  readonly category = CraftCategory.KIDS_CRAFTS;
 
-    readonly card: AgentCard = {
-        name: 'KidsCraftsAgent',
-        version: '1.0.0',
-        description: 'Specialized agent for simple, child-friendly craft projects.',
-        capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.KIDS_CRAFTS)
-    };
+  readonly card: AgentCard = {
+    name: 'KidsCraftsAgent',
+    version: '1.0.0',
+    description: 'Specialized agent for simple, child-friendly craft projects.',
+    capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.KIDS_CRAFTS)
+  };
 
-    protected getMasterImagePrompt(userPrompt: string): string {
-        return `
+  protected getMasterImagePrompt(userPrompt: string): string {
+    return `
 Create a bright, cheerful photograph of a REAL kids craft project: ${userPrompt}.
 Category: Kids Crafts.
 Style: 
@@ -28,10 +28,10 @@ Style:
 - Looks achievable and fun
 View: Front-facing, eye-level.
 `;
-    }
+  }
 
-    protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
-        return `
+  protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
+    return `
 🎯 YOUR TASK: Generate a MULTI-PANEL INSTRUCTION IMAGE for this EASY kids craft.
 📷 REFERENCE IMAGE: This is the FINISHED craft.
 ${targetObjectLabel ? `🎨 CRAFT: ${targetObjectLabel}` : ''}
@@ -49,65 +49,51 @@ PANEL 4 - RESULT: Show completed step with encouraging presentation.
 CONSISTENCY: Match bright colors and playful style EXACTLY.
 Keep instructions visually simple and easy for children to follow.
 `;
-    }
+  }
 
-    protected getDissectionPrompt(userPrompt: string): string {
-        return `
-You are a kids craft activity designer analyzing the SPECIFIC kids craft shown in this image.
+  protected getDissectionPrompt(userPrompt: string): string {
+    return `
+You are a friendly craft teacher analyzing this image: "${userPrompt}".
+YOUR TASK: Create easy step-by-step instructions for a KID to make this.
 
-📷 IMAGE ANALYSIS: Carefully examine THIS exact kids craft: "${userPrompt}".
-🎯 YOUR TASK: Create SIMPLE step-by-step instructions a child can follow to make THIS EXACT craft as shown.
+1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
+2. List materials. You MUST include: Paper or cardboard, Glue, Crayons/markers/paint, Safety scissors, Stickers or simple embellishments.
+3. Break down into EXACTLY 6 PROGRESSIVE STEPS.
 
-CRITICAL - ANALYZE THE SPECIFIC DESIGN:
-- Identify the EXACT shapes, colors, and components visible in THIS craft
-- Note the SPECIFIC materials used (paper colors, felt pieces, craft supplies)
-- Observe the ACTUAL assembly method and order for THIS design
-- Determine how THIS particular craft is put together in a child-friendly way
+🚨 MANDATORY 6-STEP PROGRESSION 🚨
+You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACTLY as written below (verbatim, no variations):
 
-1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10 based on THIS specific design.
-2. List child-safe materials needed for THIS exact craft (specific colors, safety scissors, school glue, construction paper, etc.).
-3. Break down THIS SPECIFIC CRAFT into EXACTLY 6 SIMPLE STEPS that progressively build toward the finished piece.
+STEP 1 - title: "Lay out materials and tools"
+  - VISUAL: All craft supplies laid out on a clean table.
+  - Action: Gather everything we need!
 
-🚨 MANDATORY 6-STEP PROGRESSIVE CONSTRUCTION 🚨
-Each step describes what the IMAGE should show at that stage of completion:
+STEP 2 - title: "Assemble the main parts"
+  - VISUAL: Big pieces cut out or organized.
+  - Action: Prepare the main shapes.
 
-STEP 1 - GATHER SUPPLIES (~15% complete): 
-  - VISUAL: Colorful craft supplies organized flat
-  - Show paper, scissors, glue in a fun arrangement
-  - Nothing cut or assembled yet
+STEP 3 - title: "Attach or glue components"
+  - VISUAL: Pieces glued or taped together to form the object.
+  - Action: Stick the big parts together.
 
-STEP 2 - CUT PIECES (~30% complete):
-  - VISUAL: Individual pieces cut out and separated
-  - All shapes ready for assembly
-  - Laid out in order
+STEP 4 - title: "Decorate with colors or embellishments"
+  - VISUAL: Glitters, stickers, or colors being added.
+  - Action: Make it colorful and fun!
 
-STEP 3 - START BUILDING (~50% complete):
-  - VISUAL: Main base piece with first elements attached
-  - Core structure forming
-  - Child hands may be visible
+STEP 5 - title: "Allow glue or paint to dry"
+  - VISUAL: Craft sitting safely to dry; hands off!
+  - Action: Let the glue or paint dry completely.
 
-STEP 4 - ADD MORE PIECES (~70% complete):
-  - VISUAL: Most pieces attached to base
-  - Craft recognizable as final project
-  - Some details still to add
+STEP 6 - title: "Display or use the finished craft"
+  - VISUAL: FINISHED CRAFT, looking happy and complete, EXACT match to master.
+  - Action: Show it off or play with it!
 
-STEP 5 - ALMOST DONE (~85% complete):
-  - VISUAL: Nearly complete craft
-  - Final decorations being added
-  - Just needs finishing touches
-
-STEP 6 - FINISHED CRAFT (100% complete):
-  - VISUAL: EXACTLY match the original image
-  - Complete and ready to display
-  - Identical to the master reference
-
-For each step, use simple, encouraging language.
-Return strict JSON matching the schema.
+For each step, the "description" field should describe actions specific to THIS kids craft.
+Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;
-    }
+  }
 
-    protected getPatternSheetPrompt(craftLabel?: string): string {
-        return `
+  protected getPatternSheetPrompt(craftLabel?: string): string {
+    return `
 🎯 YOUR TASK: Create a SIMPLE CRAFT TEMPLATE for THIS kids craft from the reference image.
 📷 REFERENCE IMAGE: Finished craft.
 ${craftLabel ? `🎨 CRAFT: ${craftLabel}` : ''}
@@ -126,5 +112,5 @@ OUTPUT FORMAT:
 - Large, clear shapes
 - Child-friendly and printable quality
 `;
-    }
+  }
 }

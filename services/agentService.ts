@@ -42,8 +42,9 @@ export const generateCraftFromImage = async (
 };
 
 /**
- * Generates a visualization for a specific step using FIBO Refine mode.
- * Passes master's structured JSON + short refinement instruction + same seed.
+ * Generates a visualization for a specific step using PROGRESSIVE CONSTRUCTION.
+ * Each step builds on the previous step towards the master goal.
+ * @param previousStepPrompt The previous step's structured prompt (null for Step 1)
  */
 export const generateStepImage = async (
   masterSeed: number,
@@ -51,7 +52,8 @@ export const generateStepImage = async (
   masterStructuredPrompt: any,
   stepNumber: number,
   totalSteps: number,
-  category: CraftCategory
+  category: CraftCategory,
+  previousStepPrompt?: any
 ): Promise<{ imageUrl: string; structuredPrompt: any; seed: number }> => {
   return orchestrator.dispatch('generate_step_image', {
     masterSeed,
@@ -59,7 +61,8 @@ export const generateStepImage = async (
     masterStructuredPrompt,
     stepNumber,
     totalSteps,
-    category
+    category,
+    previousStepPrompt
   });
 };
 

@@ -7,17 +7,17 @@ import { CategoryAgentBase } from '../CategoryAgentBase';
  * Specializes in step-by-step drawing tutorials and sketching guides.
  */
 export class DrawingAgent extends CategoryAgentBase {
-    readonly category = CraftCategory.DRAWING;
+  readonly category = CraftCategory.DRAWING;
 
-    readonly card: AgentCard = {
-        name: 'DrawingAgent',
-        version: '1.0.0',
-        description: 'Specialized agent for drawing and illustration tutorials with step-by-step guides.',
-        capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.DRAWING)
-    };
+  readonly card: AgentCard = {
+    name: 'DrawingAgent',
+    version: '1.0.0',
+    description: 'Specialized agent for drawing and illustration tutorials with step-by-step guides.',
+    capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.DRAWING)
+  };
 
-    protected getMasterImagePrompt(userPrompt: string): string {
-        return `
+  protected getMasterImagePrompt(userPrompt: string): string {
+    return `
 Create a high-quality hand-drawn illustration/sketch of: ${userPrompt}.
 Category: Drawing/Illustration.
 Style: 
@@ -27,10 +27,10 @@ Style:
 - White or neutral paper background
 View: Centered, clear view of the subject.
 `;
-    }
+  }
 
-    protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
-        return `
+  protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
+    return `
 🎯 YOUR TASK: Generate a MULTI-PANEL DRAWING TUTORIAL for this EXACT subject.
 📷 REFERENCE IMAGE: This is the FINISHED drawing.
 ${targetObjectLabel ? `🎨 SUBJECT: ${targetObjectLabel}` : ''}
@@ -51,64 +51,51 @@ STYLE REQUIREMENTS:
 - Progress from simple to complex
 - Match the style of the reference EXACTLY
 `;
-    }
+  }
 
-    protected getDissectionPrompt(userPrompt: string): string {
-        return `
-You are an expert drawing instructor creating a beginner-friendly tutorial. Analyze this image: "${userPrompt}".
-YOUR TASK: Create step-by-step instructions to DRAW this subject from scratch, with GRADUALLY INCREASING COMPLEXITY.
+  protected getDissectionPrompt(userPrompt: string): string {
+    return `
+You are an expert drawing instructor analyzing this image: "${userPrompt}".
+YOUR TASK: Create step-by-step instructions to DRAW this artwork.
 
-1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10.
-2. List the essential materials (pencil grades like 2H, HB, 2B, 4B; paper type; eraser; optional: colors).
-3. Break down into EXACTLY 6 PROGRESSIVE DRAWING STEPS.
+1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
+2. List materials. You MUST include: Paper or sketchbook, Pencil, Eraser, Pens or liners (optional), Colored pencils, markers, or paints.
+3. Break down into EXACTLY 6 PROGRESSIVE STEPS.
 
-🚨 MANDATORY 6-STEP PROGRESSIVE DRAWING TUTORIAL 🚨
-Each step describes what the IMAGE should show at that stage of completion:
+🚨 MANDATORY 6-STEP PROGRESSION 🚨
+You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACTLY as written below (verbatim, no variations):
 
-STEP 1 - BASIC SHAPES (~15% complete):
-  - VISUAL: Only simple geometric shapes (circles, ovals, rectangles)
-  - Light construction lines for proportions
-  - Guide marks and alignment lines
-  - NO details yet - just the skeletal framework
+STEP 1 - title: "Lightly sketch the outline"
+  - VISUAL: Very faint, loose gestural lines indicating composition.
+  - Action: Lightly map out the overall placement and size.
 
-STEP 2 - CONNECTING SHAPES (~30% complete):
-  - VISUAL: Shapes connected with smooth contour lines
-  - Main silhouette becoming visible
-  - Still using light pencil lines
-  - Secondary shapes for major features added
+STEP 2 - title: "Define main shapes and forms"
+  - VISUAL: Basic geometric forms (circles, cubes) blocking the subject.
+  - Action: Construct the subject using simple 3D shapes.
 
-STEP 3 - MAIN FEATURES (~50% complete):
-  - VISUAL: Primary features drawn (eyes, major elements)
-  - Contour lines refined
-  - Basic proportions established
-  - Ready for detail work
+STEP 3 - title: "Refine line work"
+  - VISUAL: Clean contour lines defining the actual subject edges.
+  - Action: Darken the correct lines and erase construction guides.
 
-STEP 4 - DETAILS (~70% complete):
-  - VISUAL: Detailed features added
-  - Textures and patterns emerging
-  - Lines becoming more confident
-  - Recognizable as the subject
+STEP 4 - title: "Add shading or color"
+  - VISUAL: Core shadows added or base colors blocked in.
+  - Action: Establish the light source and main values/hues.
 
-STEP 5 - REFINEMENT (~85% complete):
-  - VISUAL: Nearly complete drawing
-  - Fine details and textures added
-  - Initial shading started
-  - Construction lines being erased
+STEP 5 - title: "Enhance details and contrast"
+  - VISUAL: Textures (hair, wood) and deep blacks/highlights added.
+  - Action: Add fine details and push the contrast.
 
-STEP 6 - FINISHED DRAWING (100% complete):
-  - VISUAL: EXACTLY match the original image
-  - Full shading and highlights
-  - All details complete
-  - Polished final artwork
+STEP 6 - title: "Finalize and clean up the drawing"
+  - VISUAL: FINISHED DRAWING, signed, smudge-free, EXACT match to master.
+  - Action: Final polish, white highlights, clean up paper.
 
-For each step, focus on describing what the IMAGE should LOOK LIKE at that stage.
-Each step should build upon the previous one.
-Return strict JSON matching the schema.
+For each step, the "description" field should describe actions specific to THIS drawing.
+Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;
-    }
+  }
 
-    protected getPatternSheetPrompt(craftLabel?: string): string {
-        return `
+  protected getPatternSheetPrompt(craftLabel?: string): string {
+    return `
 🎯 YOUR TASK: Create a DRAWING REFERENCE GUIDE for this subject.
 📷 REFERENCE IMAGE: Finished drawing/illustration.
 ${craftLabel ? `🎨 SUBJECT: ${craftLabel}` : ''}
@@ -127,5 +114,5 @@ OUTPUT FORMAT:
 - Clean instructional style
 - Professional drawing tutorial quality
 `;
-    }
+  }
 }

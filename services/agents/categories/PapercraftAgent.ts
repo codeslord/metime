@@ -53,56 +53,42 @@ Use dotted lines for fold marks, solid lines for cut marks.
 
     protected getDissectionPrompt(userPrompt: string): string {
         return `
-You are an expert papercraft maker analyzing the SPECIFIC papercraft shown in this image.
+You are an expert paper folder/modeler analyzing this image: "${userPrompt}".
+YOUR TASK: Create step-by-step instructions to MAKE THIS PAPERCRAFT.
 
-📷 IMAGE ANALYSIS: Carefully examine THIS exact papercraft design: "${userPrompt}".
-🎯 YOUR TASK: Create step-by-step instructions to build THIS EXACT papercraft as shown in the image.
+1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
+2. List materials. You MUST include: Paper or cardstock, Scissors or craft knife, Glue or tape, Ruler, Scoring tool (or blunt edge).
+3. Break down into EXACTLY 6 PROGRESSIVE STEPS.
 
-CRITICAL - ANALYZE THE SPECIFIC DESIGN:
-- Identify the EXACT shapes, forms, and components visible in THIS craft
-- Note the SPECIFIC colors, patterns, and paper types used
-- Observe the ACTUAL construction method and assembly order for THIS design
-- Determine how THIS particular craft is structured and built
+🚨 MANDATORY 6-STEP PROGRESSION 🚨
+You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACTLY as written below (verbatim, no variations):
 
-1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10 based on THIS specific design.
-2. List the essential materials needed for THIS exact craft (paper types, cardstock weight, colors, tools).
-3. Break down the construction of THIS SPECIFIC CRAFT into EXACTLY 6 STEPS that progressively build toward the finished piece.
+STEP 1 - title: "Cut all paper components"
+  - VISUAL: Flat printout sheets with parts cut out neatly.
+  - Action: Carefully cut out all pieces along the solid lines.
 
-🚨 MANDATORY 6-STEP PROGRESSIVE CONSTRUCTION 🚨
-Each step describes what the IMAGE should show at that stage of completion:
+STEP 2 - title: "Score and fold where required"
+  - VISUAL: Cut parts with fold lines creased (mountain/valley).
+  - Action: Score dashed lines and pre-fold tabs.
 
-STEP 1 - PATTERN PIECES (~15% complete): 
-  - VISUAL: Flat paper sheets with traced/printed patterns, NOT cut yet
-  - Show paper laid flat with visible pattern lines (knolling style)
-  - Scissors/craft knife visible beside materials
+STEP 3 - title: "Assemble the base structure"
+  - VISUAL: The main body or largest section glued fast.
+  - Action: Glue the primary structure tab-by-tab.
 
-STEP 2 - CUT PIECES (~30% complete):
-  - VISUAL: Individual cut paper pieces laid flat, NOT folded
-  - All pieces cut out and separated
-  - Fold lines visible but not yet creased
+STEP 4 - title: "Attach secondary pieces"
+  - VISUAL: Smaller appendages/details attached to the base.
+  - Action: Add arms, wheels, or details to the main body.
 
-STEP 3 - FIRST FOLDS (~50% complete):
-  - VISUAL: Main pieces folded but not assembled
-  - Primary folds complete on key pieces
-  - Pieces still separate, ready for gluing
+STEP 5 - title: "Reinforce joints and edges"
+  - VISUAL: Fully assembled model, checking alignment.
+  - Action: Hold critical joints until glue sets; ensure symmetry.
 
-STEP 4 - BASE ASSEMBLY (~70% complete):
-  - VISUAL: Main structure connected
-  - Core pieces glued together
-  - Secondary pieces nearby but not attached
+STEP 6 - title: "Let the model fully set"
+  - VISUAL: FINISHED MODEL, crisp and clean, EXACT match to master.
+  - Action: Final display, glue completely cured.
 
-STEP 5 - NEAR COMPLETE (~85% complete):
-  - VISUAL: Most elements attached
-  - Final small pieces being added
-  - Structure recognizable as final craft
-
-STEP 6 - FINISHED CRAFT (100% complete):
-  - VISUAL: EXACTLY match the original image
-  - All pieces attached and finished
-  - Identical to the master reference
-
-For each step, focus on describing what the IMAGE should LOOK LIKE at that stage.
-Return strict JSON matching the schema.
+For each step, the "description" field should describe actions specific to THIS papercraft.
+Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;
     }
 

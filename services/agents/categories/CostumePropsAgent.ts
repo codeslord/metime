@@ -53,56 +53,42 @@ Show heat gun usage, contact cement application where applicable.
 
   protected getDissectionPrompt(userPrompt: string): string {
     return `
-You are an expert prop maker and cosplayer analyzing the SPECIFIC costume prop shown in this image.
+You are an expert prop maker analyzing this image: "${userPrompt}".
+YOUR TASK: Create step-by-step instructions to MAKE THIS PROP.
 
-📷 IMAGE ANALYSIS: Carefully examine THIS exact prop: "${userPrompt}".
-🎯 YOUR TASK: Create step-by-step instructions to build THIS EXACT prop as shown in the image.
+1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
+2. List materials. You MUST include: EVA foam, cardboard, or lightweight plastic; Craft knife or scissors; Hot glue or contact adhesive; Heat gun; Filler or caulk; Paint; Sealant.
+3. Break down into EXACTLY 6 PROGRESSIVE STEPS.
 
-CRITICAL - ANALYZE THE SPECIFIC DESIGN:
-- Identify the EXACT shapes, dimensions, and components visible in THIS prop
-- Note the SPECIFIC materials, colors, and weathering effects used
-- Observe the ACTUAL construction method and assembly technique for THIS design
-- Determine how THIS particular prop is structured and built
+🚨 MANDATORY 6-STEP PROGRESSION 🚨
+You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACTLY as written below (verbatim, no variations):
 
-1. Determine the complexity (Simple, Moderate, Complex) and a score 1-10 based on THIS specific design.
-2. List essential materials needed for THIS exact prop (EVA foam thickness, specific adhesives, paint colors, strapping).
-3. Break down the construction of THIS SPECIFIC PROP into EXACTLY 6 STEPS that progressively build toward the finished piece.
+STEP 1 - title: "Build the prop's base form"
+  - VISUAL: Patterns transferred to foam/cardboard, basic cuts made.
+  - Action: Transfer templates and cut base shapes.
 
-🚨 MANDATORY 6-STEP PROGRESSIVE CONSTRUCTION 🚨
-Each step describes what the IMAGE should show at that stage of completion:
+STEP 2 - title: "Reinforce the structure"
+  - VISUAL: Armature wire or PVC pipe core added to foam.
+  - Action: Construct the internal support skeleton.
 
-STEP 1 - MATERIALS & PATTERNS (~15% complete): 
-  - VISUAL: Foam sheets with traced patterns, NOT cut yet
-  - Show materials organized flat (knolling style)
-  - Tools and patterns visible beside materials
+STEP 3 - title: "Shape and attach details"
+  - VISUAL: Main forms glued together, shaping with dremel/sanding.
+  - Action: Assemble the primary silhouette and bevel edges.
 
-STEP 2 - CUT PIECES (~30% complete):
-  - VISUAL: Individual foam pieces cut out and separated
-  - All pieces flat, not heat-formed yet
-  - Bevels may be cut but not shaped
+STEP 4 - title: "Fill seams and smooth surfaces"
+  - VISUAL: Kwik Seal or filler applied to joints; sanding visible.
+  - Action: Hide seams and prime the surface (PlastiDip/Mod Podge).
 
-STEP 3 - SHAPED PIECES (~50% complete):
-  - VISUAL: Pieces heat-formed to 3D contours
-  - Individual pieces shaped but not assembled
-  - Ready for gluing
+STEP 5 - title: "Paint and weather the prop"
+  - VISUAL: Base coats applied, weathering details (rust/grime) added.
+  - Action: Paint base colors and add realistic weathering.
 
-STEP 4 - INITIAL ASSEMBLY (~70% complete):
-  - VISUAL: Main pieces glued together
-  - Core structure formed
-  - Secondary pieces nearby
+STEP 6 - title: "Seal and prepare for use"
+  - VISUAL: FINISHED PROP, sealed and ready for wear, EXACT match to master.
+  - Action: Seal paint with clear coat, add strapping/electronics.
 
-STEP 5 - PRIMED & DETAILED (~85% complete):
-  - VISUAL: Assembled and primed
-  - Base painting started
-  - Details being added
-
-STEP 6 - FINISHED PROP (100% complete):
-  - VISUAL: EXACTLY match the original image
-  - Fully painted and weathered
-  - Identical to the master reference
-
-For each step, focus on describing what the IMAGE should LOOK LIKE at that stage.
-Return strict JSON matching the schema.
+For each step, the "description" field should describe actions specific to THIS prop.
+Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;
   }
 

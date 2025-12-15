@@ -260,14 +260,15 @@ ${systemInstruction}
     }
 
     /**
-     * FIBO Refine Mode: Uses VLM to modify the master's structured JSON for progressive construction.
+     * PROGRESSIVE CONSTRUCTION: Each step builds on the previous step towards the master goal.
      * 
      * Key behavior:
-     * - Step 1: Modify objects to show only raw materials/foundation (~15%)
-     * - Steps 2-5: Progressively add more objects/details
-     * - Final step: Return master prompt AS-IS (100% complete)
+     * - Step 1: Return hardcoded raw materials JSON (baseline)
+     * - Steps 2-5: VLM receives PREVIOUS step's JSON + MASTER as goal → adds objects progressively
+     * - Step 6: Return master prompt AS-IS (100% complete)
      * 
-     * @param masterPrompt The master image's structured prompt (source of truth)
+     * @param masterPrompt The master image's structured prompt (THE GOAL)
+     * @param previousStepPrompt The previous step's structured prompt (null for Step 1)
      * @param stepDescription What this step should show
      * @param stepNumber Current step (1-indexed)
      * @param totalSteps Total number of steps
@@ -278,7 +279,8 @@ ${systemInstruction}
         stepDescription: string,
         stepNumber: number,
         totalSteps: number,
-        category: CraftCategory
+        category: CraftCategory,
+        previousStepPrompt?: StructuredPrompt | null
     ): Promise<StructuredPrompt> {
         // FINAL STEP: Return master prompt exactly for 100% match
         if (stepNumber === totalSteps) {
@@ -289,49 +291,116 @@ ${systemInstruction}
         const ai = getAiClient();
         const completionPercent = Math.round((stepNumber / totalSteps) * 100);
 
+        // Define category-specific raw materials for Step 1
+        const rawMaterialsByCategory: Record<string, string[]> = {
+            [CraftCategory.CLAY]: ["raw clay block (unconditioned)", "sculpting tools laid flat", "work surface", "water bowl"],
+            [CraftCategory.JEWELRY]: ["loose beads in containers", "wire spool (uncut)", "jump rings in dish", "jewelry pliers"],
+            [CraftCategory.WOODCRAFT]: ["raw lumber plank (uncut)", "wood boards stacked", "saw", "sandpaper sheets"],
+            [CraftCategory.COSTUME_PROPS]: ["flat EVA foam sheets", "craft knife", "contact adhesive container", "heat gun"],
+            [CraftCategory.KIDS_CRAFTS]: ["construction paper sheets", "glue bottle", "safety scissors", "crayons box"],
+            [CraftCategory.PAPERCRAFT]: ["cardstock sheets (uncut)", "scissors", "ruler", "scoring tool"],
+            [CraftCategory.TABLETOP_FIGURES]: ["unpainted miniature on sprue", "primer bottle", "paint pots", "fine brushes"],
+            [CraftCategory.DRAWING]: ["blank sketchbook page", "pencil", "eraser", "pens"],
+            [CraftCategory.COLORING_BOOK]: ["uncolored line art page", "colored pencils set", "markers", "eraser"]
+        };
+
+        const rawMaterials = rawMaterialsByCategory[category] || ["raw materials", "tools"];
+
+        // Construct raw materials objects (used for Step 1 and as baseline for Steps 2+)
+        const rawMaterialObjects = rawMaterials.map((material, index) => ({
+            description: material,
+            location: index === 0 ? "center of frame" : `${["left", "right", "top-left", "top-right"][index % 4]} of frame`,
+            relationship: "laid flat on work surface, organized in knolling arrangement",
+            relative_size: index === 0 ? "medium, prominent" : "small to medium",
+            shape_and_color: "natural materials with typical colors",
+            texture: "matte, real material texture"
+        }));
+
+        // Step 1 baseline prompt (raw materials only)
+        const step1Baseline: StructuredPrompt = {
+            short_description: `Step 1: ${stepDescription} - Raw materials and tools laid out in knolling arrangement`,
+            objects: rawMaterialObjects,
+            background_setting: masterPrompt.background_setting || "clean workspace, neutral background",
+            lighting: masterPrompt.lighting || {
+                conditions: "bright studio lighting",
+                direction: "overhead",
+                shadows: "soft"
+            },
+            aesthetics: masterPrompt.aesthetics || {
+                composition: "centered, organized flat lay",
+                color_scheme: "natural material colors",
+                mood_atmosphere: "clean, professional, instructional"
+            },
+            photographic_characteristics: masterPrompt.photographic_characteristics || {
+                camera_angle: "top-down, flat lay",
+                depth_of_field: "medium",
+                focus: "all materials in focus",
+                lens_focal_length: "50mm"
+            },
+            style_medium: masterPrompt.style_medium || "professional product photography",
+            context: "15% complete - Only raw materials visible, no crafting started yet"
+        };
+
+        // STEP 1: Return raw materials baseline directly (no VLM)
+        if (stepNumber === 1) {
+            console.log(`🛠️ Step 1: BYPASSING VLM - Returning raw materials baseline`);
+            console.log(`   Category: ${category}`);
+            console.log(`   Materials: ${rawMaterials.join(', ')}`);
+            console.log(`   ✅ Step 1 prompt constructed with ${rawMaterialObjects.length} objects`);
+            return step1Baseline;
+        }
+
+        // STEPS 2-5: Progressive construction - refine PREVIOUS step towards MASTER goal
+        // If no previousStepPrompt provided, use Step 1 baseline as the starting point
+        const inputPrompt = previousStepPrompt || step1Baseline;
+
         const systemInstruction = `
-You are a FIBO VLM refiner. Your job is to MODIFY a structured JSON prompt to show a specific stage of construction.
+You are a PROGRESSIVE CONSTRUCTION VLM. Your job is to ADD objects from the GOAL to the CURRENT state.
 
-MASTER JSON: This describes the FINISHED craft (100% complete).
-YOUR TASK: Modify this JSON to show the craft at ${completionPercent}% completion.
+🎯 GOAL (Master JSON): This is the FINISHED craft we are building towards.
+📍 CURRENT STATE (Previous Step JSON): This is where we are now. You must BUILD upon this.
+📋 THIS STEP: "${stepDescription}" (~${completionPercent}% complete)
 
-STEP ${stepNumber} of ${totalSteps}: "${stepDescription}"
-CATEGORY: ${category}
-COMPLETION: ~${completionPercent}%
+YOUR TASK: Take the CURRENT STATE and ADD objects/details from the GOAL to reach ${completionPercent}% completion.
 
-CRITICAL RULES FOR JSON MODIFICATION:
+PROGRESSIVE CONSTRUCTION RULES:
 
-1. **OBJECTS ARRAY**: This is what you modify most.
-   - Step 1 (~15%): Keep ONLY 1-2 objects representing raw materials
-   - Step 2 (~30%): Keep 2-3 objects, some partially assembled
-   - Step 3 (~50%): Keep 3-4 objects, half assembled
-   - Step 4 (~70%): Keep most objects, nearly complete
-   - Step 5 (~85%): Keep all objects, just missing final details
+1. **START FROM CURRENT STATE** (Previous Step JSON):
+   - Keep ALL objects from the previous step
+   - ADD new objects/details from the GOAL to progress construction
+   - DO NOT remove anything that was already added
 
-2. **WHAT TO PRESERVE** (keep exactly the same):
-   - lighting (same camera setup)
-   - aesthetics (same style/mood)
-   - photographic_characteristics (same camera angle)
+2. **ADD OBJECTS FROM GOAL** based on step:
+   - Step 2 (~30%): Add 1-2 basic shapes being formed (rough forms from GOAL)
+   - Step 3 (~50%): Add main structural elements (half of GOAL objects assembled)
+   - Step 4 (~70%): Add most remaining objects (nearly complete, missing finish)
+   - Step 5 (~85%): Add final details (all objects, just missing polish)
+
+3. **MERGING STRATEGY**:
+   - Copy objects from CURRENT STATE first
+   - Then ADD selected objects from GOAL that match this step's progress
+   - Modify added objects to show "in-progress" state if needed
+
+4. **PRESERVE FROM GOAL** (for consistency):
+   - lighting (same setup)
+   - aesthetics (same style)
+   - photographic_characteristics (same camera)
    - background_setting (same backdrop)
-   - style_medium (same medium)
 
-3. **WHAT TO MODIFY**:
-   - objects: Reduce for early steps, add more for later steps
-   - short_description: Update to describe this stage
-   - context: Update to describe the progress level
+5. **UPDATE**:
+   - short_description: Describe "${stepDescription}"
+   - context: "${completionPercent}% complete"
 
-4. **OBJECT MODIFICATIONS**:
-   - For early steps: Show objects as separated/unassembled
-   - Add "location": "laid flat on surface" for knolling style
-   - Remove "relationship" that implies connection for early steps
-   - Add descriptors like "unassembled", "separate pieces", "raw materials"
-
-Return the MODIFIED JSON that represents this step's visual state.
+Return the MODIFIED JSON showing progressive construction at ${completionPercent}%.
 `;
 
+        // Build the two-JSON prompt showing CURRENT STATE and GOAL
         const promptText = `
-MASTER PROMPT JSON (100% complete):
+GOAL JSON (100% complete - the finished craft):
 ${JSON.stringify(masterPrompt, null, 2)}
+
+CURRENT STATE JSON (~${completionPercent - 17}% complete - previous step):
+${JSON.stringify(inputPrompt, null, 2)}
 
 INSTRUCTIONS:
 ${systemInstruction}
