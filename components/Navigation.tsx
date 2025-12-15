@@ -28,7 +28,7 @@ export const Navigation: React.FC = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 md:gap-3 group">
             <Box className="w-6 h-6 md:w-8 md:h-8 text-indigo-500 group-hover:rotate-12 smooth-transition" />
-            <span className="text-lg md:text-xl font-black tracking-tighter text-slate-100">Crafternia</span>
+            <span className="text-lg md:text-xl font-black tracking-tighter text-slate-100">Me Time</span>
           </Link>
 
           {/* Nav Links */}
@@ -44,8 +44,8 @@ export const Navigation: React.FC = () => {
                   to={item.path}
                   className={`
                     flex items-center gap-1.5 md:gap-2 px-2.5 md:px-4 py-1.5 md:py-2 rounded-lg font-medium text-xs md:text-sm smooth-transition relative
-                    ${isActive 
-                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/50' 
+                    ${isActive
+                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/50'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
                     }
                   `}

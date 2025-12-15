@@ -1,13 +1,13 @@
 # GEMINI.md
 
 ## Project Overview
-**Crafternia** is an AI-powered "Infinite Craft Workbench" designed to transform craft ideas into visual, step-by-step instruction sequences. It resurrects the aesthetic and utility of traditional paper craft manuals using generative AI.
+**Me Time** is an AI-powered mindful creative app designed to help users slow down and reconnect through simple, calming creative activities. It uses generative AI to provide step-by-step guidance for various art forms including drawing, painting, coloring, and more.
 
-The core value proposition is to "dissect imagination" into reality by generating:
-1.  **Master Reference Images**: Studio-quality photos of the finished craft.
-2.  **Intelligent Dissection**: Breaking down the craft into materials and steps.
-3.  **Isolated Step Visualizations**: "Knolling" style images for each step, showing only necessary components.
-4.  **Infinite Canvas**: A spatial UI for organizing instructions.
+The core value proposition is to provide "mindful doing" by:
+1.  **Master Reference Images**: Beautiful reference art for each activity.
+2.  **Intelligent Dissection**: Breaking down the creation process into manageable steps.
+3.  **Progressive Step Visualizations**: Using BRIA FIBO's refinement to progressively build images.
+4.  **Infinite Canvas**: A spatial UI for organizing and connecting creative elements.
 
 ## Tech Stack
 *   **Framework**: React 19
@@ -15,15 +15,15 @@ The core value proposition is to "dissect imagination" into reality by generatin
 *   **Language**: TypeScript
 *   **Styling**: TailwindCSS
 *   **UI Library**: React Flow (@xyflow/react) for the infinite canvas
-*   **AI SDK**: Google GenAI SDK (@google/genai)
+*   **AI SDK**:BRIA FIBO API, Google GenAI SDK (@google/genai), 
 *   **Icons**: Lucide React
 *   **Package Manager**: npm
 
 ## Architecture & File Structure
 ```
-Crafternia/
+MeTime/
 ├── components/          # React components (UI, specific features)
-├── services/            # API services (e.g., geminiService.ts)
+├── services/            # API services (agentService.ts, briaService.ts)
 ├── contexts/            # React Context providers
 ├── hooks/               # Custom React hooks (if applicable)
 ├── utils/               # Helper functions and utilities
@@ -34,16 +34,28 @@ Crafternia/
 └── public/              # Static assets
 ```
 
+## Activity Categories
+*   Drawing
+*   Coloring Book
+*   Miniature Painting (3D prints, wood, clay)
+*   Fabric Painting
+*   Flower Vase Customization
+*   Watercolor Painting
+*   Oil Painting
+*   Jewelry Customization
+*   Pattern Art (Mandala, Fractal, Zen, Geometric)
+*   Game Character Design
+
 ## Key Features & AI Integration
-*   **Master Image Generation**: Uses `gemini-3-pro-image-preview`.
-    *   *Prompt Strategy*: Photorealistic studio photography, neutral background, handmade textures.
+*   **Master Image Generation**: Uses BRIA FIBO for JSON-native control.
+    *   *Prompt Strategy*: Beautiful, calming art reference images.
 *   **Dissection (Text Reasoning)**: Uses `gemini-2.5-flash`.
-    *   *Prompt Strategy*: Expert maker persona, returns strict JSON for complexity, materials, and steps.
-*   **Step Image Generation**: Uses `gemini-3-pro-image-preview`.
-    *   *Prompt Strategy*: Extreme isolation, knolling/macro views, consistency with master image, white background.
+    *   *Prompt Strategy*: Expert artist persona, returns strict JSON for steps.
+*   **Step Image Generation**: Uses BRIA FIBO's refinement pipeline.
+    *   *Prompt Strategy*: Progressive refinement from master image using JSON controls.
 
 ## Development Workflow
-*   **Start Dev Server**: `npm run dev` (Runs on http://localhost:5173 by default, or 3000)
+*   **Start Dev Server**: `npm run dev` (Runs on http://localhost:5173 by default)
 *   **Build for Production**: `npm run build`
 *   **Preview Production Build**: `npm run preview`
 
@@ -51,15 +63,15 @@ Crafternia/
 *   **Functional Components**: Use React functional components with Hooks.
 *   **TypeScript**: Use interfaces/types for props and state. Avoid `any`.
 *   **Styling**: Use utility-first Tailwind classes.
-*   **State Management**: Use React Context for global state (e.g., for managing the craft project data).
-*   **AI Services**: Encapsulate API calls in `services/`. Handle errors and rate limits gracefully (exponential backoff).
+*   **State Management**: Use React Context for global state.
+*   **AI Services**: Encapsulate API calls in `services/`. Handle errors and rate limits gracefully.
 
 ## Important Files
-*   `prd.md`: Comprehensive Product Requirement Document. Source of truth for features and prompts.
 *   `README.md`: General project information and setup guide.
-*   `services/geminiService.ts`: Core logic for interacting with Gemini API.
+*   `services/agentService.ts`: Core logic for agent orchestration.
+*   `services/briaService.ts`: BRIA FIBO API integration.
 
 ## Notes for Agents
-*   When modifying prompts, strictly adhere to the prompt engineering strategy defined in `prd.md`.
+*   Categories are defined in `types.ts` as `ActivityCategory` enum.
 *   Ensure the infinite canvas interactions remain smooth; avoid heavy computations in the render loop.
 *   The project uses `module` type in `package.json`, so use ESM syntax.

@@ -11,6 +11,38 @@ export const SettingsView: React.FC = () => {
   const [apiKeySuccess, setApiKeySuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { state: authState, setBriaApiKey, removeBriaApiKey } = useAuth();
+  const [briaKeyInput, setBriaKeyInput] = useState('');
+  const [showBriaKey, setShowBriaKey] = useState(false);
+  const [isSavingBriaKey, setIsSavingBriaKey] = useState(false);
+  const [briaKeySuccess, setBriaKeySuccess] = useState(false);
+  const [briaError, setBriaError] = useState<string | null>(null);
+
+  const handleBriaKeySave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingBriaKey(true);
+    setBriaError(null);
+    setBriaKeySuccess(false);
+
+    try {
+      setBriaApiKey(briaKeyInput);
+      setBriaKeyInput('');
+      setBriaKeySuccess(true);
+      setTimeout(() => setBriaKeySuccess(false), 3000);
+    } catch (err: any) {
+      setBriaError(err.message || 'Failed to save Bria API key');
+    } finally {
+      setIsSavingBriaKey(false);
+    }
+  };
+
+  const handleBriaKeyRemove = () => {
+    if (confirm('Are you sure you want to remove your Bria API key?')) {
+      removeBriaApiKey();
+      setBriaKeyInput('');
+    }
+  };
+
   const handleApiKeySave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSavingApiKey(true);
@@ -59,7 +91,7 @@ export const SettingsView: React.FC = () => {
             </div>
 
             <p className="text-sm text-slate-400 mb-6">
-              Add your own Gemini API key to use AI features for voxel generation, 
+              Add your own Gemini API key to use AI features for voxel generation,
               image editing, and more. Your key is encrypted and stored securely in your browser.
             </p>
 
@@ -158,6 +190,112 @@ export const SettingsView: React.FC = () => {
             )}
           </div>
 
+          {/* Bria API Key Settings */}
+          <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Key className="w-6 h-6 text-purple-500" />
+              <h2 className="text-xl font-bold text-slate-100">Bria AI API Key</h2>
+            </div>
+
+            <p className="text-sm text-slate-400 mb-6">
+              Add your Bria API key to enable high-quality image generation features.
+            </p>
+
+            {authState.briaApiKey ? (
+              <div className="space-y-4">
+                <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-slate-300">
+                      Current Bria API Key
+                    </span>
+                    <button
+                      onClick={() => setShowBriaKey(!showBriaKey)}
+                      className="text-slate-400 hover:text-slate-200 transition-colors"
+                    >
+                      {showBriaKey ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                  <code className="text-sm text-slate-100 font-mono break-all">
+                    {showBriaKey ? authState.briaApiKey : maskApiKey(authState.briaApiKey)}
+                  </code>
+                </div>
+
+                <div className="bg-purple-900/20 border border-purple-800 rounded-lg p-4">
+                  <p className="text-sm text-purple-400">
+                    ✓ Bria API key configured!
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleBriaKeyRemove}
+                  className="px-4 py-2 bg-red-900/20 border border-red-800 text-red-400 font-medium rounded-lg hover:bg-red-900/30 transition-all flex items-center gap-2"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Remove API Key
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleBriaKeySave} className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="briaApiKey"
+                    className="block text-sm font-medium text-slate-300 mb-2"
+                  >
+                    Enter Bria API Key
+                  </label>
+                  <input
+                    id="briaApiKey"
+                    type="password"
+                    value={briaKeyInput}
+                    onChange={(e) => setBriaKeyInput(e.target.value)}
+                    className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent font-mono"
+                    placeholder="Provide your Bria API key..."
+                    required
+                  />
+                  <p className="text-xs text-slate-500 mt-2">
+                    Get your API key from the{' '}
+                    <a
+                      href="https://platform.bria.ai/console/account/api-keys"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-purple-400 hover:text-purple-300 underline"
+                    >
+                      Bria platform console
+                    </a>.
+                  </p>
+                </div>
+
+                {briaKeySuccess && (
+                  <div className="bg-purple-900/20 border border-purple-800 rounded-lg p-3 flex items-center gap-2">
+                    <Check className="w-5 h-5 text-purple-400" />
+                    <p className="text-sm text-purple-400">
+                      Bria API key saved successfully!
+                    </p>
+                  </div>
+                )}
+
+                {briaError && (
+                  <div className="bg-red-900/20 border border-red-800 rounded-lg p-3">
+                    <p className="text-sm text-red-400">{briaError}</p>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={isSavingBriaKey}
+                  className="px-6 py-3 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition-all shadow-lg shadow-purple-900/50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  {isSavingBriaKey ? 'Saving...' : 'Save Bria API Key'}
+                </button>
+              </form>
+            )}
+          </div>
+
           {/* Info Box */}
           <div className="bg-indigo-900/20 border border-indigo-800 rounded-2xl p-6">
             <h3 className="font-bold text-indigo-300 mb-3 flex items-center gap-2">
@@ -167,24 +305,24 @@ export const SettingsView: React.FC = () => {
             <ul className="space-y-2 text-sm text-slate-400">
               <li className="flex items-start gap-2">
                 <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full mt-1.5 flex-shrink-0"></div>
-                <span>Generate voxel art with AI</span>
+                <span>Generate high-quality craft images requiring specialized AI models (Bria AI)</span>
               </li>
               <li className="flex items-start gap-2">
                 <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full mt-1.5 flex-shrink-0"></div>
-                <span>Edit and refine your creations using natural language</span>
+                <span>Edit and refine your creations using natural language (Gemini)</span>
               </li>
               <li className="flex items-start gap-2">
                 <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full mt-1.5 flex-shrink-0"></div>
-                <span>Create complex 3D models from text descriptions</span>
+                <span>Create complex 3D models and step visualizations</span>
               </li>
               <li className="flex items-start gap-2">
                 <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full mt-1.5 flex-shrink-0"></div>
-                <span>No usage limits - use your own quota</span>
+                <span>No usage limits - use your own quota for sustained usage</span>
               </li>
             </ul>
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };

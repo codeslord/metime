@@ -1,5 +1,5 @@
 /**
- * Export utilities for Crafternia projects
+ * Export utilities for Me Time projects
  * Supports ZIP archive and PDF document exports
  */
 import JSZip from 'jszip';
@@ -97,7 +97,7 @@ async function loadImage(url: string): Promise<{ img: HTMLImageElement; width: n
 
 /**
  * Export project as a ZIP archive
- * Contains: master.png, step-N.png files, materials.txt, instructions.json, crafternia-project.json
+ * Contains: master.png, step-N.png files, materials.txt, instructions.json, metime-project.json
  */
 export async function exportAsZip(
     project: ExportProjectData,
@@ -177,13 +177,13 @@ export async function exportAsZip(
         // Include canvas state if provided
         canvasState: project.canvasState || null,
     };
-    zip.file('crafternia-project.json', JSON.stringify(projectState, null, 2));
+    zip.file('metime-project.json', JSON.stringify(projectState, null, 2));
 
     // Generate and download
     report('Generating ZIP file...');
     const content = await zip.generateAsync({ type: 'blob' });
 
-    const filename = `${project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_crafternia.zip`;
+    const filename = `${project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_metime.zip`;
     downloadBlob(content, filename);
 
     report('Download started!');
@@ -360,11 +360,11 @@ export async function exportAsPdf(
     // Footer
     pdf.setFontSize(8);
     pdf.setTextColor(150);
-    pdf.text(`Generated with Crafternia • ${new Date().toLocaleDateString()}`, margin, pageHeight - 8);
+    pdf.text(`Generated with Me Time • ${new Date().toLocaleDateString()}`, margin, pageHeight - 8);
 
     // Save
     report('Generating PDF file...');
-    const filename = `${project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_crafternia.pdf`;
+    const filename = `${project.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_metime.pdf`;
     pdf.save(filename);
 
     report('Download started!');
@@ -397,7 +397,7 @@ async function blobToDataUrl(blob: Blob): Promise<string> {
 }
 
 /**
- * Import a Crafternia project from a ZIP file
+ * Import a Me Time project from a ZIP file
  * Returns the parsed project data with images as data URLs
  */
 export async function importFromZip(
@@ -410,7 +410,7 @@ export async function importFromZip(
     const zip = await JSZip.loadAsync(file);
 
     // Check for project file (new format with canvas state)
-    let projectJson = zip.file('crafternia-project.json');
+    let projectJson = zip.file('metime-project.json');
     let projectData: {
         version?: string;
         name: string;
@@ -433,14 +433,22 @@ export async function importFromZip(
         const content = await projectJson.async('text');
         projectData = JSON.parse(content);
     } else {
-        // Fallback to legacy instructions.json
-        const instructionsJson = zip.file('instructions.json');
-        if (!instructionsJson) {
-            throw new Error('Invalid ZIP file: no project data found');
+        // Try backward compatibility with old Crafternia format
+        projectJson = zip.file('crafternia-project.json');
+        if (projectJson) {
+            report('Found legacy Crafternia project file...');
+            const content = await projectJson.async('text');
+            projectData = JSON.parse(content);
+        } else {
+            // Fallback to legacy instructions.json
+            const instructionsJson = zip.file('instructions.json');
+            if (!instructionsJson) {
+                throw new Error('Invalid ZIP file: no project data found');
+            }
+            report('Using legacy format...');
+            const content = await instructionsJson.async('text');
+            projectData = JSON.parse(content);
         }
-        report('Using legacy format...');
-        const content = await instructionsJson.async('text');
-        projectData = JSON.parse(content);
     }
 
     if (!projectData) {

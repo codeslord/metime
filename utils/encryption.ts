@@ -1,5 +1,5 @@
 /**
- * Encryption utilities for Crafternia
+ * Encryption utilities for Me Time
  * Handles API key encryption/decryption for secure storage
  * 
  * NOTE: This is a simple obfuscation for MVP (client-side only)
@@ -20,10 +20,10 @@ export const encryptApiKey = (apiKey: string): string => {
     // Add timestamp for uniqueness
     const timestamp = Date.now().toString();
     const combined = `${apiKey}:${timestamp}`;
-    
+
     // Base64 encode
     const encoded = btoa(combined);
-    
+
     // Add a simple prefix to identify encrypted keys
     return `craftus_enc_${encoded}`;
   } catch (error) {
@@ -47,10 +47,10 @@ export const decryptApiKey = (encrypted: string): string => {
     }
 
     const encoded = encrypted.replace('craftus_enc_', '');
-    
+
     // Base64 decode
     const decoded = atob(encoded);
-    
+
     // Extract API key (before the colon)
     const parts = decoded.split(':');
     if (parts.length < 2) {
@@ -154,7 +154,7 @@ export const encryptWithWebCrypto = async (
   // Convert to base64
   const encryptedArray = Array.from(new Uint8Array(encryptedBuffer));
   const encrypted = btoa(String.fromCharCode(...encryptedArray));
-  
+
   const ivArray = Array.from(iv);
   const ivBase64 = btoa(String.fromCharCode(...ivArray));
 

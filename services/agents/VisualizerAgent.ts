@@ -1,6 +1,7 @@
 import { AgentBase } from '../a2a/AgentBase';
 import { AgentCard, A2AMessage } from '../a2a/types';
-import { getAiClient, retryWithBackoff } from '../aiUtils';
+import { BriaService } from '../briaService';
+import { PromptEngineeringService } from '../promptEngineering';
 import { imageGenerationLimiter, trackApiUsage } from '../../utils/rateLimiter';
 import { CraftCategory } from '../../types';
 
@@ -8,7 +9,7 @@ export class VisualizerAgent extends AgentBase {
     readonly card: AgentCard = {
         name: 'VisualizerAgent',
         version: '1.0.0',
-        description: 'Generates visual assets for crafts including master images, step visualizations, and turn tables.',
+        description: 'Generates visual assets for crafts including master images, step visualizations, and turn tables using Bria AI.',
         capabilities: [
             {
                 intent: 'generate_master_image',
@@ -70,7 +71,7 @@ export class VisualizerAgent extends AgentBase {
         }
     }
 
-    // --- Private Implementation Methods (Migrated from geminiService.ts) ---
+    // --- Private Implementation Methods (Migrated to Bria AI) ---
 
     private async generateCraftImage(prompt: string, category: CraftCategory): Promise<string> {
         if (!imageGenerationLimiter.canMakeRequest()) {
@@ -79,44 +80,19 @@ export class VisualizerAgent extends AgentBase {
             throw new Error(`Rate limit exceeded. Please wait ${waitSeconds} seconds before generating another image.`);
         }
 
-        const ai = getAiClient();
-        const fullPrompt = category === CraftCategory.COLORING_BOOK
-            ? `
-      Create a high-quality black and white line art coloring page of: ${prompt}.
-      CRITICAL REQUIREMENTS:
-      - BLACK OUTLINES ONLY - No colors, no shading, no fills, no gray tones
-      - Pure line art suitable for coloring with pencils or crayons
-      - Clean, crisp black lines on pure white background
-      - Professional coloring book quality
-      DO NOT include any colors, shading, gradients, or fills - ONLY black outlines on white background.
-    `
-            : `
-      Create a photorealistic studio photograph of a DIY craft project: ${prompt}.
-      Category: ${category}.
-      Style: Neutral background, even studio lighting, highly detailed textures showing materials like fabric grain, paper fibers, wood grain, or metal. 
-      The object should look tangible, handmade, and finished.
-      View: Isometric or front-facing, centered.
-    `;
+        try {
+            trackApiUsage('generateCraftImage', true); // Eagerly track attempt
 
-        return retryWithBackoff(async () => {
-            const response = await ai.models.generateContent({
-                model: 'gemini-3-pro-image-preview',
-                contents: { parts: [{ text: fullPrompt }] },
-                config: { imageConfig: { aspectRatio: "1:1", imageSize: "1K" } },
-            });
+            // 1. Generate Structured Prompt for generic visualizer as well
+            const structuredPrompt = await PromptEngineeringService.createMasterPrompt(prompt, category);
 
-            for (const part of response.candidates?.[0]?.content?.parts || []) {
-                if (part.inlineData) {
-                    trackApiUsage('generateCraftImage', true);
-                    return `data:image/png;base64,${part.inlineData.data}`;
-                }
-            }
-            trackApiUsage('generateCraftImage', false);
-            throw new Error("Failed to generate image");
-        }).catch((error) => {
+            // 2. Generate Image
+            const imageUrl = await BriaService.generateImage('', undefined, structuredPrompt);
+            return imageUrl;
+        } catch (error) {
             trackApiUsage('generateCraftImage', false);
             throw error;
-        });
+        }
     }
 
     private async generateCraftFromImage(imageBase64: string, category: CraftCategory): Promise<string> {
@@ -126,55 +102,25 @@ export class VisualizerAgent extends AgentBase {
             throw new Error(`Rate limit exceeded. Wait ${waitSeconds}s.`);
         }
 
-        const ai = getAiClient();
-        const cleanBase64 = imageBase64.split(',')[1] || imageBase64;
         const prompt = `Transform this image into a photorealistic studio photograph of a DIY craft project. Category: ${category}. Maintain form and colors.`;
 
-        return retryWithBackoff(async () => {
-            const response = await ai.models.generateContent({
-                model: 'gemini-3-pro-image-preview',
-                contents: {
-                    parts: [
-                        { inlineData: { mimeType: 'image/png', data: cleanBase64 } },
-                        { text: prompt },
-                    ],
-                },
-                config: { imageConfig: { aspectRatio: "1:1", imageSize: "1K" } },
-            });
-
-            for (const part of response.candidates?.[0]?.content?.parts || []) {
-                if (part.inlineData) {
-                    trackApiUsage('generateCraftFromImage', true);
-                    return `data:image/png;base64,${part.inlineData.data}`;
-                }
-            }
-            trackApiUsage('generateCraftFromImage', false);
-            throw new Error("Failed to generate craft image from uploaded image");
-        }).catch((error) => {
+        try {
+            trackApiUsage('generateCraftFromImage', true);
+            // Passing imageBase64 as reference - still using simple prompt for now
+            const imageUrl = await BriaService.generateImage(prompt, [imageBase64]);
+            return imageUrl;
+        } catch (error) {
             trackApiUsage('generateCraftFromImage', false);
             throw error;
-        });
+        }
     }
 
     private getCategorySpecificRules(category: CraftCategory): string {
+        // This is less relevant now that VLM handles it, but keeping it for legacy or V1 fallback if needed
         const categoryRules: Record<string, string> = {
-            'Papercraft': `
-  PAPERCRAFT MULTI-PANEL FORMAT (2-4 PANELS):
-  PANEL 1 - PATTERN SHEETS (KNOLLING LAYOUT): Show flat pattern pieces laid out side-by-side.
-  PANEL 2 - ASSEMBLY: Show hands folding/gluing pieces.
-  PANEL 3/4 - RESULT: Show completed component.
-  `,
-            'Clay': `
-  CLAY MULTI-PANEL FORMAT (2-4 PANELS):
-  PANEL 1 - CLAY PIECES (KNOLLING): Show clay pieces organized flat.
-  PANEL 2 - SHAPING: Show hands sculpting clay.
-  PANEL 3/4 - RESULT: Show completed component.
-  `,
-            // ... (Simplified for brevity, but logic should be reasonably complete or imported)
-            // I will trust the previous prompt structure was important, so I will include a generic fallback if specific ones are too long to copy-paste blindly without viewing.
-            // Actually, I should probably copy the full logic if I want high quality.
+            'Papercraft': `PAPERCRAFT MULTI-PANEL FORMAT...`,
         };
-        return categoryRules[category] || `MULTI-PANEL FORMAT: Show materials, technique, assembly, and result.`;
+        return categoryRules[category] || `MULTI-PANEL FORMAT...`;
     }
 
     private async generateStepImage(
@@ -184,52 +130,23 @@ export class VisualizerAgent extends AgentBase {
         targetObjectLabel?: string,
         stepNumber?: number
     ): Promise<string> {
-        const ai = getAiClient();
-        const cleanBase64 = originalImageBase64.split(',')[1] || originalImageBase64;
-        const categoryRules = this.getCategorySpecificRules(category);
+        try {
+            // 1. Generate structured prompt from original image
+            const baseStructuredPrompt = await BriaService.generateStructuredPrompt(originalImageBase64);
 
-        const prompt = `
-  🎯 YOUR TASK: Generate a MULTI-PANEL INSTRUCTION IMAGE for building this EXACT craft.
-  📷 REFERENCE IMAGE: This is the FINISHED craft.
-  ${targetObjectLabel ? `🎨 CRAFT: ${targetObjectLabel}` : ''}
-  📦 CATEGORY: ${category}
-  
-  CURRENT STEP: "${stepDescription}"
-  Show ONLY the components mentioned in this step.
-  
-  MULTI-PANEL FORMAT (2-4 PANELS):
-  PANEL 1 - MATERIALS
-  PANEL 2 - ASSEMBLY
-  PANEL 3 - DETAILS
-  PANEL 4 - RESULT
-  
-  ${categoryRules}
-  
-  CONSISTENCY: Match colors and style of reference EXACTLY.
-    `;
+            // 2. Adapt the structured prompt for step
+            const stepStructuredPrompt = await PromptEngineeringService.adaptPromptForStep(
+                baseStructuredPrompt,
+                stepDescription,
+                category
+            );
 
-        return retryWithBackoff(async () => {
-            const response = await ai.models.generateContent({
-                model: 'gemini-3-pro-image-preview',
-                contents: {
-                    parts: [
-                        { inlineData: { mimeType: 'image/png', data: cleanBase64 } },
-                        { text: prompt },
-                    ],
-                },
-                config: {
-                    imageConfig: { aspectRatio: "16:9" }, // Default
-                    thinkingConfig: { includeThoughts: true }
-                },
-            });
-
-            for (const part of response.candidates?.[0]?.content?.parts || []) {
-                if (part.inlineData) {
-                    return `data:image/png;base64,${part.inlineData.data}`;
-                }
-            }
+            // 3. Generate image
+            const imageUrl = await BriaService.generateImage('', undefined, stepStructuredPrompt);
+            return imageUrl;
+        } catch (error) {
             throw new Error("Failed to generate step image");
-        });
+        }
     }
 
     private async generateTurnTableView(
@@ -239,33 +156,16 @@ export class VisualizerAgent extends AgentBase {
     ): Promise<string> {
         if (!imageGenerationLimiter.canMakeRequest()) throw new Error('Rate limit exceeded');
 
-        const ai = getAiClient();
-        const cleanBase64 = originalImageBase64.split(',')[1] || originalImageBase64;
         const prompt = `Generate a ${view.toUpperCase()} side view of this craft character by rotating the camera around it. ${craftLabel ? `CHARACTER: ${craftLabel}` : ''}`;
 
-        return retryWithBackoff(async () => {
-            const response = await ai.models.generateContent({
-                model: 'gemini-3-pro-image-preview',
-                contents: {
-                    parts: [
-                        { inlineData: { mimeType: 'image/png', data: cleanBase64 } },
-                        { text: prompt },
-                    ],
-                },
-                config: { imageConfig: { aspectRatio: "1:1", imageSize: "1K" } },
-            });
-
-            for (const part of response.candidates?.[0]?.content?.parts || []) {
-                if (part.inlineData) {
-                    trackApiUsage('generateTurnTableView', true);
-                    return `data:image/png;base64,${part.inlineData.data}`;
-                }
-            }
+        try {
+            trackApiUsage('generateTurnTableView', true);
+            const imageUrl = await BriaService.generateImage(prompt, [originalImageBase64]);
+            return imageUrl;
+        } catch (error) {
             trackApiUsage('generateTurnTableView', false);
-            throw new Error(`Failed to generate ${view} view`);
-        }).catch(e => {
-            trackApiUsage('generateTurnTableView', false);
-            throw e;
-        });
+            throw error;
+        }
     }
 }
+

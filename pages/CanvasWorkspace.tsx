@@ -25,9 +25,10 @@ import { ImageNodeUnifiedMenu } from '../src/components/ImageNodeUnifiedMenu';
 import { MasterNodeActionsMenu } from '../src/components/MasterNodeActionsMenu';
 import { calculateNodeMenuPosition, calculateCraftMenuPosition } from '../utils/contextMenuPosition';
 import { handleFileUpload } from '../utils/fileUpload';
-import { dissectCraft, dissectSelectedObject, generateStepImage, identifySelectedObject, generateCraftFromImage, generateSVGPatternSheet, generateTurnTableView, TurnTableView } from '../services/geminiService';
+import { dissectCraft, dissectSelectedObject, generateStepImage, identifySelectedObject, generateCraftFromImage, generateSVGPatternSheet, generateTurnTableView, TurnTableView } from '../services/agentService';
 import { CraftCategory, DissectionResponse } from '../types';
 import { useProjects } from '../contexts/ProjectsContext';
+import { useCanvasState } from '../contexts/CanvasStateContext';
 import { useKeyboardShortcuts } from '../utils/useKeyboardShortcuts';
 import { useToolKeyboardShortcuts } from '../utils/useToolKeyboardShortcuts';
 import { useDrawingState } from '../utils/useDrawingState';
@@ -165,14 +166,41 @@ interface CanvasWorkspaceProps {
   readOnly?: boolean;
 }
 
-const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: propProjectId, readOnly = false }) => {
+// Inner component that can use ReactFlow hooks
+const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: propProjectId, readOnly: propReadOnly = false }) => {
   const { projectId: urlProjectId } = useParams<{ projectId: string }>();
   const projectId = propProjectId || urlProjectId;
-  const { state: projectsState, saveProject, updateProject } = useProjects();
-  const { screenToFlowPosition, fitView, getViewport, setCenter } = useReactFlow();
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  // We'll manage readOnly as a state within this component, initialized from props
+  const [readOnly, setReadOnly] = useState(propReadOnly);
+
+  const { state: projectsState, saveProject, updateProject } = useProjects();
+  const { screenToFlowPosition, fitView, getViewport, setCenter, getEdges } = useReactFlow();
+
+  // Get canvas state from context to persist across navigation
+  const { state: canvasSessionState, updateNodes: persistNodes, updateEdges: persistEdges, updateViewport: persistViewport } = useCanvasState();
+
+  // Initialize from persisted state (if any) instead of empty arrays
+  const [nodes, setNodes, onNodesChange] = useNodesState(canvasSessionState.nodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(canvasSessionState.edges);
+
+  // Track if we've initialized from context to avoid resetting on remount
+  const isInitializedRef = useRef(false);
+
+  // Persist nodes to context whenever they change
+  useEffect(() => {
+    // Skip the initial render that comes from context initialization
+    if (!isInitializedRef.current) {
+      isInitializedRef.current = true;
+      return;
+    }
+    persistNodes(nodes);
+  }, [nodes, persistNodes]);
+
+  // Persist edges to context whenever they change
+  useEffect(() => {
+    persistEdges(edges);
+  }, [edges, persistEdges]);
 
   // Custom handler for node changes to sync dimensions for ShapeNodes
   const handleNodesChange = useCallback((changes: any[]) => {
@@ -454,12 +482,11 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
     }
 
     // Use appropriate menu width based on whether pattern button will show
-    // Pattern Sheet (~140px) + Instructions (~120px) + Turn Table (~130px) + Magic Select (~140px) + Download (~110px) + Share (~90px) + dividers/padding
+    // Pattern sheets are available for categories that benefit from visual guides
     const PATTERN_CATEGORIES = [
-      CraftCategory.PAPERCRAFT,
-      CraftCategory.COSTUME_PROPS,
-      CraftCategory.WOODCRAFT,
-      CraftCategory.KIDS_CRAFTS,
+      CraftCategory.PATTERN_ART,
+      CraftCategory.COLORING_BOOK,
+      CraftCategory.FABRIC_PAINTING,
     ];
     const hasPatternButton = category && PATTERN_CATEGORIES.includes(category);
     const menuWidth = hasPatternButton ? 750 : 610;
@@ -1321,6 +1348,320 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
     );
   }, [setNodes]);
 
+
+  // ... (existing code)
+
+  /**
+   * Handle text node refinement - generates a new image from connected source using text content as prompt
+   */
+  const handleTextRefine = useCallback(async (textNodeId: string, refinementPrompt: string) => {
+    if (readOnly) return;
+
+    console.log('\n🎨 Text Node Refinement Triggered');
+    console.log('Text Node ID:', textNodeId);
+    console.log('Refinement Prompt:', refinementPrompt);
+
+    // Get current edges directly from store to avoid stale closures
+    const currentEdges = getEdges();
+    console.log('Total edges in canvas (store):', currentEdges.length);
+    console.log('All edges (store):', currentEdges.map(e => `${e.source} -> ${e.target}`));
+
+    // Find edges connected to this text node (check both directions)
+    let connectedEdge = currentEdges.find(e => e.target === textNodeId);
+    let imageNodeId: string | null = connectedEdge ? connectedEdge.source : null;
+    let direction = 'incoming';
+
+    if (!connectedEdge) {
+      connectedEdge = currentEdges.find(e => e.source === textNodeId);
+      imageNodeId = connectedEdge ? connectedEdge.target : null;
+      direction = 'outgoing';
+    }
+
+    console.log('Edge search result:', {
+      found: !!connectedEdge,
+      direction,
+      imageNodeId,
+      edgeId: connectedEdge?.id
+    });
+
+    if (!imageNodeId) {
+      console.error('❌ No connected image found');
+      console.error('Available edges:', edges);
+      alert('Please connect this text node to an image node with an edge first. Drag from the text node handle to an image node.');
+      return;
+    }
+
+    const imageNode = nodes.find(n => n.id === imageNodeId);
+
+    console.log('Image node search:', {
+      searching: imageNodeId,
+      found: !!imageNode,
+      nodeType: imageNode?.type,
+      hasData: !!imageNode?.data
+    });
+
+    if (!imageNode) {
+      console.error('❌ Connected node not found');
+      console.error('Looking for:', imageNodeId);
+      console.error('Available nodes:', nodes.map(n => ({ id: n.id, type: n.type })));
+      alert('Connected image node not found');
+      return;
+    }
+
+    // Accept any node type that has an image (masterNode, imageNode, or step nodes)
+    const isValidImageNode = imageNode.type === 'masterNode' ||
+      imageNode.type === 'imageNode' ||
+      imageNode.type === 'instructionNode';
+
+    if (!isValidImageNode) {
+      alert('Please connect to an image node. Connected node is not an image.');
+      return;
+    }
+
+    // Check if it has refinement data (structuredPrompt and seed)
+    let structuredPrompt = imageNode.data?.structuredPrompt;
+    let seed = imageNode.data?.seed;
+    const category = imageNode.data?.category || CraftCategory.DRAWING;
+    const imageUrl = imageNode.data?.imageUrl;
+
+    console.log('Node validation:', {
+      nodeType: imageNode.type,
+      hasStructuredPrompt: !!structuredPrompt,
+      hasSeed: seed !== undefined,
+      hasImageUrl: !!imageUrl,
+      category
+    });
+
+    // If no refinement data but has image URL, generate structured prompt first
+    if (!structuredPrompt && imageUrl) {
+      console.log('⚠️ No refinement data found, will generate structured prompt from image');
+
+      // Set refining state
+      setNodes((nds) =>
+        nds.map((node) => {
+          if (node.id === textNodeId && node.type === 'textNode') {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                isRefining: true,
+              },
+            };
+          }
+          return node;
+        })
+      );
+
+      try {
+        // Import BriaService to generate structured prompt
+        const { BriaService } = await import('../services/briaService');
+
+        let imageForBria = imageUrl as string;
+
+        // If it's a blob: URL, we must convert it to base64 because Bria server cannot access local blobs
+        if (imageForBria.startsWith('blob:')) {
+          console.log('🔄 Converting blob URL to base64...');
+          try {
+            const blob = await fetch(imageForBria).then(r => r.blob());
+            const dataUri = await new Promise<string>((resolve, reject) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result as string);
+              reader.onerror = reject;
+              reader.readAsDataURL(blob);
+            });
+            // Extract just the base64 part (Bria wants raw base64, not data URI)
+            imageForBria = dataUri.split(',')[1];
+            console.log('✅ Converted blob to base64');
+          } catch (e) {
+            console.error('Failed to convert blob to base64', e);
+            throw new Error('Could not process image data');
+          }
+        }
+        // If it's a data URI, extract just the base64 part
+        else if (imageForBria.startsWith('data:')) {
+          console.log('🔄 Extracting base64 from data URI...');
+          imageForBria = imageForBria.split(',')[1];
+          console.log('✅ Extracted base64 data');
+        }
+        // If it's pure base64 without prefix, use as-is
+        // If it's an HTTP URL, use as-is
+
+        console.log('📸 Generating structured prompt from image (length:', imageForBria.length, ')...');
+        structuredPrompt = await BriaService.generateStructuredPrompt(imageForBria);
+        seed = Math.floor(Math.random() * 1000000); // Generate random seed
+
+        console.log('✅ Structured prompt generated');
+      } catch (error) {
+        console.error('Failed to generate structured prompt:', error);
+        setNodes((nds) =>
+          nds.map((node) => {
+            if (node.id === textNodeId && node.type === 'textNode') {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  isRefining: false,
+                },
+              };
+            }
+            return node;
+          })
+        );
+        alert('Failed to analyze the image. Please try again.');
+        return;
+      }
+    }
+
+    if (!structuredPrompt || seed === undefined) {
+      console.error('❌ Could not get refinement data');
+      console.error('Node data:', imageNode.data);
+      alert('Unable to refine this image. Please ensure it is a valid image node.');
+      return;
+    }
+
+    console.log('✅ Found/generated refinement data');
+    console.log('   Seed:', seed);
+    console.log('   Has structured prompt:', !!structuredPrompt);
+
+    // Set text node to refining state
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === textNodeId && node.type === 'textNode') {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              isRefining: true,
+            },
+          };
+        }
+        return node;
+      })
+    );
+
+    // Create placeholder node immediately
+    const textNode = nodes.find(n => n.id === textNodeId);
+    const xOffset = 400; // Position to the right
+    const yOffset = 0;
+
+    const newNodePosition = textNode
+      ? { x: textNode.position.x + xOffset, y: textNode.position.y + yOffset }
+      : { x: 400, y: 200 };
+
+    const newNodeId = `refined-${Date.now()}`;
+    const nodeWidth = 300;
+    const nodeHeight = 336; // 300px image + 36px header
+    const newNode: Node = {
+      id: newNodeId,
+      type: 'imageNode',
+      position: newNodePosition,
+      // Explicitly set width/height at node level to prevent React Flow from using measured dimensions
+      // This prevents the infinite growth feedback loop caused by style borders adding to measured size
+      width: nodeWidth,
+      height: nodeHeight,
+      data: {
+        imageUrl: '', // Empty initially
+        fileName: `refined-${refinementPrompt.substring(0, 30)}.png`,
+        width: nodeWidth,
+        height: nodeHeight,
+        structuredPrompt: null,
+        seed: seed,
+        category,
+        isGeneratingImage: true, // Show loading state
+        onSelect: handleImageNodeSelect,
+        onDeselect: handleImageNodeDeselect,
+        onDelete: handleDeleteImageNode,
+      },
+      style: {
+        borderRadius: '12px',
+        boxShadow: '0 10px 40px -10px rgba(16, 185, 129, 0.4), 0 0 20px rgba(16, 185, 129, 0.2)',
+      },
+    };
+
+    // Create edge from text to new image with animated gradient
+    const newEdge: Edge = {
+      id: `e-${textNodeId}-${newNodeId}`,
+      source: textNodeId,
+      sourceHandle: 'source-right',
+      target: newNodeId,
+      targetHandle: 'target-left',
+      animated: true,
+      style: {
+        stroke: '#9333ea',
+        strokeWidth: 3,
+        filter: 'drop-shadow(0 0 6px rgba(147, 51, 234, 0.6))',
+      },
+    };
+
+    setNodes((nds) => [...nds, newNode]);
+    setEdges((eds) => [...eds, newEdge]);
+
+    // Auto-pan caused issues with infinite zooming, so we removed it.
+    // User can manually pan to the new node.
+
+    try {
+      // Import BriaService and types for refinement
+      const { BriaService } = await import('../services/briaService');
+      type StructuredPromptType = import('../services/briaTypes').StructuredPrompt;
+
+      // Call FIBO refinement with the text content as the refinement instruction
+      console.log('⚡ Calling FIBO refinement...');
+      const result = await BriaService.refineImage(
+        structuredPrompt as StructuredPromptType,
+        seed as number,
+        refinementPrompt
+      );
+
+      console.log('✅ Refinement complete, updating placeholder node');
+
+      // Update the placeholder node with the actual result
+      setNodes((nds) =>
+        nds.map(node => {
+          if (node.id === newNodeId) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                imageUrl: result.imageUrl,
+                structuredPrompt: result.structuredPrompt,
+                seed: result.seed,
+                isGeneratingImage: false, // Turn off loading state
+              }
+            };
+          }
+          return node;
+        })
+      );
+
+      console.log('🎉 Refinement node updated:', newNodeId);
+
+    } catch (error) {
+      console.error('Refinement failed:', error);
+      alert(error instanceof Error ? error.message : 'Failed to refine image');
+
+      // Remove the placeholder node on error
+      setNodes((nds) => nds.filter(n => n.id !== newNodeId));
+      setEdges((eds) => eds.filter(e => e.target !== newNodeId));
+
+    } finally {
+      // Clear refining state on text node
+      setNodes((nds) =>
+        nds.map((node) => {
+          if (node.id === textNodeId && node.type === 'textNode') {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                isRefining: false,
+              },
+            };
+          }
+          return node;
+        })
+      );
+    }
+  }, [readOnly, nodes, edges, setNodes, setEdges, handleImageNodeSelect, handleImageNodeDeselect, setCenter]);
+
   /**
    * Handle pencil mode selection
    */
@@ -1370,14 +1711,16 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
       type: 'textNode',
       position,
       data: {
-        content: 'Text',
+        content: '',
         fontSize: 16,
         fontFamily: 'Inter, system-ui, sans-serif',
         color: '#e2e8f0',
         alignment: 'left',
-        isEditing: false, // Start with editing disabled
+        isEditing: false,
+        isRefining: false,
         onEdit: handleTextEdit,
         onFinishEdit: handleTextFinishEdit,
+        onRefine: handleTextRefine,
       },
     };
 
@@ -1555,7 +1898,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
     // CRITICAL: Use nodesRef to get latest nodes (avoids stale closure issue)
     const currentNodes = nodesRef.current;
     const masterNode = currentNodes.find(n => n.id === nodeId);
-    const category = (masterNode?.data?.category as CraftCategory) || CraftCategory.PAPERCRAFT; // Default to Papercraft for safety
+    const category = (masterNode?.data?.category as CraftCategory) || CraftCategory.DRAWING; // Default to Drawing for safety
 
     console.log('=== DISSECT SELECTED START ===');
     console.log('Node ID:', nodeId);
@@ -1575,7 +1918,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
 
     // 1. Create placeholder nodes IMMEDIATELY (before any API calls)
     // This gives instant visual feedback like the pattern sheet does
-    const DEFAULT_STEP_COUNT = 4; // Most breakdowns have 4 steps
+    const DEFAULT_STEP_COUNT = 6; // 6 steps for gradual progression from foundation to master
     const placeholderNodes: Node[] = [];
     const placeholderEdges: Edge[] = [];
 
@@ -1606,7 +1949,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
           title: `Step ${i}`,
           description: 'Analyzing craft structure...',
           safetyWarning: undefined,
-          isGeneratingImage: true,
+          isGeneratingImage: false, // Will be set to true when this step starts generating
           imageUrl: undefined
         }
       });
@@ -1788,80 +2131,86 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
         return [...filteredEdges, materialEdge, ...newStepEdges];
       });
 
-      // 5. Generate step images in the background using the selected object as reference
+      // 5. Generate step images IN PARALLEL
       console.log('\n=== IMAGE GENERATION PHASE ===');
       console.log('Using category:', category);
       console.log('Target object:', identifiedLabel);
       console.log('Total steps:', dissection.steps.length);
       console.log('All steps:', dissection.steps.map(s => `${s.stepNumber}: ${s.title}`));
-      console.log('Format: Multi-Panel with 4K resolution for Step 1');
-
-      // Generate ALL step images in PARALLEL for faster generation
-      // Pass the identifiedLabel to ensure images focus on the selected object only
       console.log(`\n🚀 Generating ${dissection.steps.length} step images IN PARALLEL...`);
 
-      const stepGenerationPromises = dissection.steps.map(async (step) => {
+      // Get master node metadata for guidance
+      const masterStructuredPrompt = masterNode.data.structuredPrompt as any;
+      const masterSeed = masterNode.data.seed as number;
+
+      // Generate ALL steps in parallel using Promise.all()
+      const stepPromises = dissection.steps.map(async (step, i) => {
         const stepNodeId = `${breakdownId}-step-${step.stepNumber}`;
 
-        console.log(`🎨 Starting Step ${step.stepNumber}: ${step.title}`);
+        console.log(`\n🎨 Starting Step ${step.stepNumber} of ${dissection.steps.length}: ${step.title}`);
         console.log(`   Target object: ${identifiedLabel} | Category: ${category}`);
+        console.log(`   Using seed: ${masterSeed} (parallel generation)`);
+
+        // Set this step to glow (isGeneratingImage: true)
+        setNodes((nds) =>
+          nds.map((node) => {
+            if (node.id === stepNodeId) {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  isGeneratingImage: true  // Activate glow for this step
+                }
+              };
+            }
+            return node;
+          })
+        );
 
         try {
-          // Generate image with SELECTED OBJECT as reference to match exact style/appearance
-          const imageUrl = await generateStepImage(
-            selectedObjectImageUrl, // Use selected object (not full image) as style reference
+          // Generate image using PARALLEL CONSTRUCTION
+          const result = await generateStepImage(
+            masterSeed,
             `${step.title}: ${step.description}`,
-            category,
-            identifiedLabel, // Pass the identified object label
-            step.stepNumber // Pass step number for 4K resolution on step 1
+            masterStructuredPrompt,
+            step.stepNumber,
+            dissection.steps.length,
+            category
           );
 
           console.log(`✅ Step ${step.stepNumber} complete`);
+          console.log(`   Generated with seed: ${result.seed}`);
 
-          // Update node with generated image
-          setNodes((nds) =>
-            nds.map((node) => {
-              if (node.id === stepNodeId) {
-                return {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    imageUrl,
-                    isGeneratingImage: false
-                  }
-                };
-              }
-              return node;
-            })
-          );
-
-          return { stepNumber: step.stepNumber, success: true };
+          return { stepNodeId, result, error: null };
         } catch (error) {
           console.error(`❌ Step ${step.stepNumber} failed:`, error);
-          // Clear loading state on error
-          setNodes((nds) =>
-            nds.map((node) => {
-              if (node.id === stepNodeId) {
-                return {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    isGeneratingImage: false
-                  }
-                };
-              }
-              return node;
-            })
-          );
-
-          return { stepNumber: step.stepNumber, success: false, error };
+          return { stepNodeId, result: null, error };
         }
       });
 
-      // Wait for all step images to complete (success or failure)
-      const results = await Promise.all(stepGenerationPromises);
-      const successCount = results.filter(r => r.success).length;
-      console.log(`\n📊 Parallel generation complete: ${successCount}/${results.length} steps succeeded`);
+      // Wait for all steps to complete in parallel
+      const results = await Promise.all(stepPromises);
+
+      // Update all nodes with results
+      setNodes((nds) =>
+        nds.map((node) => {
+          const resultMatch = results.find(r => r.stepNodeId === node.id);
+          if (resultMatch) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                imageUrl: resultMatch.result?.imageUrl || undefined,
+                isGeneratingImage: false
+              }
+            };
+          }
+          return node;
+        })
+      );
+
+      const successCount = results.filter(r => r.error === null).length;
+      console.log(`\n📊 Parallel generation complete: ${successCount}/${dissection.steps.length} steps succeeded`);
 
       console.log('=== DISSECT SELECTED COMPLETE ===\n');
     } catch (error) {
@@ -1897,7 +2246,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
     // CRITICAL: Use nodesRef to get latest nodes (avoids stale closure issue)
     const currentNodes = nodesRef.current;
     const masterNode = currentNodes.find(n => n.id === nodeId);
-    const category = (masterNode?.data?.category as CraftCategory) || CraftCategory.PAPERCRAFT;
+    const category = (masterNode?.data?.category as CraftCategory) || CraftCategory.DRAWING;
     const promptContext = masterNode?.data?.label as string || "Unknown craft";
 
     console.log('=== DISSECT FULL CRAFT START ===');
@@ -1919,7 +2268,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
 
     // 1. Create placeholder nodes IMMEDIATELY (before any API calls)
     // This gives instant visual feedback like the pattern sheet does
-    const DEFAULT_STEP_COUNT = 4; // Most breakdowns have 4 steps
+    const DEFAULT_STEP_COUNT = 6; // 6 steps for gradual progression from foundation to master
     const placeholderNodes: Node[] = [];
     const placeholderEdges: Edge[] = [];
 
@@ -1950,7 +2299,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
           title: `Step ${i}`,
           description: 'Analyzing craft structure...',
           safetyWarning: undefined,
-          isGeneratingImage: true,
+          isGeneratingImage: false, // Will be set to true when this step starts generating
           imageUrl: undefined
         }
       });
@@ -2020,6 +2369,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
       };
 
       // 4. Update placeholder nodes with actual step data OR remove extras if fewer steps
+      // 5. Update placeholder nodes with actual step data OR remove extras if fewer steps
       setNodes((nds) => {
         let updatedNodes = nds.map((node) => {
           // Update master node
@@ -2044,6 +2394,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
               };
             } else {
               // This placeholder is extra (more placeholders than actual steps)
+              console.log(`Removing extra placeholder step: ${stepNum}`);
               return null; // Mark for removal
             }
           }
@@ -2111,77 +2462,88 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
         return [...filteredEdges, materialEdge, ...newStepEdges];
       });
 
-      // 5. Generate ALL step images in PARALLEL for faster generation
+      // 5. Generate step images SEQUENTIALLY (each step refines the previous)
       console.log('\n=== IMAGE GENERATION PHASE ===');
       console.log('Using category:', category);
       console.log('Target craft:', promptContext);
       console.log('Total steps:', dissection.steps.length);
       console.log('All steps:', dissection.steps.map(s => `${s.stepNumber}: ${s.title}`));
-      console.log('Format: Multi-Panel with 1K resolution for all steps');
       console.log(`\n🚀 Generating ${dissection.steps.length} step images IN PARALLEL...`);
 
-      const stepGenerationPromises = dissection.steps.map(async (step) => {
+      // Get master node metadata for guidance
+      const masterStructuredPrompt = masterNode.data.structuredPrompt as any;
+      const masterSeed = masterNode.data.seed as number;
+
+      // Generate ALL steps in parallel using Promise.all()
+      const stepPromises = dissection.steps.map(async (step, i) => {
         const stepNodeId = `${breakdownId}-step-${step.stepNumber}`;
 
-        console.log(`🎨 Starting Step ${step.stepNumber}: ${step.title}`);
-        console.log(`   Target craft: ${promptContext} | Category: ${category}`);
+        console.log(`\n🎨 Starting Step ${step.stepNumber} of ${dissection.steps.length}: ${step.title}`);
+        console.log(`   Target creation: ${promptContext} | Category: ${category}`);
+        console.log(`   Using seed: ${masterSeed} (parallel generation)`);
+
+        // Set this step to glow (isGeneratingImage: true)
+        setNodes((nds) =>
+          nds.map((node) => {
+            if (node.id === stepNodeId) {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  isGeneratingImage: true  // Activate glow for this step
+                }
+              };
+            }
+            return node;
+          })
+        );
 
         try {
-          // Generate image with full image as reference to match exact style/appearance
-          const stepImageUrl = await generateStepImage(
-            imageUrl, // Use full image as style reference
+          // Generate image using PARALLEL CONSTRUCTION
+          // All steps reference master directly - no dependency on previous steps
+          const result = await generateStepImage(
+            masterSeed,              // Same seed for all steps (compositional consistency)
             `${step.title}: ${step.description}`,
-            category,
-            undefined, // No specific object label for full craft dissection
-            step.stepNumber // Pass step number
+            masterStructuredPrompt,  // GOAL: Master is the target
+            step.stepNumber,
+            dissection.steps.length,
+            category
+            // NO previousStepPrompt - parallel generation
           );
 
           console.log(`✅ Step ${step.stepNumber} complete`);
+          console.log(`   Generated with seed: ${result.seed}`);
 
-          // Update node with generated image
-          setNodes((nds) =>
-            nds.map((node) => {
-              if (node.id === stepNodeId) {
-                return {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    imageUrl: stepImageUrl,
-                    isGeneratingImage: false
-                  }
-                };
-              }
-              return node;
-            })
-          );
-
-          return { stepNumber: step.stepNumber, success: true };
+          return { stepNodeId, result, error: null };
         } catch (error) {
           console.error(`❌ Step ${step.stepNumber} failed:`, error);
-          // Clear loading state on error
-          setNodes((nds) =>
-            nds.map((node) => {
-              if (node.id === stepNodeId) {
-                return {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    isGeneratingImage: false
-                  }
-                };
-              }
-              return node;
-            })
-          );
-
-          return { stepNumber: step.stepNumber, success: false, error };
+          return { stepNodeId, result: null, error };
         }
       });
 
-      // Wait for all step images to complete (success or failure)
-      const results = await Promise.all(stepGenerationPromises);
-      const successCount = results.filter(r => r.success).length;
-      console.log(`\n📊 Parallel generation complete: ${successCount}/${results.length} steps succeeded`);
+      // Wait for all steps to complete in parallel
+      const results = await Promise.all(stepPromises);
+
+      // Update all nodes with results SUCCESS or FAILURE
+      setNodes((nds) =>
+        nds.map((node) => {
+          const resultMatch = results.find(r => r.stepNodeId === node.id);
+          if (resultMatch) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                imageUrl: resultMatch.result?.imageUrl || undefined,
+                isGeneratingImage: false  // Deactivate glow
+              }
+            };
+          }
+          return node;
+        })
+      );
+
+      const successCount = results.filter(r => r.error === null).length;
+      console.log(`\n📊 Parallel generation complete: ${successCount}/${dissection.steps.length} steps succeeded`);
 
       console.log('=== DISSECT FULL CRAFT COMPLETE ===\n');
     } catch (error) {
@@ -2302,7 +2664,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
     const masterNode = masterNodes[0];
     const masterLabel = (masterNode.data.label as string) || 'Untitled Craft';
     const masterImageUrl = masterNode.data.imageUrl as string;
-    const category = (masterNode.data.category as CraftCategory) || CraftCategory.PAPERCRAFT;
+    const category = (masterNode.data.category as CraftCategory) || CraftCategory.DRAWING;
 
     // Find connected instruction nodes via edges
     const connectedEdges = edges.filter(e => e.source === masterNode.id);
@@ -2388,7 +2750,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
   /**
    * Step 1: Add the Master Generated Node
    */
-  const handleGenerate = useCallback((imageUrl: string, prompt: string, category: CraftCategory) => {
+  const handleGenerate = useCallback((imageUrl: string, prompt: string, category: CraftCategory, structuredPrompt: any, seed: number) => {
     if (readOnly) return;
 
     const id = `master-${Date.now()}`;
@@ -2400,6 +2762,8 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
         label: prompt,
         imageUrl,
         category,
+        structuredPrompt,  // Store for refinement workflow
+        seed,              // Store for refinement workflow
         onDissect: handleDissect,
         onDissectSelected: handleDissectSelected,
         onSelect: handleMasterNodeSelect,
@@ -2465,13 +2829,13 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
 
     // Pan canvas to center on the node (accounting for node dimensions)
     // setCenter targets the center point, so offset by half node size
-    setCenter(nodeWidth / 2, nodeHeight / 2, { zoom: 1, duration: 300 });
+    setCenter(nodeWidth / 2, nodeHeight / 2, { duration: 300 });
   }, [setNodes, readOnly, handleDissect, handleDissectSelected, handleMasterNodeSelect, handleMasterNodeDeselect, setCenter]);
 
   /**
    * Update placeholder node when generation completes
    */
-  const handleGenerationComplete = useCallback((nodeId: string, imageUrl: string) => {
+  const handleGenerationComplete = useCallback((nodeId: string, imageUrl: string, structuredPrompt: any, seed: number) => {
     // First, extract data from the node we need to save
     let projectToSave: Parameters<typeof saveProject>[0] | null = null;
 
@@ -2486,6 +2850,8 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
             data: {
               ...n.data,
               imageUrl,
+              structuredPrompt,  // Store for refinement workflow
+              seed,              // Store for refinement workflow
               isGeneratingImage: false,
             },
           };
@@ -2712,17 +3078,36 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
           edges={edges}
           onNodesChange={readOnly ? undefined : handleNodesChange}
           onEdgesChange={readOnly ? undefined : onEdgesChange}
-          onConnect={onConnect}
-          onConnectEnd={readOnly ? undefined : onConnectEnd}
-          onPaneClick={handleCanvasClick}
+          onConnect={(connection) => {
+            console.log('🔗 New connection created:', connection);
+            const newEdge = {
+              ...connection,
+              id: `e-${connection.source}-${connection.target}`,
+              animated: true,
+              style: { stroke: '#10b981', strokeWidth: 2 }
+            };
+            console.log('📎 Adding edge to state:', newEdge);
+            setEdges((eds) => {
+              const updated = addEdge(newEdge, eds);
+              console.log('✅ Edges after adding:', updated);
+              return updated;
+            });
+          }}
           nodeTypes={nodeTypes}
-          defaultViewport={{ x: 0, y: 0, zoom: 0.75 }}
-          className={`bg-slate-950 ${getToolCursor(activeTool)}`}
-          nodesDraggable={!readOnly && (activeTool === 'select' || activeTool === 'hand')}
-          nodesConnectable={!readOnly && (activeTool === 'select' || activeTool === 'hand')}
-          elementsSelectable={!readOnly && (activeTool === 'select' || activeTool === 'hand')}
-          panOnDrag={!drawingMode && activeTool === 'hand'}
-          selectionOnDrag={!readOnly && activeTool === 'select'}
+          onPaneClick={handleCanvasClick}
+          className="bg-slate-900 relative"
+          deleteKeyCode={readOnly ? null : 'Delete'}
+          multiSelectionKeyCode={readOnly ? null : 'Shift'}
+          selectionOnDrag={!readOnly}
+          panOnDrag={!readOnly}
+          zoomOnScroll={!readOnly}
+          preventScrolling={!readOnly}
+          elevateEdgesOnSelect
+          defaultEdgeOptions={{
+            animated: true,
+            style: { stroke: '#10b981', strokeWidth: 2 },
+          }}
+          connectionLineStyle={{ stroke: '#10b981', strokeWidth: 2 }}
           minZoom={0.1}
           maxZoom={8}
         >
@@ -2742,7 +3127,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
             <Sparkles className="w-16 h-16 text-indigo-500/30 mb-4 mx-auto" />
             <h2 className="text-2xl font-bold text-slate-400 mb-2">Your Canvas Awaits</h2>
             <p className="text-slate-500 mb-6">
-              Describe your craft idea below to summon your first project
+              Describe your me time idea below to summon your first project
             </p>
             <div className="flex items-center justify-center gap-2 text-xs text-slate-600">
               <Keyboard className="w-4 h-4" />

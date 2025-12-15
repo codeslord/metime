@@ -95,3 +95,4 @@ dist-ssr
 # AI
 .gemini
 .claude
+demo_pitch.md

@@ -1,6 +1,6 @@
 import { AgentBase } from '../a2a/AgentBase';
 import { AgentCard, A2AMessage } from '../a2a/types';
-import { getAiClient, retryWithBackoff } from '../aiUtils';
+import { BriaService } from '../briaService';
 import { imageGenerationLimiter, trackApiUsage } from '../../utils/rateLimiter';
 import { CraftCategory } from '../../types';
 
@@ -49,9 +49,6 @@ export class PatternAgent extends AgentBase {
             throw new Error(`Rate limit exceeded.`);
         }
 
-        const ai = getAiClient();
-        const cleanBase64 = originalImageBase64.split(',')[1] || originalImageBase64;
-
         // Simplification for brevity, ensuring critical logic is retained
         const patternType = this.getCategoryPatternType(category);
 
@@ -73,33 +70,14 @@ export class PatternAgent extends AgentBase {
     - NO grid, NO texture.
     `;
 
-        return retryWithBackoff(async () => {
-            const response = await ai.models.generateContent({
-                model: 'gemini-3-pro-image-preview',
-                contents: {
-                    parts: [
-                        { inlineData: { mimeType: 'image/png', data: cleanBase64 } },
-                        { text: prompt },
-                    ],
-                },
-                config: {
-                    imageConfig: { aspectRatio: "16:9", imageSize: "2K" },
-                    thinkingConfig: { includeThoughts: true }
-                },
-            });
-
-            for (const part of response.candidates?.[0]?.content?.parts || []) {
-                if (part.inlineData) {
-                    trackApiUsage('generateSVGPatternSheet', true);
-                    return `data:image/png;base64,${part.inlineData.data}`;
-                }
-            }
+        try {
+            trackApiUsage('generateSVGPatternSheet', true);
+            const imageUrl = await BriaService.generateImage(prompt, [originalImageBase64]);
+            return imageUrl;
+        } catch (error) {
             trackApiUsage('generateSVGPatternSheet', false);
-            throw new Error("Failed to generate SVG pattern sheet");
-        }).catch(e => {
-            trackApiUsage('generateSVGPatternSheet', false);
-            throw e;
-        });
+            throw error;
+        }
     }
 
     private getCategoryPatternType(cat: CraftCategory): string {

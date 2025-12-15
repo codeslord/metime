@@ -1,5 +1,5 @@
 /**
- * Security utility functions for Crafternia
+ * Security utility functions for Me Time
  */
 
 /**
@@ -44,7 +44,7 @@ export const sanitizeText = (text: string, maxLength: number = 1000): string => 
 
   // Truncate to prevent DoS
   const truncated = text.slice(0, maxLength);
-  
+
   // Remove any HTML tags and dangerous characters
   return truncated
     .replace(/[<>]/g, '') // Remove angle brackets

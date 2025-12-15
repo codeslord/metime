@@ -1,199 +1,301 @@
-# Crafternia
+# 🧘 Me Time
 
-> **Dissect your imagination. Build reality.**
+> **AI-guided mindful creativity. Step by step. Breath by breath.**
 
-Crafternia is an AI-powered "Infinite Craft Workbench" that transforms craft ideas into visual, step-by-step instruction sequences. The system generates studio-quality reference images and isolated instruction visuals that recreate the aesthetic of traditional paper craft manuals.
+**Powered by [BRIA FIBO](https://bria.ai/fibo)** — JSON-native control meets agentic workflows for progressive visual guidance
 
-## 🪦 Resurrection Category - Bringing Back Lost Craft Culture
+**[🚀 Try the Live App](https://crafternia.vercel.app/)** • **[🎥 Watch the Demo](https://youtu.be/DVyiDgaXrns)**
 
-**Dead Technology Being Resurrected:** Paper craft instruction sheets from the 1970s-1990s
+---
 
-Remember the tactile joy of unfolding a paper instruction sheet from a model kit, origami book, or sewing pattern? Those beautifully illustrated, step-by-step guides that showed isolated components in knolling layouts? The ones that made complex builds feel achievable through careful visual breakdowns?
+## 💭 Inspiration
 
-**That format is dead.** Replaced by YouTube tutorials, Pinterest pins, and text-heavy blog posts.
+In our hyper-connected world, we've lost the art of *slowing down*. Meditation apps tell us to "just breathe," but many find empty stillness uncomfortable. **What if mindfulness could be active?** 
 
-### What We Lost
-- **Spatial Clarity**: Instructions you could spread across a table and reference at a glance
-- **Isolated Component Views**: Each step showing ONLY what you need, not the entire finished product
-- **Knolling Aesthetics**: Organized, flat-lay arrangements of materials and sub-assemblies
-- **Tangible Reference**: A physical artifact you could annotate, fold, and keep with your project
-- **Universal Design Language**: Visual instructions that transcended language barriers
+**Me Time** brings together two powerful ideas:
+- **Mindful doing**: Creative activities that quiet the mind through gentle focus
+- **Progressive guidance**: AI that breaks down intimidating art into calming, achievable steps
 
-### How Crafternia Resurrects It
-Crafternia doesn't just digitize old instruction sheets—it uses AI to **generate them on-demand for ANY craft idea**:
+We were inspired by art therapy's proven benefits for mental well-being but wanted to make it accessible to everyone—no expensive classes, no artistic background required. Just you, simple materials, and an AI guide that meets you where you are.
 
-1. **Master Reference Image** (gemini-3-pro-image-preview): Creates a studio-quality photograph of the finished craft with handmade textures, neutral backgrounds, and proper material detail—exactly like vintage instruction sheet cover images.
+---
 
-2. **Intelligent Dissection** (gemini-2.5-flash): Analyzes the craft like an expert maker would have manually designed an instruction sheet, breaking it into logical steps with materials lists and complexity ratings.
+## ✨ What It Does
 
-3. **Isolated Step Visualizations** (gemini-3-pro-image-preview): Generates photorealistic "knolling" images for each step showing ONLY the components needed—no full product, no distractions. Just like those vintage IKEA manuals and Tamiya model kit guides.
+**Me Time** is an AI-powered creative companion that transforms any artistic idea into a meditative, step-by-step journey using **BRIA FIBO's JSON-native control and progressive refinement**.
 
-4. **Infinite Canvas**: Resurrects the "spread it on the table" experience digitally. Pan, zoom, and spatially arrange your instruction nodes like physical paper sheets.
+### Core Workflow
 
-### Why This Matters Today
-The craft instruction sheet format died because it was expensive to produce professionally. You needed:
-- Professional photographers
-- Expert makers to design the breakdown
-- Graphic designers for layout
-- Print production costs
+1. **Generate or Upload** — Create a beautiful reference image with AI, or upload your own inspiration
+2. **Refine & Explore** — Use text prompts to iteratively refine any image until it feels right
+3. **Break It Down** — AI dissects the final image into calm, progressive steps
+4. **Create Together** — Follow visual guides that build naturally from simple to complete
 
-**Crafternia makes this accessible to everyone.** AI generation means anyone can have professional-quality, visually-clear instructions for their craft ideas—whether it's papercraft, clay, fabric, woodworking, or cosplay props.
+### 10 Mindful Activities
 
-We're resurrecting a superior instructional format and solving tomorrow's problem: **making crafting accessible in an age of overwhelming, poorly-structured online tutorials.**
+| | | | | |
+|:-:|:-:|:-:|:-:|:-:|
+| ✏️ Drawing | 🎨 Coloring Book | 🪵 Miniatures | 🧵 Fabric Art | 💐 Vase Design |
+| 🌊 Watercolor | 🖼️ Oil Painting | 💎 Jewelry | 🔮 Patterns | 🎮 Characters |
 
-## Features
+Each activity has a **specialized AI agent** with calming, activity-specific guidance.
 
-### 🎨 Infinite Canvas Workbench
-- Built on React Flow for infinite panning and zooming
-- Dark mode with technical blueprint aesthetic
-- Spatial arrangement of craft instructions
-- Drag and reposition nodes freely
+### Key Features
 
-### ✨ AI-Powered Master Image Generation
-Describe your craft idea and select a category, then watch as Gemini 3 Pro creates a photorealistic studio photograph showing:
-- Tangible handmade materials with detailed textures
-- Neutral background with even studio lighting
-- Clean, centered composition
-- Category-specific material details (fabric weave, paper fibers, wood grain, etc.)
+- **Infinite Canvas**: Spatial workspace for organizing your creative journey
+- **Progressive Refinement**: Images build naturally through FIBO's seed consistency  
+- **Text-to-Image Refinement**: Connect text prompts to any image for instant variations
+- **Upload & Refine**: Start with your own photos and evolve them with AI
+- **Export Everything**: Download complete visual guides as ZIP/PDF
 
-### 🔬 Intelligent Dissection
-The system analyzes your craft and automatically generates:
-- **Complexity Assessment**: Simple, Moderate, or Complex rating (1-10 scale)
-- **Materials List**: All essential materials visible or implied
-- **Step-by-Step Instructions**: Chronological breakdown of the build process
-- **Category-Specific Guidance**: Tailored to your craft type
+---
 
-### 📸 Isolated Step Visualizations
-For each instruction step, the AI generates photorealistic, isolated images using "knolling" layouts:
-- Shows ONLY the materials needed for that specific step
-- Matches exact textures and colors from the master image
-- Excludes the finished product to maintain clarity
-- Creates an IKEA-manual style visual guide
+## 🛠️ How We Built It
 
-## Supported Craft Categories
+### FIBO-Powered Multiagent Architecture
 
-- 📄 **Papercraft** - Origami, paper models, card crafts
-- 🏺 **Clay** - Sculptures, pottery, modeling
-- 🧵 **Fabric/Sewing** - Plushies, quilts, fabric crafts
-- 🛡️ **Costume & Props** - Foam armor, cosplay props, Worbla builds
-- 🪵 **Woodcraft** - Furniture, toys, wood projects
-- 💎 **Jewelry** - Beading, wire work, accessories
-- 🎨 **Kids Crafts** - Simple projects for children
-- ⚔️ **Tabletop Figures** - Miniatures, wargaming models
+**Me Time** showcases FIBO's production-ready capabilities through a specialized agent system:
 
-## Tech Stack
+```
+┌─────────────────────────────────────────────────────┐
+│           🎭 AGENT ORCHESTRATOR                     │
+│  Routes by activity type (drawing, watercolor...)   │
+└──────────────────┬──────────────────────────────────┘
+                   │
+   ┌───────────────┼───────────────┐
+   ▼               ▼               ▼
+┌──────────┐  ┌──────────┐  ┌──────────────┐
+│ Generate │  │  Refine  │  │   Dissect    │
+│  Master  │  │  Image   │  │  Into Steps  │
+└──────────┘  └──────────┘  └──────────────┘
+      │             │              │
+      └─────────────┴──────────────┘
+                    │
+        ┌───────────▼────────────┐
+        │   BRIA FIBO API        │
+        │  • VLM-to-JSON         │
+        │  • Seed Consistency    │
+        │  • Progressive Refine  │
+        └────────────────────────┘
+```
 
-- **React 19** - Modern UI framework
-- **TypeScript** - Type-safe development
-- **TailwindCSS** - Utility-first styling
-- **React Flow** (@xyflow/react) - Infinite canvas implementation
-- **Google Gemini AI** (@google/genai) - AI image and text generation
-  - `gemini-3-pro-image-preview` for image generation
-  - `gemini-2.5-flash` for text reasoning/dissection
-- **Lucide React** - Beautiful icons
-- **Vite** - Fast build tool and dev server
+### Technical Pipeline
 
-## Getting Started
+#### 1. Image Generation (AI or Upload)
+```typescript
+// Option A: Generate from prompt
+const structuredPrompt = await VLM.generateJSON(userPrompt, activity);
+const result = await FIBO.generate(structuredPrompt);
+// Returns: { imageUrl, structuredPrompt, seed }
+
+// Option B: Upload existing image  
+const uploadedImage = await uploadToCanvas(file);
+// Use FIBO's structured prompt extraction for refinement
+```
+
+#### 2. Progressive Refinement (The Innovation)
+```typescript
+// Text-based refinement using FIBO's seed + structured prompt
+const refinedResult = await FIBO.refine(
+  originalStructuredPrompt,  // Preserve base composition
+  originalSeed,              // Ensure visual consistency
+  "add cherry blossoms"      // What to change
+);
+// Same background, lighting, style — only requested change applied
+```
+
+#### 3. Step Dissection
+```typescript
+// VLM analyzes final image, generates calming instructions
+const steps = await VLM.dissect(finalImage, activity);
+// Returns: materials, 5-step progression, safety tips
+
+// Generate step images using FIBO refinement
+for (let step of steps) {
+  const stepImage = await FIBO.refine(
+    masterStructuredPrompt,
+    masterSeed,
+    createGentleInstruction(step, completionPercent)
+  );
+}
+```
+
+### Activity-Specific Agents
+
+Each agent provides calming, contextual guidance:
+
+| Activity | Agent Approach |
+|----------|----------------|
+| **Watercolor** | "gentle washes build transparent layers" |
+| **Drawing** | "light sketching lines find their form" |
+| **Coloring** | "colors flow into outlined spaces" |
+| **Patterns** | "repeating motifs emerge naturally" |
+
+This isn't generic AI—it's **mindful, activity-aware guidance**.
+
+---
+
+## 🏔️ Challenges We Ran Into
+
+1. **Visual Consistency Across Steps** — Ensuring each step image felt like the same artwork required mastering FIBO's seed + structured prompt workflow
+2. **Upload Integration** — Enabling users to refine *uploaded* images (not just AI-generated) needed careful handling of structured prompt extraction
+3. **Meditative Pacing** — Balancing AI capability with simplicity; we removed complexity to preserve the calm experience
+4. **Text-to-Image Connections** — Building an intuitive canvas UI where text prompts visually connect to images they refine
+
+---
+
+## 🏆 Accomplishments That We're Proud Of
+
+- **Production-Ready Agentic Workflow**: 10 specialized agents orchestrated seamlessly
+- **Hybrid AI + Human Input**: Equally powerful whether generating from scratch or refining uploads
+- **Progressive Refinement Mastery**: FIBO's seed consistency creates visually coherent step sequences
+- **Calm-First UX**: Every interaction designed for mindfulness, not speed
+- **Infinite Canvas Innovation**: Spatial interface that mirrors the creative thinking process
+
+---
+
+## 📚 What We Learned
+
+- **FIBO's VLM-to-JSON translator** handles 1000+ word prompts beautifully—this enabled rich, nuanced image control
+- **Seed + structured prompt** is the key to consistency; same base + refinement instruction = perfect progressive builds
+- **Agent specialization matters**: Generic prompts can't capture the nuance of watercolor vs. oil painting
+- **Calm requires intentionality**: We removed features that created anxiety (timers, complex menus) to preserve meditative flow
+
+---
+
+## 🌱 What's Next for Me Time
+
+- **Guided Sessions**: 10-minute creativity sessions with breathing cues and ambient music
+- **Community Library**: Share and discover calming projects from other creators  
+- **HDR Support**: FIBO's 16-bit color space for professional watercolor/painting workflows
+- **Voice Guidance**: Optional narrated instructions for eyes-free creation
+- **Progress Journaling**: Visual timeline of creative growth over time
+
+---
+
+## 🔧 Built With
+
+- **React 19** + **TypeScript** — Modern type-safe UI
+- **BRIA FIBO** — 🌟 JSON-native image generation, progressive refinement
+- **Google Gemini 2.5 Flash** — VLM reasoning, structured prompt generation
+- **React Flow** (@xyflow/react) — Infinite canvas interface
+- **TailwindCSS** — Dark-mode, calming aesthetics
+- **Vite** — Fast dev experience
+- **Lucide React** — Beautiful iconography
+
+---
+
+## 🏗️ Architecture
+
+```
+me-time/
+├── services/
+│   ├── briaService.ts              # FIBO API integration
+│   │   ├── generateImage()         # Master generation
+│   │   ├── refineImage()           # Progressive refinement
+│   │   └── generateStructuredPrompt()  # Extract from uploads
+│   ├── promptEngineering.ts        # VLM-to-JSON translation
+│   ├── agents/
+│   │   ├── CategoryAgentBase.ts           # Shared agent logic
+│   │   │   ├── generateMasterImage()      # FIBO generation
+│   │   │   ├── generateStepImage()        # FIBO refinement
+│   │   │   └── createRefinementInstruction()  # Activity-aware
+│   │   ├── categories/                    # 10 specialized agents
+│   │   │   ├── DrawingAgent.ts
+│   │   │   ├── WatercolorAgent.ts
+│   │   │   ├── ColoringBookAgent.ts
+│   │   │   └── ... (7 more)
+│   │   └── orchestrator/
+│   │       └── AgentOrchestrator.ts       # Routes by activity
+│   └── agentService.ts             # Public API
+├── components/                      # React UI components
+│   ├── ChatInterface.tsx           # Text refinement UI
+│   ├── CustomNodes.tsx             # Canvas node types
+│   └── ...
+├── pages/
+│   └── CanvasWorkspace.tsx         # Main infinite canvas
+└── types.ts                         # TypeScript definitions
+```
+
+---
+
+## 🚀 Installation & Running
 
 ### Prerequisites
+- Node.js 16+
+- **BRIA API Key** — [Get one from Bria](https://bria.ai/)
+- Google Gemini API Key — [Get one here](https://aistudio.google.com/apikey)
 
-- Node.js 16+ installed
-- A Google Gemini API key ([Get one here](https://aistudio.google.com/apikey))
+### Setup
 
-### Installation
-
-1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd Crafternia
-```
+# Clone repository
+git clone https://github.com/your-repo/MeTime.git
+cd MeTime
 
-2. Install dependencies:
-```bash
+# Install dependencies  
 npm install
-```
 
-3. Set up your environment variables:
-   - Create a `.env.local` file in the root directory
-   - Add your Gemini API key:
-```env
-GEMINI_API_KEY=your_api_key_here
-```
+# Configure environment
+echo "VITE_BRIA_API_KEY=your_bria_key_here" > .env.local
+echo "VITE_GEMINI_API_KEY=your_gemini_key_here" >> .env.local
 
-4. Start the development server:
-```bash
+# Start development server
 npm run dev
+# → http://localhost:5173
+
+# Production build (optional)
+npm run build && npm run preview
 ```
 
-5. Open your browser to `http://localhost:3000`
+---
 
-### Build for Production
+## 🏅 Hackathon Submission
 
-```bash
-npm run build
-npm run preview
-```
+### Applying For
 
-## How It Works
+**Primary: Best JSON-Native or Agentic Workflow**
 
-1. **Describe It** - Type your craft idea (e.g., "Papercraft fox") and select a category
-2. **See It** - A master reference image appears showing the finished craft
-3. **Dissect It** - Click "Dissect" to analyze the craft and generate steps
-4. **Build It** - Step cards with isolated visuals expand on the canvas
+**Why we excel here:**
+- ✅ **Production-ready multiagent system** with 10 specialized activity agents + orchestrator
+- ✅ **VLM-to-JSON pipeline** using Gemini 2.5 Flash to generate 1000+ word structured prompts
+- ✅ **Scalable architecture** where adding new activities = creating one new agent class
+- ✅ **Real workflow automation** — text prompt → structured JSON → image → dissection → progressive steps (fully automated)
+- ✅ **Agents building on agents** — Master Agent creates base, Step Agents progressively refine using previous outputs
 
-## User Flow Example
+**Secondary: Best Controllability**
 
-```
-User: "Make a clay turtle"
-└─> Select: Clay category
-    └─> Master Image: Studio photo of finished clay turtle
-        └─> Click: Dissect
-            └─> Materials Node: List of clay colors, tools
-            └─> Step Cards:
-                • Roll clay balls for body parts
-                • Shape the shell dome
-                • Attach legs and head
-                • Add texture details
-                • (Each with isolated knolling images)
-```
+**Why we excel here:**
+- ✅ **Disentangled refinement** — modify specific elements while preserving composition, lighting, background
+- ✅ **Seed consistency** — all step images use same seed for visual coherence
+- ✅ **Structured parameter control** — precise lighting, camera angle, color palette via JSON
+- ✅ **Activity-aware prompts** — watercolor transparency ≠ oil painting texture (specialized control per medium)
+- ✅ **Upload refinement** — extract structured prompts from user images, then refine them
 
-## Error Handling
+**Tertiary: Best New User Experience or Professional Tool**
 
-- **Retry Logic**: Automatic exponential backoff for 503/429 errors
-- **Rate Limiting**: Sequential queuing for step image generation
-- **Graceful Fallbacks**: Loading states and error messages in UI
+**Why we excel here:**
+- ✅ **Infinite canvas workspace** for spatial organization (professional tool UX)
+- ✅ **Hybrid generation + upload** workflow (unprecedented flexibility)
+- ✅ **Text-to-image node connections** for intuitive refinement relationships
+- ✅ **Export-ready outputs** (ZIP/PDF) for production use
+- ✅ **Calming, meditative interface** designed for focus and well-being
 
-## Project Structure
+### What Makes This Unique
 
-```
-Crafternia/
-├── components/          # React components
-│   ├── ChatInterface.tsx
-│   ├── GeneratorModal.tsx
-│   └── ...
-├── services/           # API services
-│   └── geminiService.ts
-├── types.ts            # TypeScript type definitions
-├── App.tsx             # Main application
-├── index.tsx           # Entry point
-└── vite.config.ts      # Vite configuration
-```
+**Most FIBO demos show**: "Here's an image generated from a prompt"  
+**Me Time shows**: "Here's a production-ready system where specialized AI agents collaborate to create progressive visual sequences with perfect consistency—and you can refine any image (AI or uploaded) through natural text prompts"
 
-## Future Roadmap
+The **agentic workflow** isn't superficial—it's core architecture. 10 agents, each with specialized knowledge, orchestrated to produce calm, mindful creative guidance.
 
-- [ ] Landing page with showcase examples
-- [ ] User project gallery ("My Projects")
-- [ ] Community showcase page
-- [ ] Project export (PDF/PNG)
-- [ ] Cloud sync with Supabase
-- [ ] Share and publish projects
+---
 
-## License
+## 📄 License
 
-This project is private and not licensed for redistribution.
+Created for the BRIA FIBO Hackathon — December 2025
 
-## Acknowledgments
+---
 
-- Powered by Google Gemini AI
-- Built with React Flow
-- Inspired by traditional craft instruction manuals
+**Built with 🧘 powered by BRIA FIBO**
+
+[🚀 Try the Live App](https://metime.vercel.app/) • [🎥 Watch the Demo](https://youtu.be/link)

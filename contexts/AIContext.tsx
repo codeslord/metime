@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, ReactNode } from 'react';
 import { CraftCategory, DissectionResponse } from '../types';
-import { generateCraftImage, dissectCraft, generateStepImage } from '../services/geminiService';
+import { generateCraftImage, dissectCraft, generateStepImage } from '../services/agentService';
 
 // State Interface
 interface AIContextState {
@@ -56,7 +56,7 @@ const aiReducer = (state: AIContextState, action: AIAction): AIContextState => {
   switch (action.type) {
     case 'START_GENERATION':
       return { ...state, isGenerating: true, error: null };
-    
+
     case 'GENERATION_SUCCESS':
       return {
         ...state,
@@ -64,17 +64,17 @@ const aiReducer = (state: AIContextState, action: AIAction): AIContextState => {
         currentProject: action.payload.project,
         error: null,
       };
-    
+
     case 'GENERATION_ERROR':
       return {
         ...state,
         isGenerating: false,
         error: action.payload.error,
       };
-    
+
     case 'START_DISSECTION':
       return { ...state, isGenerating: true, error: null };
-    
+
     case 'DISSECTION_SUCCESS':
       return {
         ...state,
@@ -84,14 +84,14 @@ const aiReducer = (state: AIContextState, action: AIAction): AIContextState => {
           : null,
         error: null,
       };
-    
+
     case 'DISSECTION_ERROR':
       return {
         ...state,
         isGenerating: false,
         error: action.payload.error,
       };
-    
+
     case 'UPDATE_STEP_IMAGE':
       if (!state.currentProject) return state;
       const updatedStepImages = new Map(state.currentProject.stepImages);
@@ -104,13 +104,13 @@ const aiReducer = (state: AIContextState, action: AIAction): AIContextState => {
           lastModified: new Date(),
         },
       };
-    
+
     case 'CLEAR_ERROR':
       return { ...state, error: null };
-    
+
     case 'CLEAR_PROJECT':
       return { ...state, currentProject: null };
-    
+
     default:
       return state;
   }
@@ -129,10 +129,10 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
 
   const summonCraft = async (prompt: string, category: CraftCategory) => {
     dispatch({ type: 'START_GENERATION' });
-    
+
     try {
       const masterImageUrl = await generateCraftImage(prompt, category);
-      
+
       const project: Project = {
         id: `project-${Date.now()}`,
         name: prompt.substring(0, 50), // Use first 50 chars of prompt as name
@@ -144,12 +144,12 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
         createdAt: new Date(),
         lastModified: new Date(),
       };
-      
+
       dispatch({ type: 'GENERATION_SUCCESS', payload: { project } });
     } catch (error: any) {
-      dispatch({ 
-        type: 'GENERATION_ERROR', 
-        payload: { error: error.message || 'Failed to generate craft image' } 
+      dispatch({
+        type: 'GENERATION_ERROR',
+        payload: { error: error.message || 'Failed to generate craft image' }
       });
       throw error;
     }
@@ -161,18 +161,18 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
     }
 
     dispatch({ type: 'START_DISSECTION' });
-    
+
     try {
       const dissection = await dissectCraft(
         state.currentProject.masterImageUrl,
         state.currentProject.prompt
       );
-      
+
       dispatch({ type: 'DISSECTION_SUCCESS', payload: { dissection } });
     } catch (error: any) {
-      dispatch({ 
-        type: 'DISSECTION_ERROR', 
-        payload: { error: error.message || 'Failed to dissect craft' } 
+      dispatch({
+        type: 'DISSECTION_ERROR',
+        payload: { error: error.message || 'Failed to dissect craft' }
       });
       throw error;
     }
@@ -188,7 +188,7 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
     }
 
     const { dissection, masterImageUrl, category } = state.currentProject;
-    
+
     // Generate step images sequentially
     for (const step of dissection.steps) {
       try {
@@ -197,7 +197,7 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
           step.description,
           category
         );
-        
+
         dispatch({
           type: 'UPDATE_STEP_IMAGE',
           payload: { stepNumber: step.stepNumber, imageUrl: stepImageUrl },

@@ -1,12 +1,19 @@
-export enum CraftCategory {
-  PAPERCRAFT = 'Papercraft',
-  CLAY = 'Clay',
-  COSTUME_PROPS = 'Costume & Props',
-  WOODCRAFT = 'Woodcraft',
-  JEWELRY = 'Jewelry',
-  KIDS_CRAFTS = 'Kids Crafts',
-  COLORING_BOOK = 'Coloring Book'
+export enum ActivityCategory {
+  DRAWING = 'Drawing',
+  COLORING_BOOK = 'Coloring Book',
+  MINIATURE_PAINTING = 'Miniature Painting',
+  FABRIC_PAINTING = 'Fabric Painting',
+  FLOWER_VASE = 'Flower Vase Customization',
+  WATERCOLOR = 'Watercolor Painting',
+  OIL_PAINTING = 'Oil Painting',
+  JEWELRY_CUSTOMIZATION = 'Jewelry Customization',
+  PATTERN_ART = 'Pattern Art',
+  GAME_CHARACTER = 'Game Character Design'
 }
+
+// Backwards compatibility alias
+export const CraftCategory = ActivityCategory;
+export type CraftCategory = ActivityCategory;
 
 export interface DissectionResponse {
   complexity: 'Simple' | 'Moderate' | 'Complex';
@@ -25,6 +32,8 @@ export interface MasterNodeData {
   label: string;
   imageUrl: string;
   category: CraftCategory;
+  structuredPrompt?: any; // Bria structured prompt for refinement
+  seed?: number; // Bria seed for refinement
   onDissect: (id: string, imageUrl: string) => void;
   onContextMenu?: (nodeId: string, element: HTMLElement) => void;
   onDissectSelected?: (id: string, selectedObjectImageUrl: string, fullImageUrl: string, label: string) => void;

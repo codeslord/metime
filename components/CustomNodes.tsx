@@ -26,125 +26,125 @@ export const MasterNode = memo(({ data, id }: NodeProps<any>) => {
   useEffect(() => {
     setIsSegmenterLoading(true);
     initSegmenter().then((seg) => {
-        if (seg) {
-          setIsSegmenterReady(true);
-        }
-        setIsSegmenterLoading(false);
+      if (seg) {
+        setIsSegmenterReady(true);
+      }
+      setIsSegmenterLoading(false);
     });
   }, []);
 
   const handleImageClick = async (e: React.MouseEvent) => {
-      // Don't segment if magic select is disabled or we are clicking the dissect button
-      // Also ensure segmenter is ready
-      console.log('🖱️ handleImageClick - magicSelectEnabled:', magicSelectEnabled, 'isSegmenterReady:', isSegmenterReady);
-      if (!magicSelectEnabled || !isSegmenterReady || !imgRef.current || !canvasRef.current || isProcessingMask) {
-        console.log('❌ Blocked - magicSelectEnabled:', magicSelectEnabled, 'isSegmenterReady:', isSegmenterReady);
-        return;
-      }
+    // Don't segment if magic select is disabled or we are clicking the dissect button
+    // Also ensure segmenter is ready
+    console.log('🖱️ handleImageClick - magicSelectEnabled:', magicSelectEnabled, 'isSegmenterReady:', isSegmenterReady);
+    if (!magicSelectEnabled || !isSegmenterReady || !imgRef.current || !canvasRef.current || isProcessingMask) {
+      console.log('❌ Blocked - magicSelectEnabled:', magicSelectEnabled, 'isSegmenterReady:', isSegmenterReady);
+      return;
+    }
 
-      setIsProcessingMask(true);
-      try {
-          const result = await segmentImage(e, imgRef.current);
+    setIsProcessingMask(true);
+    try {
+      const result = await segmentImage(e, imgRef.current);
 
-          if (result) {
-              let { uint8Array, width, height } = result;
-              
-              // Filter to keep only the largest connected region
-              // This removes small disconnected areas like parts of display stands
-              uint8Array = filterLargestRegion(uint8Array, width, height);
-              
-              const ctx = canvasRef.current.getContext('2d');
-              if (ctx) {
-                  // Ensure canvas internal dim matches mask
-                  canvasRef.current.width = width;
-                  canvasRef.current.height = height;
+      if (result) {
+        let { uint8Array, width, height } = result;
 
-                  const imageData = ctx.createImageData(width, height);
-                  const data = imageData.data;
+        // Filter to keep only the largest connected region
+        // This removes small disconnected areas like parts of display stands
+        uint8Array = filterLargestRegion(uint8Array, width, height);
 
-                  // Apply mask: Only show selected object
-                  // MagicTouch usually returns distinct indices. Assuming non-zero or specific index is object.
-                  // Typically index 1 is the selected area for single object interaction.
-                  for (let i = 0; i < uint8Array.length; i++) {
-                      const category = uint8Array[i];
-                      const pixelIndex = i * 4;
+        const ctx = canvasRef.current.getContext('2d');
+        if (ctx) {
+          // Ensure canvas internal dim matches mask
+          canvasRef.current.width = width;
+          canvasRef.current.height = height;
 
-                      // Check if part of the selected object (category > 0 typically)
-                      if (category > 0) {
-                          data[pixelIndex] = 139;     // R (Indigo-ish/Purple)
-                          data[pixelIndex + 1] = 92;  // G
-                          data[pixelIndex + 2] = 246; // B
-                          data[pixelIndex + 3] = 140; // Alpha (Semi-transparent)
-                      } else {
-                          data[pixelIndex + 3] = 0;   // Transparent background
-                      }
-                  }
-                  ctx.putImageData(imageData, 0, 0);
-                  setHasSelection(true);
-                  // Store filtered selection data for later use
-                  setSelectionData({ maskData: uint8Array, width, height });
-              }
+          const imageData = ctx.createImageData(width, height);
+          const data = imageData.data;
+
+          // Apply mask: Only show selected object
+          // MagicTouch usually returns distinct indices. Assuming non-zero or specific index is object.
+          // Typically index 1 is the selected area for single object interaction.
+          for (let i = 0; i < uint8Array.length; i++) {
+            const category = uint8Array[i];
+            const pixelIndex = i * 4;
+
+            // Check if part of the selected object (category > 0 typically)
+            if (category > 0) {
+              data[pixelIndex] = 139;     // R (Indigo-ish/Purple)
+              data[pixelIndex + 1] = 92;  // G
+              data[pixelIndex + 2] = 246; // B
+              data[pixelIndex + 3] = 140; // Alpha (Semi-transparent)
+            } else {
+              data[pixelIndex + 3] = 0;   // Transparent background
+            }
           }
-      } catch (err) {
-          console.error("Segmentation failed", err);
-      } finally {
-          setIsProcessingMask(false);
+          ctx.putImageData(imageData, 0, 0);
+          setHasSelection(true);
+          // Store filtered selection data for later use
+          setSelectionData({ maskData: uint8Array, width, height });
+        }
       }
+    } catch (err) {
+      console.error("Segmentation failed", err);
+    } finally {
+      setIsProcessingMask(false);
+    }
   };
 
   const handleClearSelection = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      if (canvasRef.current) {
-          const ctx = canvasRef.current.getContext('2d');
-          if (ctx) {
-              ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-          }
+    e.stopPropagation();
+    if (canvasRef.current) {
+      const ctx = canvasRef.current.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
       }
-      setHasSelection(false);
-      setSelectionData(null);
+    }
+    setHasSelection(false);
+    setSelectionData(null);
   };
 
   const handleDissectSelected = async (e: React.MouseEvent) => {
-      e.stopPropagation();
-      console.log('🔍 handleDissectSelected called');
-      console.log('  - selectionData:', selectionData);
-      console.log('  - imgRef.current:', !!imgRef.current);
-      console.log('  - onDissectSelected:', !!onDissectSelected);
-      if (!selectionData || !imgRef.current || !onDissectSelected) {
-        console.log('❌ Early return - missing data');
-        return;
-      }
+    e.stopPropagation();
+    console.log('🔍 handleDissectSelected called');
+    console.log('  - selectionData:', selectionData);
+    console.log('  - imgRef.current:', !!imgRef.current);
+    console.log('  - onDissectSelected:', !!onDissectSelected);
+    if (!selectionData || !imgRef.current || !onDissectSelected) {
+      console.log('❌ Early return - missing data');
+      return;
+    }
 
-      try {
-          // Extract the selected object with expanded context
-          const selectedObjectImage = await extractSelectedObject(
-              imgRef.current,
-              selectionData.maskData,
-              selectionData.width,
-              selectionData.height,
-              20 // Expand by 20 pixels to capture more context
-          );
+    try {
+      // Extract the selected object with expanded context
+      const selectedObjectImage = await extractSelectedObject(
+        imgRef.current,
+        selectionData.maskData,
+        selectionData.width,
+        selectionData.height,
+        20 // Expand by 20 pixels to capture more context
+      );
 
-          // AI will identify the object automatically - pass empty string as placeholder
-          // The actual identification happens in handleDissectSelected in CanvasWorkspace
-          onDissectSelected(id, selectedObjectImage, imageUrl, '');
-      } catch (err) {
-          console.error("Failed to extract selected object:", err);
-      }
+      // AI will identify the object automatically - pass empty string as placeholder
+      // The actual identification happens in handleDissectSelected in CanvasWorkspace
+      onDissectSelected(id, selectedObjectImage, imageUrl, '');
+    } catch (err) {
+      console.error("Failed to extract selected object:", err);
+    }
   };
 
   const handleNodeHover = () => {
-      // Trigger selection callback on hover if provided, passing category for menu
-      if (onSelect && nodeRef.current) {
-        onSelect(id, nodeRef.current, category);
-      }
+    // Trigger selection callback on hover if provided, passing category for menu
+    if (onSelect && nodeRef.current) {
+      onSelect(id, nodeRef.current, category);
+    }
   };
 
   const handleNodeLeave = () => {
-      // Trigger deselect callback when mouse leaves
-      if (onDeselect) {
-        onDeselect();
-      }
+    // Trigger deselect callback when mouse leaves
+    if (onDeselect) {
+      onDeselect();
+    }
   };
 
   return (
@@ -165,8 +165,8 @@ export const MasterNode = memo(({ data, id }: NodeProps<any>) => {
       <div className="px-4 py-2 bg-indigo-600/20 border-b border-indigo-500/30 flex justify-between items-center rounded-t-xl">
         <span className="text-indigo-200 font-semibold text-sm truncate">{label}</span>
         <div className="flex items-center gap-2">
-            {isProcessingMask && <Loader2 className="w-3 h-3 text-indigo-400 animate-spin" />}
-            <Hammer className="w-4 h-4 text-indigo-400" />
+          {isProcessingMask && <Loader2 className="w-3 h-3 text-indigo-400 animate-spin" />}
+          <Hammer className="w-4 h-4 text-indigo-400" />
         </div>
       </div>
 
@@ -197,27 +197,27 @@ export const MasterNode = memo(({ data, id }: NodeProps<any>) => {
 
         {/* Segmentation Overlay Canvas */}
         <canvas
-            ref={canvasRef}
-            className="absolute inset-0 z-20 pointer-events-none w-full h-full mix-blend-screen"
+          ref={canvasRef}
+          className="absolute inset-0 z-20 pointer-events-none w-full h-full mix-blend-screen"
         />
 
         {/* Loading Indicator for AI Model - only show when magic select is enabled */}
         {magicSelectEnabled && !hasSelection && isSegmenterLoading && (
           <div className="absolute top-2 right-2 z-30 pointer-events-none">
-               <div className="bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1">
-                   <Loader2 className="w-3 h-3 animate-spin" />
-                   Loading AI...
-               </div>
+            <div className="bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              Loading AI...
+            </div>
           </div>
         )}
 
         {/* Hover Hint for Selection - only show when magic select is enabled */}
         {magicSelectEnabled && !hasSelection && !isSegmenterLoading && (
           <div className={`absolute top-2 right-2 z-30 pointer-events-none transition-opacity duration-300 ${isSegmenterReady ? 'opacity-0 group-hover:opacity-100' : 'opacity-0'}`}>
-               <div className="bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1">
-                   <MousePointerClick className="w-3 h-3" />
-                   Magic Select
-               </div>
+            <div className="bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1">
+              <MousePointerClick className="w-3 h-3" />
+              Magic Select
+            </div>
           </div>
         )}
 
@@ -277,39 +277,44 @@ export const InstructionNode = memo(({ data }: NodeProps<any>) => {
   const { stepNumber, title, description, safetyWarning, imageUrl, isGeneratingImage } = data as InstructionNodeData;
 
   return (
-    <div className="w-[300px] md:w-[320px] bg-slate-900/95 backdrop-blur-sm rounded-lg shadow-lg smooth-transition hover:shadow-xl overflow-hidden">
+    <div
+      className={`w-[300px] md:w-[320px] bg-slate-900/95 backdrop-blur-sm rounded-lg shadow-lg smooth-transition overflow-hidden ${isGeneratingImage ? 'border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)] animate-pulse' : 'hover:shadow-xl'}`}
+    >
       <Handle type="target" position={Position.Left} id="target-left" className="!bg-emerald-500 !w-3 !h-3" />
-      
+      <Handle type="source" position={Position.Right} id="source-right" className="!bg-emerald-500 !w-3 !h-3" />
+      <Handle type="source" position={Position.Left} id="source-left" className="!bg-emerald-500 !w-3 !h-3" />
+      <Handle type="target" position={Position.Right} id="target-right" className="!bg-emerald-500 !w-3 !h-3" />
+
       {/* Step number badge */}
       <div className="absolute top-2 left-2 z-10 flex items-center justify-center w-7 h-7 rounded-full bg-emerald-600 text-white text-sm font-bold shadow-lg">
         {stepNumber}
       </div>
-      
+
       {/* Image Section - Clean display */}
       <div className="w-full aspect-video bg-white relative overflow-hidden">
         {imageUrl ? (
-           <img 
-            src={imageUrl} 
-            alt={title} 
-            className="w-full h-full object-cover" 
-           />
+          <img
+            src={imageUrl}
+            alt={title}
+            className="w-full h-full object-cover"
+          />
         ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 space-y-2 p-4 bg-slate-950">
-                {isGeneratingImage ? (
-                    <>
-                        <div className="relative">
-                          <div className="absolute inset-0 bg-emerald-500 blur opacity-20 pulse-glow rounded-full"></div>
-                          <Loader2 className="w-6 h-6 md:w-8 md:h-8 animate-spin text-emerald-500/50 relative z-10" />
-                        </div>
-                        <span className="text-xs text-emerald-500/70 pulse-glow font-medium">Generating visual...</span>
-                    </>
-                ) : (
-                    <div className="flex flex-col items-center">
-                        <ImageIcon className="w-6 h-6 md:w-8 md:h-8 opacity-20" />
-                        <span className="text-xs mt-2 opacity-30">No visualization available</span>
-                    </div>
-                )}
-            </div>
+          <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 space-y-2 p-4 bg-slate-950">
+            {isGeneratingImage ? (
+              <>
+                <div className="relative">
+                  <div className="absolute inset-0 bg-emerald-500 blur opacity-20 pulse-glow rounded-full"></div>
+                  <Loader2 className="w-6 h-6 md:w-8 md:h-8 animate-spin text-emerald-500/50 relative z-10" />
+                </div>
+                <span className="text-xs text-emerald-500/70 pulse-glow font-medium">Generating visual...</span>
+              </>
+            ) : (
+              <div className="flex flex-col items-center">
+                <ImageIcon className="w-6 h-6 md:w-8 md:h-8 opacity-20" />
+                <span className="text-xs mt-2 opacity-30">No visualization available</span>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
@@ -317,7 +322,7 @@ export const InstructionNode = memo(({ data }: NodeProps<any>) => {
       <div className="p-3 md:p-4 space-y-2">
         <h3 className="text-slate-100 font-semibold text-sm leading-tight">{title}</h3>
         <p className="text-slate-400 text-xs leading-relaxed">{description}</p>
-        
+
         {safetyWarning && (
           <div className="p-2 bg-amber-950/30 rounded text-amber-200/90 text-xs flex items-start gap-2">
             <TriangleAlert className="w-3 h-3 shrink-0 mt-0.5" />
@@ -352,6 +357,9 @@ export const MaterialNode = memo(({ data }: NodeProps<any>) => {
     >
       {/* Connection Handle - offset by 20px (half of 40px header) to center on content area */}
       <Handle type="target" position={Position.Right} id="target-right" className="!bg-blue-500 !w-3 !h-3" style={{ top: 'calc(50% + 20px)' }} />
+      <Handle type="source" position={Position.Left} id="source-left" className="!bg-blue-500 !w-3 !h-3" style={{ top: 'calc(50% + 20px)' }} />
+      <Handle type="source" position={Position.Right} id="source-right" className="!bg-blue-500 !w-3 !h-3" style={{ top: 'calc(50% + 20px)' }} />
+      <Handle type="target" position={Position.Left} id="target-left" className="!bg-blue-500 !w-3 !h-3" style={{ top: 'calc(50% + 20px)' }} />
 
       {/* Header */}
       <div className="px-3 py-2.5 flex items-center gap-2">
@@ -404,82 +412,82 @@ export const ImageNode = memo(({ data, id, selected, width: nodeWidth, height: n
   useEffect(() => {
     setIsSegmenterLoading(true);
     initSegmenter().then((seg) => {
-        if (seg) {
-          setIsSegmenterReady(true);
-        }
-        setIsSegmenterLoading(false);
+      if (seg) {
+        setIsSegmenterReady(true);
+      }
+      setIsSegmenterLoading(false);
     });
   }, []);
 
   const handleNodeHover = () => {
-      // Trigger unified menu callback on hover if provided
-      if (nodeRef.current && onSelect) {
-        onSelect(id, nodeRef.current);
-      }
+    // Trigger unified menu callback on hover if provided
+    if (nodeRef.current && onSelect) {
+      onSelect(id, nodeRef.current);
+    }
   };
 
   const handleNodeLeave = () => {
-      // Trigger deselect callback when mouse leaves
-      if (onDeselect) {
-        onDeselect();
-      }
+    // Trigger deselect callback when mouse leaves
+    if (onDeselect) {
+      onDeselect();
+    }
   };
 
   const handleImageClick = async (e: React.MouseEvent) => {
-      // Magic select is disabled for uploaded images
-      if (!magicSelectEnabled || !isSegmenterReady || !imgRef.current || !canvasRef.current || isProcessingMask) return;
+    // Magic select is disabled for uploaded images
+    if (!magicSelectEnabled || !isSegmenterReady || !imgRef.current || !canvasRef.current || isProcessingMask) return;
 
-      setIsProcessingMask(true);
-      try {
-          const result = await segmentImage(e, imgRef.current);
+    setIsProcessingMask(true);
+    try {
+      const result = await segmentImage(e, imgRef.current);
 
-          if (result) {
-              let { uint8Array, width, height } = result;
+      if (result) {
+        let { uint8Array, width, height } = result;
 
-              // Filter to keep only the largest connected region
-              uint8Array = filterLargestRegion(uint8Array, width, height);
+        // Filter to keep only the largest connected region
+        uint8Array = filterLargestRegion(uint8Array, width, height);
 
-              const ctx = canvasRef.current.getContext('2d');
-              if (ctx) {
-                  canvasRef.current.width = width;
-                  canvasRef.current.height = height;
+        const ctx = canvasRef.current.getContext('2d');
+        if (ctx) {
+          canvasRef.current.width = width;
+          canvasRef.current.height = height;
 
-                  const imageData = ctx.createImageData(width, height);
-                  const data = imageData.data;
+          const imageData = ctx.createImageData(width, height);
+          const data = imageData.data;
 
-                  for (let i = 0; i < uint8Array.length; i++) {
-                      const category = uint8Array[i];
-                      const pixelIndex = i * 4;
+          for (let i = 0; i < uint8Array.length; i++) {
+            const category = uint8Array[i];
+            const pixelIndex = i * 4;
 
-                      if (category > 0) {
-                          data[pixelIndex] = 168;     // R (Purple)
-                          data[pixelIndex + 1] = 85;  // G
-                          data[pixelIndex + 2] = 247; // B
-                          data[pixelIndex + 3] = 140; // Alpha
-                      } else {
-                          data[pixelIndex + 3] = 0;
-                      }
-                  }
-                  ctx.putImageData(imageData, 0, 0);
-                  setHasSelection(true);
-              }
+            if (category > 0) {
+              data[pixelIndex] = 168;     // R (Purple)
+              data[pixelIndex + 1] = 85;  // G
+              data[pixelIndex + 2] = 247; // B
+              data[pixelIndex + 3] = 140; // Alpha
+            } else {
+              data[pixelIndex + 3] = 0;
+            }
           }
-      } catch (err) {
-          console.error("Segmentation failed", err);
-      } finally {
-          setIsProcessingMask(false);
+          ctx.putImageData(imageData, 0, 0);
+          setHasSelection(true);
+        }
       }
+    } catch (err) {
+      console.error("Segmentation failed", err);
+    } finally {
+      setIsProcessingMask(false);
+    }
   };
 
   const handleClearSelection = (e: React.MouseEvent) => {
-      e.stopPropagation();
-      if (canvasRef.current) {
-          const ctx = canvasRef.current.getContext('2d');
-          if (ctx) {
-              ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-          }
+    e.stopPropagation();
+    if (canvasRef.current) {
+      const ctx = canvasRef.current.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
       }
-      setHasSelection(false);
+    }
+    setHasSelection(false);
   };
 
   return (
@@ -487,13 +495,12 @@ export const ImageNode = memo(({ data, id, selected, width: nodeWidth, height: n
       ref={nodeRef}
       onMouseEnter={handleNodeHover}
       onMouseLeave={handleNodeLeave}
-      className={`relative group bg-slate-900/95 backdrop-blur-sm rounded-xl shadow-2xl transition-none hover:shadow-xl ${
-        selected
-          ? 'border-4 border-indigo-500 shadow-indigo-500/50 ring-4 ring-indigo-500/30'
-          : isSelected
-            ? 'border-2 border-orange-500 shadow-orange-500/50 ring-2 ring-orange-500/30'
-            : 'border-2 border-purple-500/50'
-      }`}
+      className={`relative group bg-slate-900/95 backdrop-blur-sm rounded-xl shadow-2xl transition-none hover:shadow-xl ${selected
+        ? 'border-4 border-indigo-500 shadow-indigo-500/50 ring-4 ring-indigo-500/30'
+        : isSelected
+          ? 'border-2 border-orange-500 shadow-orange-500/50 ring-2 ring-orange-500/30'
+          : 'border-2 border-purple-500/50'
+        }`}
       style={{ width: displayWidth, height: displayHeight, minWidth: 150, minHeight: 186 }}
     >
       {/* Node Resizer - only visible when selected */}
@@ -525,20 +532,20 @@ export const ImageNode = memo(({ data, id, selected, width: nodeWidth, height: n
       <div className="px-4 py-2 bg-purple-600/20 border-b border-purple-500/30 flex justify-between items-center rounded-t-xl overflow-hidden">
         <span className="text-purple-200 font-semibold text-sm truncate">{fileName}</span>
         <div className="flex items-center gap-2">
-            {isProcessingMask && <Loader2 className="w-3 h-3 text-purple-400 animate-spin" />}
-            <ImageIcon className="w-4 h-4 text-purple-400" />
-            {onDelete && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDelete(id);
-                }}
-                className="ml-1 text-purple-300 hover:text-white hover:bg-purple-500/30 rounded transition-colors p-1"
-                title="Close image"
-              >
-                <span className="text-lg leading-none">×</span>
-              </button>
-            )}
+          {isProcessingMask && <Loader2 className="w-3 h-3 text-purple-400 animate-spin" />}
+          <ImageIcon className="w-4 h-4 text-purple-400" />
+          {onDelete && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete(id);
+              }}
+              className="ml-1 text-purple-300 hover:text-white hover:bg-purple-500/30 rounded transition-colors p-1"
+              title="Close image"
+            >
+              <span className="text-lg leading-none">×</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -570,27 +577,27 @@ export const ImageNode = memo(({ data, id, selected, width: nodeWidth, height: n
 
         {/* Segmentation Overlay Canvas */}
         <canvas
-            ref={canvasRef}
-            className="absolute inset-0 z-20 pointer-events-none w-full h-full mix-blend-screen"
+          ref={canvasRef}
+          className="absolute inset-0 z-20 pointer-events-none w-full h-full mix-blend-screen"
         />
 
         {/* Loading Indicator for AI Model - only show when magic select is enabled */}
         {magicSelectEnabled && !hasSelection && isSegmenterLoading && (
           <div className="absolute top-2 right-2 z-30 pointer-events-none">
-               <div className="bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1">
-                   <Loader2 className="w-3 h-3 animate-spin" />
-                   Loading AI...
-               </div>
+            <div className="bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              Loading AI...
+            </div>
           </div>
         )}
 
         {/* Hover Hint for Selection - only show when magic select is enabled */}
         {magicSelectEnabled && !hasSelection && !isSegmenterLoading && (
           <div className={`absolute top-2 right-2 z-30 pointer-events-none transition-opacity duration-300 ${isSegmenterReady ? 'opacity-0 group-hover:opacity-100' : 'opacity-0'}`}>
-               <div className="bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1">
-                   <MousePointerClick className="w-3 h-3" />
-                   Magic Select
-               </div>
+            <div className="bg-black/60 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded-full flex items-center gap-1">
+              <MousePointerClick className="w-3 h-3" />
+              Magic Select
+            </div>
           </div>
         )}
 
@@ -828,13 +835,15 @@ export const ShapeNode = memo(({ data, selected }: NodeProps<any>) => {
 });
 
 /**
- * Node for text annotations
+ * Node for text annotations with optional refinement capability
  */
 export const TextNode = memo(({ data, id }: NodeProps<any>) => {
-  const { content, fontSize, fontFamily, color, alignment, isEditing, onEdit, onFinishEdit } = data as TextNodeData & {
+  const { content, fontSize, fontFamily, color, alignment, isEditing, onEdit, onFinishEdit, onRefine, isRefining } = data as TextNodeData & {
     isEditing?: boolean;
     onEdit?: (id: string) => void;
     onFinishEdit?: (id: string, newContent: string) => void;
+    onRefine?: (id: string, content: string) => void;
+    isRefining?: boolean;
   };
 
   const [editContent, setEditContent] = React.useState(content);
@@ -884,17 +893,60 @@ export const TextNode = memo(({ data, id }: NodeProps<any>) => {
     }
   };
 
+  const handleRefineClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onRefine && content && content.trim()) {
+      onRefine(id, content);
+    }
+  };
+
   return (
-    <div 
-      className="bg-slate-900/95 backdrop-blur-sm rounded-lg shadow-lg relative smooth-transition hover:shadow-xl overflow-hidden min-w-[150px]"
+    <div
+      className={`relative group bg-slate-900 backdrop-blur-sm rounded-xl shadow-2xl transition-none min-w-[200px] ${isRefining
+        ? 'border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)] animate-pulse'
+        : 'border-2 border-cyan-500/50 hover:shadow-xl'
+        }`}
       onDoubleClick={handleDoubleClick}
     >
-      <Handle type="source" position={Position.Right} id="source-right" className="!bg-emerald-500 !w-3 !h-3" />
-      <Handle type="source" position={Position.Left} id="source-left" className="!bg-emerald-500 !w-3 !h-3" />
-      <Handle type="target" position={Position.Right} id="target-right" className="!bg-emerald-500 !w-3 !h-3" />
-      <Handle type="target" position={Position.Left} id="target-left" className="!bg-emerald-500 !w-3 !h-3" />
+      <Handle type="source" position={Position.Right} id="source-right" className="!bg-cyan-500 !w-3 !h-3" />
+      <Handle type="source" position={Position.Left} id="source-left" className="!bg-cyan-500 !w-3 !h-3" />
+      <Handle type="target" position={Position.Right} id="target-right" className="!bg-cyan-500 !w-3 !h-3" />
+      <Handle type="target" position={Position.Left} id="target-left" className="!bg-cyan-500 !w-3 !h-3" />
 
-      <div className="p-3">
+      {/* Header */}
+      <div className="px-4 py-2 bg-cyan-600/20 border-b border-cyan-500/30 flex justify-between items-center rounded-t-xl">
+        <span className="text-cyan-200 font-semibold text-sm">Refinement Prompt</span>
+        <div className="flex items-center gap-2">
+          {isRefining && <Loader2 className="w-3 h-3 text-cyan-400 animate-spin" />}
+          <svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Play/Refine Button - visible on hover when content exists */}
+      {onRefine && content && content.trim() && !isEditing && (
+        <button
+          onClick={handleRefineClick}
+          disabled={isRefining}
+          className={`absolute top-12 right-2 z-10 p-1.5 rounded-full transition-all duration-300 ${isRefining
+            ? 'bg-emerald-500 text-white'
+            : 'bg-emerald-600 hover:bg-emerald-500 text-white opacity-0 group-hover:opacity-100'
+            }`}
+          title="Generate image from this prompt"
+        >
+          {isRefining ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+            </svg>
+          )}
+        </button>
+      )}
+
+      {/* Content - positioned below header */}
+      <div className="p-4">
         {isEditing ? (
           <textarea
             ref={textareaRef}
@@ -902,7 +954,7 @@ export const TextNode = memo(({ data, id }: NodeProps<any>) => {
             onChange={(e) => setEditContent(e.target.value)}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
-            className="w-full bg-slate-800 text-slate-100 border border-emerald-500 rounded px-2 py-1 resize-none outline-none"
+            className="w-full bg-slate-800 text-slate-100 border border-cyan-500 rounded px-2 py-1 resize-none outline-none"
             style={{
               fontSize: `${fontSize}px`,
               fontFamily,
@@ -913,7 +965,7 @@ export const TextNode = memo(({ data, id }: NodeProps<any>) => {
           />
         ) : (
           <div
-            className="cursor-text select-text whitespace-pre-wrap break-words"
+            className="cursor-text select-text whitespace-pre-wrap break-words pr-8"
             style={{
               fontSize: `${fontSize}px`,
               fontFamily,
@@ -922,7 +974,7 @@ export const TextNode = memo(({ data, id }: NodeProps<any>) => {
               minHeight: '40px',
             }}
           >
-            {content || 'Double-click to edit'}
+            {content || 'Double-click to add a refinement prompt'}
           </div>
         )}
       </div>
@@ -932,6 +984,7 @@ export const TextNode = memo(({ data, id }: NodeProps<any>) => {
   return (
     prevProps.data.content === nextProps.data.content &&
     prevProps.data.isEditing === nextProps.data.isEditing &&
+    prevProps.data.isRefining === nextProps.data.isRefining &&
     prevProps.data.fontSize === nextProps.data.fontSize &&
     prevProps.data.color === nextProps.data.color
   );
@@ -953,7 +1006,7 @@ export const DrawingNode = memo(({ data }: NodeProps<any>) => {
   // If path exists but has no points yet, still render the SVG container
   if (paths[0].points.length === 0) {
     return (
-      <svg 
+      <svg
         className="pointer-events-none absolute top-0 left-0"
         style={{ overflow: 'visible' }}
       />
@@ -963,10 +1016,10 @@ export const DrawingNode = memo(({ data }: NodeProps<any>) => {
   // Convert path points to SVG path string
   const pathToSvgPath = (path: DrawingPath): string => {
     if (path.points.length === 0) return '';
-    
+
     const points = path.points;
     let pathString = `M ${points[0].x} ${points[0].y}`;
-    
+
     if (path.tool === 'pen' && points.length > 2) {
       // Smooth path using quadratic curves for pen mode
       for (let i = 1; i < points.length - 1; i++) {

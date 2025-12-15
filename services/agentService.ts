@@ -3,55 +3,71 @@ import { AgentOrchestrator } from "./orchestrator/AgentOrchestrator";
 import { VisualizerAgent } from "./agents/VisualizerAgent";
 import { DissectionAgent } from "./agents/DissectionAgent";
 import { PatternAgent } from "./agents/PatternAgent";
+import { getAllCategoryAgents } from "./agents/categories";
 
 // Initialize Orchestrator and Agents
 const orchestrator = new AgentOrchestrator();
 
-// Register Core Agents on startup
+// Register Core Functional Agents (retained for shared/generic functionality)
 orchestrator.registerAgent(new VisualizerAgent());
 orchestrator.registerAgent(new DissectionAgent());
 orchestrator.registerAgent(new PatternAgent());
 
-console.log('🤖 Agent A2A System Initialized');
+// Register Category-Specific Agents
+const categoryAgents = getAllCategoryAgents();
+categoryAgents.forEach(agent => orchestrator.registerAgent(agent));
+
+console.log(`🤖 Agent A2A System Initialized with ${3 + categoryAgents.length} agents`);
 
 /**
  * Generates a realistic image of the craft concept.
+ * Returns full metadata including structured prompt and seed for refinement.
  */
 export const generateCraftImage = async (
   prompt: string,
   category: CraftCategory
-): Promise<string> => {
+): Promise<{ imageUrl: string; structuredPrompt: any; seed: number }> => {
   return orchestrator.dispatch('generate_master_image', { prompt, category });
 };
 
 /**
  * Generates a craft-style image from an uploaded image.
+ * Returns full metadata including structured prompt and seed for refinement.
  */
 export const generateCraftFromImage = async (
   imageBase64: string,
   category: CraftCategory
-): Promise<string> => {
+): Promise<{ imageUrl: string; structuredPrompt: any; seed: number }> => {
   return orchestrator.dispatch('generate_craft_from_image', { imageBase64, category });
 };
 
 /**
- * Generates a visualization for a specific step using the master image as reference.
+ * Generates a visualization for a specific step using PARALLEL CONSTRUCTION.
+ * Each step independently references the master as the goal for target percentage.
  */
 export const generateStepImage = async (
-  originalImageBase64: string,
+  masterSeed: number,
   stepDescription: string,
-  category: CraftCategory,
-  targetObjectLabel?: string,
-  stepNumber?: number
-): Promise<string> => {
+  masterStructuredPrompt: any,
+  stepNumber: number,
+  totalSteps: number,
+  category: CraftCategory
+): Promise<{ imageUrl: string; structuredPrompt: any; seed: number }> => {
   return orchestrator.dispatch('generate_step_image', {
-    originalImageBase64,
+    masterSeed,
     stepDescription,
-    category,
-    targetObjectLabel,
-    stepNumber
+    masterStructuredPrompt,
+    stepNumber,
+    totalSteps,
+    category
+    // NO previousStepPrompt - parallel generation
   });
 };
+
+/**
+ * Type for turntable view directions
+ */
+export type TurnTableView = 'left' | 'right' | 'back';
 
 /**
  * Generates a turn table view (left, right, or back) of the craft object

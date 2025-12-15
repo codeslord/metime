@@ -1,5 +1,5 @@
 /**
- * LocalStorage utility functions for Crafternia
+ * LocalStorage utility functions for Me Time
  * Handles storage operations with error handling and compression support
  */
 
@@ -12,7 +12,7 @@ const COMPRESSION_THRESHOLD = 10000; // Compress items larger than 10KB
  */
 const compress = (str: string): string => {
   if (str.length < COMPRESSION_THRESHOLD) return str;
-  
+
   try {
     // Use btoa for base64 encoding as a simple compression
     // In production, consider using a library like lz-string
@@ -41,11 +41,11 @@ export const getStorageItem = <T>(key: string): T | null => {
   try {
     const item = localStorage.getItem(`${STORAGE_PREFIX}${key}`);
     if (!item) return null;
-    
+
     // Check if item is compressed (starts with compression marker)
     const isCompressed = item.startsWith('__COMPRESSED__');
     const dataStr = isCompressed ? decompress(item.substring(14)) : item;
-    
+
     return JSON.parse(dataStr) as T;
   } catch (error) {
     console.error(`Failed to get storage item "${key}":`, error);
@@ -59,7 +59,7 @@ export const getStorageItem = <T>(key: string): T | null => {
 export const setStorageItem = <T>(key: string, value: T): boolean => {
   try {
     const jsonStr = JSON.stringify(value);
-    
+
     // Compress if data is large
     let dataToStore = jsonStr;
     if (jsonStr.length > COMPRESSION_THRESHOLD) {
@@ -69,17 +69,17 @@ export const setStorageItem = <T>(key: string, value: T): boolean => {
         dataToStore = '__COMPRESSED__' + compressed;
       }
     }
-    
+
     localStorage.setItem(`${STORAGE_PREFIX}${key}`, dataToStore);
     return true;
   } catch (error) {
     console.error(`Failed to set storage item "${key}":`, error);
-    
+
     // Check if quota exceeded
     if (error instanceof DOMException && error.name === 'QuotaExceededError') {
       console.warn('LocalStorage quota exceeded. Consider clearing old projects.');
     }
-    
+
     return false;
   }
 };
@@ -98,7 +98,7 @@ export const removeStorageItem = (key: string): boolean => {
 };
 
 /**
- * Clear all Crafternia items from LocalStorage
+ * Clear all Me Time items from LocalStorage
  */
 export const clearStorage = (): boolean => {
   try {
@@ -122,7 +122,7 @@ export const getStorageInfo = (): { used: number; available: number; percentage:
   try {
     let used = 0;
     const keys = Object.keys(localStorage);
-    
+
     keys.forEach(key => {
       if (key.startsWith(STORAGE_PREFIX)) {
         const item = localStorage.getItem(key);
@@ -131,11 +131,11 @@ export const getStorageInfo = (): { used: number; available: number; percentage:
         }
       }
     });
-    
+
     // Most browsers have 5-10MB limit, we'll assume 5MB
     const available = 5 * 1024 * 1024; // 5MB in bytes
     const percentage = (used / available) * 100;
-    
+
     return {
       used,
       available,
@@ -175,7 +175,7 @@ export const isStorageAvailable = (): boolean => {
 export const serializeNodeData = (node: any): any => {
   // Clone the node to avoid mutating the original
   const serialized = { ...node };
-  
+
   // Handle node-specific data serialization
   if (node.type === 'imageNode' && node.data) {
     // ImageNode: Ensure all required fields are present
@@ -263,7 +263,7 @@ export const serializeNodeData = (node: any): any => {
 export const deserializeNodeData = (node: any): any => {
   // Clone the node to avoid mutating the original
   const deserialized = { ...node };
-  
+
   // Handle node-specific data deserialization and validation
   if (node.type === 'imageNode' && node.data) {
     // ImageNode: Validate and restore data
@@ -301,14 +301,14 @@ export const deserializeNodeData = (node: any): any => {
     deserialized.data = {
       paths: Array.isArray(node.data.paths)
         ? node.data.paths.slice(0, 20).map((path: any) => ({
-            points: Array.isArray(path.points)
-              ? path.points.slice(0, 1000).map((p: any) => ({
-                  x: Number(p.x) || 0,
-                  y: Number(p.y) || 0,
-                }))
-              : [],
-            tool: validTools.includes(path.tool) ? path.tool : 'pencil',
-          }))
+          points: Array.isArray(path.points)
+            ? path.points.slice(0, 1000).map((p: any) => ({
+              x: Number(p.x) || 0,
+              y: Number(p.y) || 0,
+            }))
+            : [],
+          tool: validTools.includes(path.tool) ? path.tool : 'pencil',
+        }))
         : [],
       strokeColor: String(node.data.strokeColor || '#ffffff'),
       strokeWidth: Math.max(1, Math.min(Number(node.data.strokeWidth) || 2, 20)),
@@ -359,13 +359,13 @@ export const deserializeNodeData = (node: any): any => {
  */
 export const serializeCanvasState = (canvasState: any): any => {
   if (!canvasState) return null;
-  
+
   return {
-    nodes: Array.isArray(canvasState.nodes) 
+    nodes: Array.isArray(canvasState.nodes)
       ? canvasState.nodes.map(serializeNodeData)
       : [],
-    edges: Array.isArray(canvasState.edges) 
-      ? canvasState.edges.slice(0, 100) 
+    edges: Array.isArray(canvasState.edges)
+      ? canvasState.edges.slice(0, 100)
       : [],
     viewport: canvasState.viewport || { x: 0, y: 0, zoom: 1 },
   };
@@ -390,12 +390,12 @@ export const deserializeCanvasState = (canvasState: any): any => {
       viewport: { x: 0, y: 0, zoom: 1 },
     };
   }
-  
+
   return {
-    nodes: Array.isArray(canvasState.nodes) 
+    nodes: Array.isArray(canvasState.nodes)
       ? canvasState.nodes.slice(0, 50).map(deserializeNodeData)
       : [],
-    edges: Array.isArray(canvasState.edges) 
+    edges: Array.isArray(canvasState.edges)
       ? canvasState.edges.slice(0, 100)
       : [],
     viewport: canvasState.viewport || { x: 0, y: 0, zoom: 1 },
