@@ -1587,19 +1587,9 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
       targetHandle: 'target-left',
       animated: true,
       style: {
-        stroke: '#10b981',
+        stroke: '#9333ea',
         strokeWidth: 3,
-        filter: 'drop-shadow(0 0 6px rgba(16, 185, 129, 0.6))',
-      },
-      label: '✨ Refined',
-      labelStyle: {
-        fill: '#10b981',
-        fontWeight: 600,
-        fontSize: 12,
-      },
-      labelBgStyle: {
-        fill: '#ffffff',
-        fillOpacity: 0.9,
+        filter: 'drop-shadow(0 0 6px rgba(147, 51, 234, 0.6))',
       },
     };
 

@@ -281,6 +281,9 @@ export const InstructionNode = memo(({ data }: NodeProps<any>) => {
       className={`w-[300px] md:w-[320px] bg-slate-900/95 backdrop-blur-sm rounded-lg shadow-lg smooth-transition overflow-hidden ${isGeneratingImage ? 'border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)] animate-pulse' : 'hover:shadow-xl'}`}
     >
       <Handle type="target" position={Position.Left} id="target-left" className="!bg-emerald-500 !w-3 !h-3" />
+      <Handle type="source" position={Position.Right} id="source-right" className="!bg-emerald-500 !w-3 !h-3" />
+      <Handle type="source" position={Position.Left} id="source-left" className="!bg-emerald-500 !w-3 !h-3" />
+      <Handle type="target" position={Position.Right} id="target-right" className="!bg-emerald-500 !w-3 !h-3" />
 
       {/* Step number badge */}
       <div className="absolute top-2 left-2 z-10 flex items-center justify-center w-7 h-7 rounded-full bg-emerald-600 text-white text-sm font-bold shadow-lg">
@@ -354,6 +357,9 @@ export const MaterialNode = memo(({ data }: NodeProps<any>) => {
     >
       {/* Connection Handle - offset by 20px (half of 40px header) to center on content area */}
       <Handle type="target" position={Position.Right} id="target-right" className="!bg-blue-500 !w-3 !h-3" style={{ top: 'calc(50% + 20px)' }} />
+      <Handle type="source" position={Position.Left} id="source-left" className="!bg-blue-500 !w-3 !h-3" style={{ top: 'calc(50% + 20px)' }} />
+      <Handle type="source" position={Position.Right} id="source-right" className="!bg-blue-500 !w-3 !h-3" style={{ top: 'calc(50% + 20px)' }} />
+      <Handle type="target" position={Position.Left} id="target-left" className="!bg-blue-500 !w-3 !h-3" style={{ top: 'calc(50% + 20px)' }} />
 
       {/* Header */}
       <div className="px-3 py-2.5 flex items-center gap-2">
