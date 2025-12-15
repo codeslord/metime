@@ -1,404 +1,301 @@
-# 🎨 Crafternia
+# 🧘 Me Time
 
-> **Dissect your imagination. Build reality.**
+> **AI-guided mindful creativity. Step by step. Breath by breath.**
 
-**Powered by [BRIA FIBO](https://bria.ai/fibo)** — Showcasing JSON-native control and production-ready multiagent workflows
+**Powered by [BRIA FIBO](https://bria.ai/fibo)** — JSON-native control meets agentic workflows for progressive visual guidance
 
 **[🚀 Try the Live App](https://crafternia.vercel.app/)** • **[🎥 Watch the Demo](https://youtu.be/DVyiDgaXrns)**
 
 ---
 
-## 💔 The Problem — Why We Built This
+## 💭 Inspiration
 
-> *Remember when we were kids? When I was eight years old, I got this origami kit with a beautiful instruction manual. I wanted to make a paper plane. I followed the guide — step by step, fold by fold — and it worked perfectly. I'm sure you all have memories of creating crafts using those clear, simple manuals.*
->
-> *But today? For most of our creative ideas... those manuals simply don't exist.*
+In our hyper-connected world, we've lost the art of *slowing down*. Meditation apps tell us to "just breathe," but many find empty stillness uncomfortable. **What if mindfulness could be active?** 
 
-**That world is gone.**
+**Me Time** brings together two powerful ideas:
+- **Mindful doing**: Creative activities that quiet the mind through gentle focus
+- **Progressive guidance**: AI that breaks down intimidating art into calming, achievable steps
 
-Today, when someone asks *"How do I make a paper crane?"*, they face:
-- 47-minute YouTube tutorials with unskippable ads
-- Blog posts buried under SEO filler
-- Pinterest boards leading to broken links
-- Instagram reels that flash by too fast to follow
-
-**The beautiful simplicity of visual instruction sheets died with the 90s.** Except the IKEA manuals. The Tamiya model kits. The Simplicity sewing patterns. All gone.
-
-*"We all have a hobby. Whether it's woodworking, origami, or just tinkering — we love building things.*
->
-> ***The beautiful art of visual instruction sheets is dead.***
->
-> *Until now."*
-
-### Why did it die?
-
-Because professional instruction sheets were **expensive** — you needed expert makers, photographers, graphic designers, and print production. Only big companies could afford this.
-
-**Crafternia brings it back for everyone — powered by BRIA FIBO's professional-grade visual AI.**
+We were inspired by art therapy's proven benefits for mental well-being but wanted to make it accessible to everyone—no expensive classes, no artistic background required. Just you, simple materials, and an AI guide that meets you where you are.
 
 ---
 
-## ✨ The Solution — What Crafternia Does
+## ✨ What It Does
 
-Crafternia is an **AI-powered Infinite Craft Workbench** that transforms any craft idea into professional-quality visual instruction guides using **BRIA FIBO's JSON-native control and multiagent workflows**.
+**Me Time** is an AI-powered creative companion that transforms any artistic idea into a meditative, step-by-step journey using **BRIA FIBO's JSON-native control and progressive refinement**.
 
-**Give it any idea:**
-- *"Paper crane"*
-- *"Clay turtle"*  
-- *"Earrings in the shape of Santa Claus"*
+### Core Workflow
 
-**Get back:**
+1. **Generate or Upload** — Create a beautiful reference image with AI, or upload your own inspiration
+2. **Refine & Explore** — Use text prompts to iteratively refine any image until it feels right
+3. **Break It Down** — AI dissects the final image into calm, progressive steps
+4. **Create Together** — Follow visual guides that build naturally from simple to complete
 
-| Component | What It Does |
-|-----------|--------------|
-| 📷 **Master Reference Image** | Studio-quality photograph generated with FIBO's disentangled control |
-| 📦 **Materials List** | AI-extracted from VLM dissection |
-| 📋 **Step-by-Step Cards** | Progressive refinement using FIBO's Refine mode |
-| 🎯 **Isolated Step Images** | Consistent background, progressive craft — human hands performing actions |
+### 10 Mindful Activities
 
-### 8 Supported Craft Categories
+| | | | | |
+|:-:|:-:|:-:|:-:|:-:|
+| ✏️ Drawing | 🎨 Coloring Book | 🪵 Miniatures | 🧵 Fabric Art | 💐 Vase Design |
+| 🌊 Watercolor | 🖼️ Oil Painting | 💎 Jewelry | 🔮 Patterns | 🎮 Characters |
 
-| | | | |
-|:-:|:-:|:-:|:-:|
-| 📄 Papercraft | 🏺 Clay | 🧵 Fabric | 🎭 Costumes & Props |
-| 🪵 Woodcraft | 💎 Jewelry | 🧒 Kids Crafts | 🎨 Coloring Book |
+Each activity has a **specialized AI agent** with calming, activity-specific guidance.
 
-Each category has a **specialized agent** with domain-specific prompts and refinement logic.
+### Key Features
+
+- **Infinite Canvas**: Spatial workspace for organizing your creative journey
+- **Progressive Refinement**: Images build naturally through FIBO's seed consistency  
+- **Text-to-Image Refinement**: Connect text prompts to any image for instant variations
+- **Upload & Refine**: Start with your own photos and evolve them with AI
+- **Export Everything**: Download complete visual guides as ZIP/PDF
 
 ---
 
-## 🤖 The Architecture — BRIA FIBO + Multiagent System
+## 🛠️ How We Built It
 
-**This is the core innovation.** Crafternia showcases BRIA FIBO's unique capabilities through a **production-ready multiagent architecture** where specialized AI agents collaborate to generate visually consistent craft instructions.
+### FIBO-Powered Multiagent Architecture
 
-### FIBO Integration Architecture
+**Me Time** showcases FIBO's production-ready capabilities through a specialized agent system:
 
 ```
-┌───────────────────────────────────────────────────────────────────────┐
-│                    🎭 AGENT ORCHESTRATOR                              │
-│  Routes tasks to specialized category agents based on craft type      │
-└─────────────────────────────┬─────────────────────────────────────────┘
-                              │
-         ┌────────────────────┼────────────────────┐
-         │                    │                    │
-         ▼                    ▼                    ▼
-┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
-│ 📷 MASTER IMAGE  │  │ 🔬 DISSECTION    │  │ 🎯 STEP IMAGES   │
-│   GENERATION     │  │   VLM ANALYSIS   │  │   REFINEMENT     │
-└──────────────────┘  └──────────────────┘  └──────────────────┘
-         │                    │                    │
-         │                    │                    │
-   ┌─────▼────────────────────▼────────────────────▼─────┐
-   │         BRIA FIBO API (JSON-Native Control)         │
-   ├─────────────────────────────────────────────────────┤
-   │  • VLM-to-JSON Translator (1000+ word prompts)      │
-   │  • Structured Prompt Generation (lighting, camera)  │
-   │  • Refine Mode (same seed + progressive changes)    │
-   │  • Disentangled Control (modify only specific parts)│
-   └─────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────┐
+│           🎭 AGENT ORCHESTRATOR                     │
+│  Routes by activity type (drawing, watercolor...)   │
+└──────────────────┬──────────────────────────────────┘
+                   │
+   ┌───────────────┼───────────────┐
+   ▼               ▼               ▼
+┌──────────┐  ┌──────────┐  ┌──────────────┐
+│ Generate │  │  Refine  │  │   Dissect    │
+│  Master  │  │  Image   │  │  Into Steps  │
+└──────────┘  └──────────┘  └──────────────┘
+      │             │              │
+      └─────────────┴──────────────┘
+                    │
+        ┌───────────▼────────────┐
+        │   BRIA FIBO API        │
+        │  • VLM-to-JSON         │
+        │  • Seed Consistency    │
+        │  • Progressive Refine  │
+        └────────────────────────┘
 ```
 
-### How FIBO Powers Each Step
+### Technical Pipeline
 
-#### 1. Master Image Generation
+#### 1. Image Generation (AI or Upload)
 ```typescript
-// User prompt → VLM translates to structured JSON
-const structuredPrompt = await createMasterPrompt(userPrompt, category);
-const result = await BriaService.generateImage('', undefined, structuredPrompt);
+// Option A: Generate from prompt
+const structuredPrompt = await VLM.generateJSON(userPrompt, activity);
+const result = await FIBO.generate(structuredPrompt);
 // Returns: { imageUrl, structuredPrompt, seed }
+
+// Option B: Upload existing image  
+const uploadedImage = await uploadToCanvas(file);
+// Use FIBO's structured prompt extraction for refinement
 ```
 
-**FIBO's VLM** creates a 1000+ word structured JSON with:
-- **Objects**: Detailed craft components with materials
-- **Lighting**: Studio photography (soft box, diffused)
-- **Camera**: Angle, FOV, depth of field
-- **Aesthetics**: Color palette, mood, texture
-- **Background**: Neutral, professional setting
-
-#### 2. Step Refinement (The Innovation)
+#### 2. Progressive Refinement (The Innovation)
 ```typescript
-// Progressive refinement with FIBO's Refine mode
-for each step:
-  refinementInstruction = createRefinementInstruction(step, completionPercent);
-  // Example: "show human hands folding paper, beginning the craft. 
-  //  Keep the paper, table surface, and background exactly the same."
-  
-  result = await BriaService.refineImage(
-    masterStructuredPrompt,  // Full JSON from master
-    masterSeed,              // Same seed for consistency
-    refinementInstruction    // Short text: what changes
+// Text-based refinement using FIBO's seed + structured prompt
+const refinedResult = await FIBO.refine(
+  originalStructuredPrompt,  // Preserve base composition
+  originalSeed,              // Ensure visual consistency
+  "add cherry blossoms"      // What to change
+);
+// Same background, lighting, style — only requested change applied
+```
+
+#### 3. Step Dissection
+```typescript
+// VLM analyzes final image, generates calming instructions
+const steps = await VLM.dissect(finalImage, activity);
+// Returns: materials, 5-step progression, safety tips
+
+// Generate step images using FIBO refinement
+for (let step of steps) {
+  const stepImage = await FIBO.refine(
+    masterStructuredPrompt,
+    masterSeed,
+    createGentleInstruction(step, completionPercent)
   );
-```
-
-**Key insight**: FIBO's **disentangled control** allows us to:
-- ✅ Keep background, lighting, materials **identical**
-- ✅ Modify only craft progress and hand position
-- ✅ Maintain compositional consistency (same seed)
-- ✅ Show progressive construction naturally
-
-#### 3. Final Step = Master Image
-```typescript
-// Step 6 uses exact master structured prompt
-if (stepNumber === totalSteps) {
-  return BriaService.generateImage('', undefined, masterStructuredPrompt, masterSeed);
-  // Perfect visual match - full circle
 }
 ```
 
-### Category-Specific Agents
+### Activity-Specific Agents
 
-Each craft category has specialized refinement prompts:
+Each agent provides calming, contextual guidance:
 
-| Category | Hand Actions | Preservation Context |
-|----------|-------------|---------------------|
-| **Papercraft** | "human hands folding paper" | Keep paper, table surface same |
-| **Clay** | "human hands molding clay" | Keep work surface, tools same |
-| **Woodcraft** | "human hands cutting wood" | Keep workbench, tools same |
-| **Jewelry** | "human hands threading beads" | Keep jewelry mat, components same |
-| **Kids Crafts** | "child's hands gluing pieces" | Keep craft table, supplies same |
-| **Coloring** | "human hand drawing outlines" | Keep paper, coloring tools same |
+| Activity | Agent Approach |
+|----------|----------------|
+| **Watercolor** | "gentle washes build transparent layers" |
+| **Drawing** | "light sketching lines find their form" |
+| **Coloring** | "colors flow into outlined spaces" |
+| **Patterns** | "repeating motifs emerge naturally" |
 
-**Why specialized agents?**
-- A papercraft needs fold lines and flat patterns
-- A clay craft needs sculpting textures and 3D forms
-- **One generic prompt cannot do both well**
+This isn't generic AI—it's **mindful, activity-aware guidance**.
 
 ---
 
-## 🏆 BRIA FIBO Hackathon Showcase
+## 🏔️ Challenges We Ran Into
 
-### Targeting These Tracks:
+1. **Visual Consistency Across Steps** — Ensuring each step image felt like the same artwork required mastering FIBO's seed + structured prompt workflow
+2. **Upload Integration** — Enabling users to refine *uploaded* images (not just AI-generated) needed careful handling of structured prompt extraction
+3. **Meditative Pacing** — Balancing AI capability with simplicity; we removed complexity to preserve the calm experience
+4. **Text-to-Image Connections** — Building an intuitive canvas UI where text prompts visually connect to images they refine
 
-#### ✅ **Best JSON-Native or Agentic Workflow** (Primary)
-- **VLM-to-JSON Pipeline**: Gemini 2.5 Flash → 1000+ word structured prompts
-- **Multiagent Architecture**: 8 category-specific agents + orchestrator
-- **Production-Ready**: Complete pipeline from idea → master → steps → export
-- **Scalable**: Easy to add new categories, each with specialized logic
+---
 
-#### ✅ **Best Controllability** (Secondary)
-- **Disentangled Control**: Modify hands/craft while preserving background
-- **Structured Parameters**: Precise control over lighting, camera, aesthetics
-- **FIBO Refine Mode**: Same seed + refinement instruction = perfect consistency
-- **Category Awareness**: Prompts adapt to material properties (paper vs clay vs wood)
+## 🏆 Accomplishments That We're Proud Of
 
-#### ✅ **Best New User Experience**
-- **Infinite Canvas**: Spatial UI for organizing instructions
-- **Progressive Refinement**: Clear visual progression from raw materials → finished
-- **Export Ready**: Download complete instruction sets as production assets
+- **Production-Ready Agentic Workflow**: 10 specialized agents orchestrated seamlessly
+- **Hybrid AI + Human Input**: Equally powerful whether generating from scratch or refining uploads
+- **Progressive Refinement Mastery**: FIBO's seed consistency creates visually coherent step sequences
+- **Calm-First UX**: Every interaction designed for mindfulness, not speed
+- **Infinite Canvas Innovation**: Spatial interface that mirrors the creative thinking process
 
-### Technical Innovation
+---
+
+## 📚 What We Learned
+
+- **FIBO's VLM-to-JSON translator** handles 1000+ word prompts beautifully—this enabled rich, nuanced image control
+- **Seed + structured prompt** is the key to consistency; same base + refinement instruction = perfect progressive builds
+- **Agent specialization matters**: Generic prompts can't capture the nuance of watercolor vs. oil painting
+- **Calm requires intentionality**: We removed features that created anxiety (timers, complex menus) to preserve meditative flow
+
+---
+
+## 🌱 What's Next for Me Time
+
+- **Guided Sessions**: 10-minute creativity sessions with breathing cues and ambient music
+- **Community Library**: Share and discover calming projects from other creators  
+- **HDR Support**: FIBO's 16-bit color space for professional watercolor/painting workflows
+- **Voice Guidance**: Optional narrated instructions for eyes-free creation
+- **Progress Journaling**: Visual timeline of creative growth over time
+
+---
+
+## 🔧 Built With
+
+- **React 19** + **TypeScript** — Modern type-safe UI
+- **BRIA FIBO** — 🌟 JSON-native image generation, progressive refinement
+- **Google Gemini 2.5 Flash** — VLM reasoning, structured prompt generation
+- **React Flow** (@xyflow/react) — Infinite canvas interface
+- **TailwindCSS** — Dark-mode, calming aesthetics
+- **Vite** — Fast dev experience
+- **Lucide React** — Beautiful iconography
+
+---
+
+## 🏗️ Architecture
 
 ```
-User Prompt → VLM Analysis
-           ↓
-  Structured JSON (1000+ words)
-           ↓
-  FIBO Master Generation (with seed)
-           ↓
-  VLM Dissection (materials + steps)
-           ↓
-  FIBO Refine Mode (5 steps)
-  • Same seed for consistency
-  • Same structured prompt base
-  • Progressive refinement instructions
-  • Human hands performing actions
-           ↓
-  Final Step = Master Exact Match
+me-time/
+├── services/
+│   ├── briaService.ts              # FIBO API integration
+│   │   ├── generateImage()         # Master generation
+│   │   ├── refineImage()           # Progressive refinement
+│   │   └── generateStructuredPrompt()  # Extract from uploads
+│   ├── promptEngineering.ts        # VLM-to-JSON translation
+│   ├── agents/
+│   │   ├── CategoryAgentBase.ts           # Shared agent logic
+│   │   │   ├── generateMasterImage()      # FIBO generation
+│   │   │   ├── generateStepImage()        # FIBO refinement
+│   │   │   └── createRefinementInstruction()  # Activity-aware
+│   │   ├── categories/                    # 10 specialized agents
+│   │   │   ├── DrawingAgent.ts
+│   │   │   ├── WatercolorAgent.ts
+│   │   │   ├── ColoringBookAgent.ts
+│   │   │   └── ... (7 more)
+│   │   └── orchestrator/
+│   │       └── AgentOrchestrator.ts       # Routes by activity
+│   └── agentService.ts             # Public API
+├── components/                      # React UI components
+│   ├── ChatInterface.tsx           # Text refinement UI
+│   ├── CustomNodes.tsx             # Canvas node types
+│   └── ...
+├── pages/
+│   └── CanvasWorkspace.tsx         # Main infinite canvas
+└── types.ts                         # TypeScript definitions
 ```
 
 ---
 
-## 🛠️ Tech Stack
-
-| Technology | Purpose |
-|------------|---------|
-| **React 19** | Modern UI framework |
-| **TypeScript** | Type-safe development |
-| **React Flow** (@xyflow/react) | Infinite canvas with pan/zoom |
-| **BRIA FIBO** | **🌟 JSON-native image generation** |
-| **Google Gemini AI** | VLM reasoning & structured prompts |
-| • `gemini-2.5-flash` | Text reasoning, JSON generation, dissection |
-| **TailwindCSS** | Dark-mode UI styling |
-| **Vite** | Fast build tool & dev server |
-| **Lucide React** | Beautiful icons |
-
----
-
-## 🚀 Getting Started
+## 🚀 Installation & Running
 
 ### Prerequisites
-
-- Node.js 16+ installed
+- Node.js 16+
 - **BRIA API Key** — [Get one from Bria](https://bria.ai/)
-- Gemini API Key (for VLM) — [Get one here](https://aistudio.google.com/apikey)
+- Google Gemini API Key — [Get one here](https://aistudio.google.com/apikey)
 
-### Installation
+### Setup
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/your-repo/Crafternia.git
-cd Crafternia
+# Clone repository
+git clone https://github.com/your-repo/MeTime.git
+cd MeTime
 
-# 2. Install dependencies
+# Install dependencies  
 npm install
 
-# 3. Configure environment
-# Create a .env.local file in the root directory
+# Configure environment
 echo "VITE_BRIA_API_KEY=your_bria_key_here" > .env.local
 echo "VITE_GEMINI_API_KEY=your_gemini_key_here" >> .env.local
 
-# 4. Start the development server
+# Start development server
 npm run dev
-```
+# → http://localhost:5173
 
-The app will be available at `http://localhost:5173`
-
-### Production Build
-
-```bash
-npm run build
-npm run preview
+# Production build (optional)
+npm run build && npm run preview
 ```
 
 ---
 
-## 📁 Project Structure
+## 🏅 Hackathon Submission
 
-```
-Crafternia/
-├── services/
-│   ├── briaService.ts          # FIBO API integration
-│   │   ├── generateImage()     # Master generation
-│   │   └── refineImage()       # Step refinement (FIBO Refine mode)
-│   ├── promptEngineering.ts    # VLM-to-JSON translation
-│   │   ├── createMasterPrompt() # Gemini → Structured JSON
-│   │   └── (Simplified for FIBO Refine)
-│   ├── agents/
-│   │   ├── CategoryAgentBase.ts           # Base for all agents
-│   │   │   ├── generateMasterImage()      # Uses FIBO
-│   │   │   ├── generateStepImage()        # Uses FIBO Refine
-│   │   │   ├── createRefinementInstruction()  # Category-aware
-│   │   │   ├── getHandActionForCategory()     # Dynamic hand prompts
-│   │   │   └── getPreservationContext()       # Background consistency
-│   │   ├── categories/                    # 8 specialized agents
-│   │   │   ├── PapercraftAgent.ts
-│   │   │   ├── ClayAgent.ts
-│   │   │   ├── WoodcraftAgent.ts
-│   │   │   ├── JewelryAgent.ts
-│   │   │   ├── KidsCraftsAgent.ts
-│   │   │   ├── ColoringBookAgent.ts
-│   │   │   └── CostumePropsAgent.ts
-│   │   └── orchestrator/
-│   │       └── AgentOrchestrator.ts       # Routes to category agents
-│   └── agentService.ts        # Public API
-├── components/                 # React UI components
-├── pages/                      # Page components
-└── types.ts                    # TypeScript definitions
-```
+### Applying For
 
----
+**Primary: Best JSON-Native or Agentic Workflow**
 
-## 🎬 How It Works (End-to-End)
+**Why we excel here:**
+- ✅ **Production-ready multiagent system** with 10 specialized activity agents + orchestrator
+- ✅ **VLM-to-JSON pipeline** using Gemini 2.5 Flash to generate 1000+ word structured prompts
+- ✅ **Scalable architecture** where adding new activities = creating one new agent class
+- ✅ **Real workflow automation** — text prompt → structured JSON → image → dissection → progressive steps (fully automated)
+- ✅ **Agents building on agents** — Master Agent creates base, Step Agents progressively refine using previous outputs
 
-### Example: "Make a clay turtle"
+**Secondary: Best Controllability**
 
-```
-1️⃣  User types "clay turtle" → Selects Clay category
-    └─> Agent Orchestrator routes to ClayAgent
+**Why we excel here:**
+- ✅ **Disentangled refinement** — modify specific elements while preserving composition, lighting, background
+- ✅ **Seed consistency** — all step images use same seed for visual coherence
+- ✅ **Structured parameter control** — precise lighting, camera angle, color palette via JSON
+- ✅ **Activity-aware prompts** — watercolor transparency ≠ oil painting texture (specialized control per medium)
+- ✅ **Upload refinement** — extract structured prompts from user images, then refine them
 
-2️⃣  MASTER GENERATION
-    ClayAgent.generateMasterImage()
-    └─> Gemini 2.5 Flash: Creates 1000+ word structured JSON
-        {
-          "objects": [{
-            "name": "hand-sculpted clay turtle",
-            "material": "polymer clay",
-            "color": "earthy green with brown shell",
-            ...
-          }],
-          "lighting": "soft diffused studio lighting",
-          "camera": { "angle": "three-quarter view", "fov": 50 },
-          "aesthetics": { "mood": "warm handmade", "texture": "matte clay" }
-        }
-    └─> BRIA FIBO: Generates master image (returns seed)
-    
-3️⃣  DISSECTION
-    User clicks "Dissect"
-    └─> Gemini 2.5 Flash: Analyzes master, generates 5 steps
-        • Step 1: Roll clay balls for body parts
-        • Step 2: Shape the shell dome
-        • Step 3: Attach legs and head
-        • Step 4: Add texture details with tool
-        • Step 5: Final assembly
+**Tertiary: Best New User Experience or Professional Tool**
 
-4️⃣  STEP REFINEMENT (FIBO Refine Mode)
-    For Step 1 (20% complete):
-      refinementInstruction = "Roll clay balls for body parts. 
-        show human hands molding clay beginning the craft. 
-        Keep work surface, tools, and background exactly the same."
-      
-      FIBO.refineImage(masterJSON, masterSeed, refinementInstruction)
-      └─> Same composition, same background
-          Only change: Shows hands + clay balls
-    
-    For Step 5 (100% complete):
-      Uses exact masterJSON + masterSeed
-      └─> Perfect visual match with master image!
+**Why we excel here:**
+- ✅ **Infinite canvas workspace** for spatial organization (professional tool UX)
+- ✅ **Hybrid generation + upload** workflow (unprecedented flexibility)
+- ✅ **Text-to-image node connections** for intuitive refinement relationships
+- ✅ **Export-ready outputs** (ZIP/PDF) for production use
+- ✅ **Calming, meditative interface** designed for focus and well-being
 
-5️⃣  EXPORT
-    User downloads as ZIP or PDF
-    • All images (seed-consistent)
-    • Materials list
-    • Step instructions
-    • Ready for production use
-```
+### What Makes This Unique
 
----
+**Most FIBO demos show**: "Here's an image generated from a prompt"  
+**Me Time shows**: "Here's a production-ready system where specialized AI agents collaborate to create progressive visual sequences with perfect consistency—and you can refine any image (AI or uploaded) through natural text prompts"
 
-## 💡 The Vision
-
-> *Every grandparent should be able to create a professional instruction guide for their grandchild.*
-> 
-> *Every teacher should have beautiful visual aids without a design budget.*
-> 
-> *Every hobbyist should be able to share their craft in a format that actually works.*
-
-**Crafternia isn't just an app. It's the resurrection of a superior instructional format — powered by BRIA FIBO's professional-grade visual AI and a scalable multiagent architecture.**
-
----
-
-## 🎯 Why This Matters for BRIA FIBO
-
-### Showcasing Core FIBO Capabilities:
-
-1. **JSON-Native Control** 
-   - VLM translates simple prompts to 1000+ word structured JSON
-   - Professional parameters: lighting, camera, aesthetics
-   - Production-ready structured output
-
-2. **Disentangled Generation**
-   - Modify hands/craft progress
-   - Keep background/lighting/materials identical
-   - True compositional control
-
-3. **Refine Mode**
-   - Same seed + same base JSON = consistency
-   - Progressive refinement with short instructions
-   - Perfect for production workflows
-
-4. **Agentic Workflows**
-   - 8 specialized category agents
-   - Orchestrator routes intelligently
-   - Scalable, production-ready architecture
+The **agentic workflow** isn't superficial—it's core architecture. 10 agents, each with specialized knowledge, orchestrated to produce calm, mindful creative guidance.
 
 ---
 
 ## 📄 License
 
-This project is created for the BRIA FIBO Hackathon — December 2024.
+Created for the BRIA FIBO Hackathon — December 2025
 
 ---
 
-**Built with ❤️ powered by BRIA FIBO**
+**Built with 🧘 powered by BRIA FIBO**
 
-[🚀 Try the Live App](https://crafternia.vercel.app/) • [🎥 Watch the Demo](https://youtu.be/DVyiDgaXrns)
+[🚀 Try the Live App](https://metime.vercel.app/) • [🎥 Watch the Demo](https://youtu.be/link)
