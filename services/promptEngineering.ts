@@ -293,15 +293,16 @@ ${systemInstruction}
 
         // Define category-specific raw materials for Step 1
         const rawMaterialsByCategory: Record<string, string[]> = {
-            [CraftCategory.CLAY]: ["raw clay block (unconditioned)", "sculpting tools laid flat", "work surface", "water bowl"],
-            [CraftCategory.JEWELRY]: ["loose beads in containers", "wire spool (uncut)", "jump rings in dish", "jewelry pliers"],
-            [CraftCategory.WOODCRAFT]: ["raw lumber plank (uncut)", "wood boards stacked", "saw", "sandpaper sheets"],
-            [CraftCategory.COSTUME_PROPS]: ["flat EVA foam sheets", "craft knife", "contact adhesive container", "heat gun"],
-            [CraftCategory.KIDS_CRAFTS]: ["construction paper sheets", "glue bottle", "safety scissors", "crayons box"],
-            [CraftCategory.PAPERCRAFT]: ["cardstock sheets (uncut)", "scissors", "ruler", "scoring tool"],
-            [CraftCategory.TABLETOP_FIGURES]: ["unpainted miniature on sprue", "primer bottle", "paint pots", "fine brushes"],
-            [CraftCategory.DRAWING]: ["blank sketchbook page", "pencil", "eraser", "pens"],
-            [CraftCategory.COLORING_BOOK]: ["uncolored line art page", "colored pencils set", "markers", "eraser"]
+            [CraftCategory.DRAWING]: ["blank sketchbook page", "pencil", "eraser", "pens", "blending stump"],
+            [CraftCategory.COLORING_BOOK]: ["uncolored line art page", "colored pencils set", "markers", "eraser"],
+            [CraftCategory.MINIATURE_PAINTING]: ["unpainted miniature figure", "primer bottle", "paint pots", "fine brushes", "palette"],
+            [CraftCategory.FABRIC_PAINTING]: ["plain fabric piece", "fabric paints", "brushes", "stencils", "palette"],
+            [CraftCategory.FLOWER_VASE]: ["plain ceramic vase", "acrylic paints", "brushes", "sealant", "painter's tape"],
+            [CraftCategory.WATERCOLOR]: ["watercolor paper", "watercolor pan set", "water container", "brushes", "palette"],
+            [CraftCategory.OIL_PAINTING]: ["primed canvas", "oil paints", "brushes", "palette", "linseed oil", "palette knife"],
+            [CraftCategory.JEWELRY_CUSTOMIZATION]: ["jewelry piece", "fine brushes", "enamel paints", "sealant", "magnifier"],
+            [CraftCategory.PATTERN_ART]: ["drawing paper", "fine-tip pens", "ruler", "compass", "pencil"],
+            [CraftCategory.GAME_CHARACTER]: ["character reference sketch", "digital tablet", "stylus", "color swatches"]
         };
 
         const rawMaterials = rawMaterialsByCategory[category] || ["raw materials", "tools"];

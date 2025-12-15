@@ -8,9 +8,9 @@ interface FloatingMenuBarProps {
   onNavigate?: (path: string) => void;
 }
 
-export const FloatingMenuBar: React.FC<FloatingMenuBarProps> = ({ 
+export const FloatingMenuBar: React.FC<FloatingMenuBarProps> = ({
   projectName,
-  onNavigate 
+  onNavigate
 }) => {
   const navigate = useNavigate();
   const { state } = useAuth();
@@ -27,8 +27,8 @@ export const FloatingMenuBar: React.FC<FloatingMenuBarProps> = ({
       <div className="bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-full shadow-2xl px-3 py-2 md:px-4 md:py-2.5">
         <div className="flex items-center gap-2 md:gap-4">
           {/* Logo/Brand */}
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="flex items-center gap-1.5 md:gap-2 group px-2 py-1"
             onClick={(e) => {
               e.preventDefault();
@@ -37,7 +37,7 @@ export const FloatingMenuBar: React.FC<FloatingMenuBarProps> = ({
           >
             <Box className="w-4 h-4 md:w-5 md:h-5 text-indigo-500 group-hover:rotate-12 smooth-transition" />
             <span className="text-sm md:text-base font-black tracking-tighter text-slate-100 hidden sm:inline">
-              Crafternia
+              Me Time
             </span>
           </Link>
 

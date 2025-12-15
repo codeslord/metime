@@ -490,10 +490,10 @@ export const ImageNode = memo(({ data, id, selected, width: nodeWidth, height: n
       onMouseEnter={handleNodeHover}
       onMouseLeave={handleNodeLeave}
       className={`relative group bg-slate-900/95 backdrop-blur-sm rounded-xl shadow-2xl transition-none hover:shadow-xl ${selected
-          ? 'border-4 border-indigo-500 shadow-indigo-500/50 ring-4 ring-indigo-500/30'
-          : isSelected
-            ? 'border-2 border-orange-500 shadow-orange-500/50 ring-2 ring-orange-500/30'
-            : 'border-2 border-purple-500/50'
+        ? 'border-4 border-indigo-500 shadow-indigo-500/50 ring-4 ring-indigo-500/30'
+        : isSelected
+          ? 'border-2 border-orange-500 shadow-orange-500/50 ring-2 ring-orange-500/30'
+          : 'border-2 border-purple-500/50'
         }`}
       style={{ width: displayWidth, height: displayHeight, minWidth: 150, minHeight: 186 }}
     >
@@ -829,13 +829,15 @@ export const ShapeNode = memo(({ data, selected }: NodeProps<any>) => {
 });
 
 /**
- * Node for text annotations
+ * Node for text annotations with optional refinement capability
  */
 export const TextNode = memo(({ data, id }: NodeProps<any>) => {
-  const { content, fontSize, fontFamily, color, alignment, isEditing, onEdit, onFinishEdit } = data as TextNodeData & {
+  const { content, fontSize, fontFamily, color, alignment, isEditing, onEdit, onFinishEdit, onRefine, isRefining } = data as TextNodeData & {
     isEditing?: boolean;
     onEdit?: (id: string) => void;
     onFinishEdit?: (id: string, newContent: string) => void;
+    onRefine?: (id: string, content: string) => void;
+    isRefining?: boolean;
   };
 
   const [editContent, setEditContent] = React.useState(content);
@@ -885,15 +887,43 @@ export const TextNode = memo(({ data, id }: NodeProps<any>) => {
     }
   };
 
+  const handleRefineClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onRefine && content && content.trim()) {
+      onRefine(id, content);
+    }
+  };
+
   return (
     <div
-      className="bg-slate-900/95 backdrop-blur-sm rounded-lg shadow-lg relative smooth-transition hover:shadow-xl overflow-hidden min-w-[150px]"
+      className={`bg-slate-900/95 backdrop-blur-sm rounded-lg shadow-lg relative smooth-transition overflow-hidden min-w-[150px] group ${isRefining ? 'border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)] animate-pulse' : 'hover:shadow-xl'}`}
       onDoubleClick={handleDoubleClick}
     >
       <Handle type="source" position={Position.Right} id="source-right" className="!bg-emerald-500 !w-3 !h-3" />
       <Handle type="source" position={Position.Left} id="source-left" className="!bg-emerald-500 !w-3 !h-3" />
       <Handle type="target" position={Position.Right} id="target-right" className="!bg-emerald-500 !w-3 !h-3" />
       <Handle type="target" position={Position.Left} id="target-left" className="!bg-emerald-500 !w-3 !h-3" />
+
+      {/* Play/Refine Button - visible on hover when content exists */}
+      {onRefine && content && content.trim() && !isEditing && (
+        <button
+          onClick={handleRefineClick}
+          disabled={isRefining}
+          className={`absolute top-2 right-2 z-10 p-1.5 rounded-full transition-all duration-300 ${isRefining
+              ? 'bg-emerald-500 text-white'
+              : 'bg-emerald-600 hover:bg-emerald-500 text-white opacity-0 group-hover:opacity-100'
+            }`}
+          title="Generate image from this prompt"
+        >
+          {isRefining ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z" />
+            </svg>
+          )}
+        </button>
+      )}
 
       <div className="p-3">
         {isEditing ? (
@@ -914,7 +944,7 @@ export const TextNode = memo(({ data, id }: NodeProps<any>) => {
           />
         ) : (
           <div
-            className="cursor-text select-text whitespace-pre-wrap break-words"
+            className="cursor-text select-text whitespace-pre-wrap break-words pr-8"
             style={{
               fontSize: `${fontSize}px`,
               fontFamily,
@@ -923,7 +953,7 @@ export const TextNode = memo(({ data, id }: NodeProps<any>) => {
               minHeight: '40px',
             }}
           >
-            {content || 'Double-click to edit'}
+            {content || 'Double-click to add a refinement prompt'}
           </div>
         )}
       </div>
@@ -933,6 +963,7 @@ export const TextNode = memo(({ data, id }: NodeProps<any>) => {
   return (
     prevProps.data.content === nextProps.data.content &&
     prevProps.data.isEditing === nextProps.data.isEditing &&
+    prevProps.data.isRefining === nextProps.data.isRefining &&
     prevProps.data.fontSize === nextProps.data.fontSize &&
     prevProps.data.color === nextProps.data.color
   );

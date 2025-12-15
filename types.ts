@@ -1,14 +1,19 @@
-export enum CraftCategory {
-  PAPERCRAFT = 'Papercraft',
-  CLAY = 'Clay',
-  COSTUME_PROPS = 'Costume & Props',
-  WOODCRAFT = 'Woodcraft',
-  JEWELRY = 'Jewelry',
-  KIDS_CRAFTS = 'Kids Crafts',
-  COLORING_BOOK = 'Coloring Book',
+export enum ActivityCategory {
   DRAWING = 'Drawing',
-  TABLETOP_FIGURES = 'Tabletop Figures'
+  COLORING_BOOK = 'Coloring Book',
+  MINIATURE_PAINTING = 'Miniature Painting',
+  FABRIC_PAINTING = 'Fabric Painting',
+  FLOWER_VASE = 'Flower Vase Customization',
+  WATERCOLOR = 'Watercolor Painting',
+  OIL_PAINTING = 'Oil Painting',
+  JEWELRY_CUSTOMIZATION = 'Jewelry Customization',
+  PATTERN_ART = 'Pattern Art',
+  GAME_CHARACTER = 'Game Character Design'
 }
+
+// Backwards compatibility alias
+export const CraftCategory = ActivityCategory;
+export type CraftCategory = ActivityCategory;
 
 export interface DissectionResponse {
   complexity: 'Simple' | 'Moderate' | 'Complex';

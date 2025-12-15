@@ -1,5 +1,5 @@
 /**
- * Authentication utility functions for Crafternia
+ * Authentication utility functions for Me Time
  * Handles email validation, password strength checking, and session management
  */
 
@@ -41,7 +41,7 @@ export const validateEmail = (email: string): boolean => {
 
   // Basic email regex pattern
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  
+
   // Length check
   if (email.length > 254) {
     return false;
@@ -92,12 +92,12 @@ export const sanitizeDisplayName = (name: string): string => {
  */
 export const isSessionValid = (session: AuthSession | null): boolean => {
   if (!session) return false;
-  
+
   try {
     // Check if session has expired
     const expiresAt = new Date(session.expiresAt);
     const now = new Date();
-    
+
     if (now >= expiresAt) {
       return false;
     }
@@ -142,7 +142,7 @@ const generateSessionToken = (): string => {
  */
 export const createUser = (email: string, displayName: string): User => {
   const now = new Date();
-  
+
   return {
     id: crypto.randomUUID(),
     email: email.toLowerCase().trim(),

@@ -1,5 +1,5 @@
 import { AgentCard } from '../../a2a/types';
-import { CraftCategory } from '../../../types';
+import { ActivityCategory, CraftCategory } from '../../../types';
 import { CategoryAgentBase } from '../CategoryAgentBase';
 
 /**
@@ -7,7 +7,7 @@ import { CategoryAgentBase } from '../CategoryAgentBase';
  * Specializes in step-by-step drawing tutorials and sketching guides.
  */
 export class DrawingAgent extends CategoryAgentBase {
-  readonly category = CraftCategory.DRAWING;
+  readonly category = ActivityCategory.DRAWING;
 
   readonly card: AgentCard = {
     name: 'DrawingAgent',

@@ -477,12 +477,11 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
     }
 
     // Use appropriate menu width based on whether pattern button will show
-    // Pattern Sheet (~140px) + Instructions (~120px) + Turn Table (~130px) + Magic Select (~140px) + Download (~110px) + Share (~90px) + dividers/padding
+    // Pattern sheets are available for categories that benefit from visual guides
     const PATTERN_CATEGORIES = [
-      CraftCategory.PAPERCRAFT,
-      CraftCategory.COSTUME_PROPS,
-      CraftCategory.WOODCRAFT,
-      CraftCategory.KIDS_CRAFTS,
+      CraftCategory.PATTERN_ART,
+      CraftCategory.COLORING_BOOK,
+      CraftCategory.FABRIC_PAINTING,
     ];
     const hasPatternButton = category && PATTERN_CATEGORIES.includes(category);
     const menuWidth = hasPatternButton ? 750 : 610;
@@ -1345,6 +1344,146 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
   }, [setNodes]);
 
   /**
+   * Handle text node refinement - generates a new image from connected source using text content as prompt
+   */
+  const handleTextRefine = useCallback(async (textNodeId: string, refinementPrompt: string) => {
+    if (readOnly) return;
+
+    console.log('🎨 Text node refinement requested:', { textNodeId, refinementPrompt });
+
+    // Find edges connected to this text node (check both directions)
+    // Case 1: Text node is target (image → text)
+    let connectedEdge = edges.find(e => e.target === textNodeId);
+    let imageNodeId: string | null = connectedEdge ? connectedEdge.source : null;
+
+    // Case 2: Text node is source (text → image)
+    if (!connectedEdge) {
+      connectedEdge = edges.find(e => e.source === textNodeId);
+      imageNodeId = connectedEdge ? connectedEdge.target : null;
+    }
+
+    if (!connectedEdge || !imageNodeId) {
+      alert('Connect this text node to an image to use refinement.\nDrag from an image/master node to this text node, or from the text node to an image.');
+      return;
+    }
+
+    // Find the image node
+    const imageNode = nodes.find(n => n.id === imageNodeId);
+    if (!imageNode) {
+      alert('Connected image node not found. Please reconnect the text node.');
+      return;
+    }
+
+    // Check if image node has structured prompt and seed (required for FIBO refinement)
+    const structuredPrompt = imageNode.data?.structuredPrompt;
+    const seed = imageNode.data?.seed;
+    const category = imageNode.data?.category || CraftCategory.DRAWING;
+
+    if (!structuredPrompt || seed === undefined) {
+      alert('Connected image needs structured data for refinement.\nPlease connect to a master image generated with FIBO, or generate a new one.');
+      return;
+    }
+
+    console.log('📷 Found image node:', imageNode.id, 'with seed:', seed);
+    console.log('🎯 Refinement prompt:', refinementPrompt);
+
+    // Set text node to refining state
+    setNodes((nds) =>
+      nds.map((node) => {
+        if (node.id === textNodeId && node.type === 'textNode') {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              isRefining: true,
+            },
+          };
+        }
+        return node;
+      })
+    );
+
+    try {
+      // Import BriaService and types for refinement
+      const { BriaService } = await import('../services/briaService');
+      type StructuredPromptType = import('../services/briaTypes').StructuredPrompt;
+
+      // Call FIBO refinement with the text content as the refinement instruction
+      console.log('⚡ Calling FIBO refinement...');
+      const result = await BriaService.refineImage(
+        structuredPrompt as StructuredPromptType,
+        seed as number,
+        refinementPrompt
+      );
+
+      console.log('✅ Refinement complete, creating new node');
+
+      // Create new image node with the refined result
+      const newNodeId = `refined-${Date.now()}`;
+      const textNode = nodes.find(n => n.id === textNodeId);
+      const position = textNode ? {
+        x: textNode.position.x + 250,
+        y: textNode.position.y,
+      } : { x: 500, y: 300 };
+
+      const newNode: Node = {
+        id: newNodeId,
+        type: 'imageNode',
+        position,
+        data: {
+          imageUrl: result.imageUrl,
+          fileName: `Refined - ${refinementPrompt.substring(0, 30)}.png`,
+          width: 400,
+          height: 436, // 400px image + 36px header
+          isSelected: false,
+          structuredPrompt: result.structuredPrompt,
+          seed: result.seed,
+          category,
+          onSelect: handleImageNodeSelect,
+          onDeselect: handleImageNodeDeselect,
+          onDelete: handleDeleteImageNode,
+        },
+      };
+
+      // Create edge from text to new image
+      const newEdge: Edge = {
+        id: `e-${textNodeId}-${newNodeId}`,
+        source: textNodeId,
+        sourceHandle: 'source-right',
+        target: newNodeId,
+        targetHandle: 'target-left',
+        animated: true,
+        style: { stroke: '#10b981', strokeWidth: 2 },
+      };
+
+      setNodes((nds) => [...nds, newNode]);
+      setEdges((eds) => [...eds, newEdge]);
+
+      console.log('🎉 Refinement node created:', newNodeId);
+
+    } catch (error) {
+      console.error('Refinement failed:', error);
+      alert(error instanceof Error ? error.message : 'Failed to refine image');
+    } finally {
+      // Clear refining state
+      setNodes((nds) =>
+        nds.map((node) => {
+          if (node.id === textNodeId && node.type === 'textNode') {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                isRefining: false,
+              },
+            };
+          }
+          return node;
+        })
+      );
+    }
+  }, [readOnly, nodes, edges, setNodes, setEdges, handleImageNodeSelect, handleImageNodeDeselect]);
+
+  /**
    * Handle pencil mode selection
    */
   const handleSelectPencilMode = useCallback((mode: PencilMode) => {
@@ -1393,14 +1532,16 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
       type: 'textNode',
       position,
       data: {
-        content: 'Text',
+        content: '',
         fontSize: 16,
         fontFamily: 'Inter, system-ui, sans-serif',
         color: '#e2e8f0',
         alignment: 'left',
-        isEditing: false, // Start with editing disabled
+        isEditing: false,
+        isRefining: false,
         onEdit: handleTextEdit,
         onFinishEdit: handleTextFinishEdit,
+        onRefine: handleTextRefine,
       },
     };
 
@@ -1578,7 +1719,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
     // CRITICAL: Use nodesRef to get latest nodes (avoids stale closure issue)
     const currentNodes = nodesRef.current;
     const masterNode = currentNodes.find(n => n.id === nodeId);
-    const category = (masterNode?.data?.category as CraftCategory) || CraftCategory.PAPERCRAFT; // Default to Papercraft for safety
+    const category = (masterNode?.data?.category as CraftCategory) || CraftCategory.DRAWING; // Default to Drawing for safety
 
     console.log('=== DISSECT SELECTED START ===');
     console.log('Node ID:', nodeId);
@@ -1954,7 +2095,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
     // CRITICAL: Use nodesRef to get latest nodes (avoids stale closure issue)
     const currentNodes = nodesRef.current;
     const masterNode = currentNodes.find(n => n.id === nodeId);
-    const category = (masterNode?.data?.category as CraftCategory) || CraftCategory.PAPERCRAFT;
+    const category = (masterNode?.data?.category as CraftCategory) || CraftCategory.DRAWING;
     const promptContext = masterNode?.data?.label as string || "Unknown craft";
 
     console.log('=== DISSECT FULL CRAFT START ===');
@@ -2398,7 +2539,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
     const masterNode = masterNodes[0];
     const masterLabel = (masterNode.data.label as string) || 'Untitled Craft';
     const masterImageUrl = masterNode.data.imageUrl as string;
-    const category = (masterNode.data.category as CraftCategory) || CraftCategory.PAPERCRAFT;
+    const category = (masterNode.data.category as CraftCategory) || CraftCategory.DRAWING;
 
     // Find connected instruction nodes via edges
     const connectedEdges = edges.filter(e => e.source === masterNode.id);

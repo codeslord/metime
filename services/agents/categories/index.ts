@@ -3,57 +3,61 @@
  * Central registry for all category-specific agents.
  */
 
-import { CraftCategory } from '../../../types';
+import { ActivityCategory, CraftCategory } from '../../../types';
 import { CategoryAgentBase } from '../CategoryAgentBase';
 
 // Import all category agents
-import { PapercraftAgent } from './PapercraftAgent';
-import { ClayAgent } from './ClayAgent';
-import { WoodcraftAgent } from './WoodcraftAgent';
-import { JewelryAgent } from './JewelryAgent';
-import { KidsCraftsAgent } from './KidsCraftsAgent';
-import { ColoringBookAgent } from './ColoringBookAgent';
-import { CostumePropsAgent } from './CostumePropsAgent';
 import { DrawingAgent } from './DrawingAgent';
-import { TabletopFiguresAgent } from './TabletopFiguresAgent';
+import { ColoringBookAgent } from './ColoringBookAgent';
+import { MiniaturePaintingAgent } from './MiniaturePaintingAgent';
+import { FabricPaintingAgent } from './FabricPaintingAgent';
+import { FlowerVaseAgent } from './FlowerVaseAgent';
+import { WatercolorAgent } from './WatercolorAgent';
+import { OilPaintingAgent } from './OilPaintingAgent';
+import { JewelryCustomizationAgent } from './JewelryCustomizationAgent';
+import { PatternArtAgent } from './PatternArtAgent';
+import { GameCharacterAgent } from './GameCharacterAgent';
 
 // Export all agents individually
-export { PapercraftAgent } from './PapercraftAgent';
-export { ClayAgent } from './ClayAgent';
-export { WoodcraftAgent } from './WoodcraftAgent';
-export { JewelryAgent } from './JewelryAgent';
-export { KidsCraftsAgent } from './KidsCraftsAgent';
-export { ColoringBookAgent } from './ColoringBookAgent';
-export { CostumePropsAgent } from './CostumePropsAgent';
 export { DrawingAgent } from './DrawingAgent';
-export { TabletopFiguresAgent } from './TabletopFiguresAgent';
+export { ColoringBookAgent } from './ColoringBookAgent';
+export { MiniaturePaintingAgent } from './MiniaturePaintingAgent';
+export { FabricPaintingAgent } from './FabricPaintingAgent';
+export { FlowerVaseAgent } from './FlowerVaseAgent';
+export { WatercolorAgent } from './WatercolorAgent';
+export { OilPaintingAgent } from './OilPaintingAgent';
+export { JewelryCustomizationAgent } from './JewelryCustomizationAgent';
+export { PatternArtAgent } from './PatternArtAgent';
+export { GameCharacterAgent } from './GameCharacterAgent';
 
 /**
  * Map of category to agent instance.
  * This allows the orchestrator to route by category.
  */
-const categoryAgentMap: Map<CraftCategory, CategoryAgentBase> = new Map();
+const categoryAgentMap: Map<ActivityCategory, CategoryAgentBase> = new Map();
 
 // Initialize and register all category agents
-const papercraftAgent = new PapercraftAgent();
-const clayAgent = new ClayAgent();
-const woodcraftAgent = new WoodcraftAgent();
-const jewelryAgent = new JewelryAgent();
-const kidsCraftsAgent = new KidsCraftsAgent();
-const coloringBookAgent = new ColoringBookAgent();
-const costumePropsAgent = new CostumePropsAgent();
 const drawingAgent = new DrawingAgent();
-const tabletopFiguresAgent = new TabletopFiguresAgent();
+const coloringBookAgent = new ColoringBookAgent();
+const miniaturePaintingAgent = new MiniaturePaintingAgent();
+const fabricPaintingAgent = new FabricPaintingAgent();
+const flowerVaseAgent = new FlowerVaseAgent();
+const watercolorAgent = new WatercolorAgent();
+const oilPaintingAgent = new OilPaintingAgent();
+const jewelryCustomizationAgent = new JewelryCustomizationAgent();
+const patternArtAgent = new PatternArtAgent();
+const gameCharacterAgent = new GameCharacterAgent();
 
-categoryAgentMap.set(CraftCategory.PAPERCRAFT, papercraftAgent);
-categoryAgentMap.set(CraftCategory.CLAY, clayAgent);
-categoryAgentMap.set(CraftCategory.WOODCRAFT, woodcraftAgent);
-categoryAgentMap.set(CraftCategory.JEWELRY, jewelryAgent);
-categoryAgentMap.set(CraftCategory.KIDS_CRAFTS, kidsCraftsAgent);
-categoryAgentMap.set(CraftCategory.COLORING_BOOK, coloringBookAgent);
-categoryAgentMap.set(CraftCategory.COSTUME_PROPS, costumePropsAgent);
-categoryAgentMap.set(CraftCategory.DRAWING, drawingAgent);
-categoryAgentMap.set(CraftCategory.TABLETOP_FIGURES, tabletopFiguresAgent);
+categoryAgentMap.set(ActivityCategory.DRAWING, drawingAgent);
+categoryAgentMap.set(ActivityCategory.COLORING_BOOK, coloringBookAgent);
+categoryAgentMap.set(ActivityCategory.MINIATURE_PAINTING, miniaturePaintingAgent);
+categoryAgentMap.set(ActivityCategory.FABRIC_PAINTING, fabricPaintingAgent);
+categoryAgentMap.set(ActivityCategory.FLOWER_VASE, flowerVaseAgent);
+categoryAgentMap.set(ActivityCategory.WATERCOLOR, watercolorAgent);
+categoryAgentMap.set(ActivityCategory.OIL_PAINTING, oilPaintingAgent);
+categoryAgentMap.set(ActivityCategory.JEWELRY_CUSTOMIZATION, jewelryCustomizationAgent);
+categoryAgentMap.set(ActivityCategory.PATTERN_ART, patternArtAgent);
+categoryAgentMap.set(ActivityCategory.GAME_CHARACTER, gameCharacterAgent);
 
 /**
  * Get all category agent instances.
@@ -65,16 +69,16 @@ export function getAllCategoryAgents(): CategoryAgentBase[] {
 
 /**
  * Get a specific category agent by category.
- * @param category The craft category
+ * @param category The activity category
  * @returns The agent for that category, or undefined if not found
  */
-export function getCategoryAgent(category: CraftCategory): CategoryAgentBase | undefined {
-    return categoryAgentMap.get(category);
+export function getCategoryAgent(category: ActivityCategory | CraftCategory): CategoryAgentBase | undefined {
+    return categoryAgentMap.get(category as ActivityCategory);
 }
 
 /**
  * Check if a category has a registered agent.
  */
-export function hasCategoryAgent(category: CraftCategory): boolean {
-    return categoryAgentMap.has(category);
+export function hasCategoryAgent(category: ActivityCategory | CraftCategory): boolean {
+    return categoryAgentMap.has(category as ActivityCategory);
 }
