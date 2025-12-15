@@ -48,16 +48,16 @@ export class PromptEngineeringService {
 
         const systemInstruction = `
 You are an expert art director and prompt engineer for Bria FIBO, a JSON-native text-to-image model.
-Your goal is to convert a user's craft idea into a detailed, photorealistic Structured Prompt.
+Your goal is to convert a user's creative activity idea into a detailed, photorealistic Structured Prompt.
 
 CATEGORY: ${category}
 USER PROMPT: "${userPrompt}"
 
 REQUIREMENTS:
-1. Create a detailed scene description suitable for a finished DIY craft.
+1. Create a detailed scene description suitable for a finished mindful creative activity.
 2. The image MUST be photorealistic, showing the finished object.
 3. Use high-quality lighting (studio or natural) and appropriate aesthetics for the category.
-4. Ensure the background is neutral but textured (e.g., wooden table, cutting mat) to emphasize the craft.
+4. Ensure the background is neutral but textured (e.g., wooden table, cutting mat) to emphasize the creation.
 5. Return ONLY the JSON object matching the Bria StructuredPrompt schema.
 `;
 
@@ -260,34 +260,26 @@ ${systemInstruction}
     }
 
     /**
-     * PROGRESSIVE CONSTRUCTION: Each step builds on the previous step towards the master goal.
+     * PARALLEL CONSTRUCTION: Each step independently refines from master toward target percentage.
      * 
      * Key behavior:
      * - Step 1: Return hardcoded raw materials JSON (baseline)
-     * - Steps 2-5: VLM receives PREVIOUS step's JSON + MASTER as goal → adds objects progressively
-     * - Step 6: Return master prompt AS-IS (100% complete)
+     * - Steps 2-6: VLM receives MASTER as goal → generates step at target percentage
+     * - All steps are independent and can be generated in parallel
      * 
      * @param masterPrompt The master image's structured prompt (THE GOAL)
-     * @param previousStepPrompt The previous step's structured prompt (null for Step 1)
      * @param stepDescription What this step should show
      * @param stepNumber Current step (1-indexed)
      * @param totalSteps Total number of steps
-     * @param category Craft category for context
+     * @param category Activity category for context
      */
     static async refineStructuredPrompt(
         masterPrompt: StructuredPrompt,
         stepDescription: string,
         stepNumber: number,
         totalSteps: number,
-        category: CraftCategory,
-        previousStepPrompt?: StructuredPrompt | null
+        category: CraftCategory
     ): Promise<StructuredPrompt> {
-        // FINAL STEP: Return master prompt exactly for 100% match
-        if (stepNumber === totalSteps) {
-            console.log(`🎯 Step ${stepNumber}/${totalSteps}: Returning master prompt as-is (100% complete)`);
-            return masterPrompt;
-        }
-
         const ai = getAiClient();
         const completionPercent = Math.round((stepNumber / totalSteps) * 100);
 
@@ -307,7 +299,7 @@ ${systemInstruction}
 
         const rawMaterials = rawMaterialsByCategory[category] || ["raw materials", "tools"];
 
-        // Construct raw materials objects (used for Step 1 and as baseline for Steps 2+)
+        // Construct raw materials objects (used for Step 1 baseline)
         const rawMaterialObjects = rawMaterials.map((material, index) => ({
             description: material,
             location: index === 0 ? "center of frame" : `${["left", "right", "top-left", "top-right"][index % 4]} of frame`,
@@ -339,7 +331,7 @@ ${systemInstruction}
                 lens_focal_length: "50mm"
             },
             style_medium: masterPrompt.style_medium || "professional product photography",
-            context: "15% complete - Only raw materials visible, no crafting started yet"
+            context: `${completionPercent}% complete - Only raw materials visible, no work started yet`
         };
 
         // STEP 1: Return raw materials baseline directly (no VLM)
@@ -351,36 +343,33 @@ ${systemInstruction}
             return step1Baseline;
         }
 
-        // STEPS 2-5: Progressive construction - refine PREVIOUS step towards MASTER goal
-        // If no previousStepPrompt provided, use Step 1 baseline as the starting point
-        const inputPrompt = previousStepPrompt || step1Baseline;
-
+        // STEPS 2-6: VLM refinement from master - all steps are independent and parallel
         const systemInstruction = `
-You are a PROGRESSIVE CONSTRUCTION VLM. Your job is to ADD objects from the GOAL to the CURRENT state.
+You are a PARALLEL STEP GENERATOR for craft instructions. Generate ONE specific step showing ${completionPercent}% completion toward the finished goal.
 
-🎯 GOAL (Master JSON): This is the FINISHED craft we are building towards.
-📍 CURRENT STATE (Previous Step JSON): This is where we are now. You must BUILD upon this.
+🎯 GOAL (Master JSON): This is the FINISHED creation at 100% completion.
 📋 THIS STEP: "${stepDescription}" (~${completionPercent}% complete)
 
-YOUR TASK: Take the CURRENT STATE and ADD objects/details from the GOAL to reach ${completionPercent}% completion.
+YOUR TASK: Generate JSON for THIS STEP showing ${completionPercent}% progress toward the GOAL.
 
-PROGRESSIVE CONSTRUCTION RULES:
+PARALLEL GENERATION RULES:
 
-1. **START FROM CURRENT STATE** (Previous Step JSON):
-   - Keep ALL objects from the previous step
-   - ADD new objects/details from the GOAL to progress construction
-   - DO NOT remove anything that was already added
+1. **INDEPENDENT FROM OTHER STEPS**:
+   - Don't assume what previous steps showed
+   - Generate THIS step's state directly from the GOAL
+   - Show ${completionPercent}% of the objects/details from GOAL
 
-2. **ADD OBJECTS FROM GOAL** based on step:
-   - Step 2 (~30%): Add 1-2 basic shapes being formed (rough forms from GOAL)
-   - Step 3 (~50%): Add main structural elements (half of GOAL objects assembled)
-   - Step 4 (~70%): Add most remaining objects (nearly complete, missing finish)
-   - Step 5 (~85%): Add final details (all objects, just missing polish)
+2. **PERCENTAGE-BASED OBJECT SELECTION**:
+   - Step 2 (~33%): Show 1-2 basic elements starting to form
+   - Step 3 (~50%): Show half of GOAL objects in intermediate state
+   - Step 4 (~67%): Show most objects, rough assembly visible
+   - Step 5 (~83%): Show nearly complete, missing final touches
+   - Step 6 (~100%): Show finished state matching GOAL exactly
 
-3. **MERGING STRATEGY**:
-   - Copy objects from CURRENT STATE first
-   - Then ADD selected objects from GOAL that match this step's progress
-   - Modify added objects to show "in-progress" state if needed
+3. **SELECT OBJECTS FROM GOAL** based on ${completionPercent}%:
+   - Take objects from GOAL.objects array
+   - Modify their descriptions to show "in-progress" state if needed
+   - Keep object count proportional to completion percentage
 
 4. **PRESERVE FROM GOAL** (for consistency):
    - lighting (same setup)
@@ -392,21 +381,17 @@ PROGRESSIVE CONSTRUCTION RULES:
    - short_description: Describe "${stepDescription}"
    - context: "${completionPercent}% complete"
 
-Return the MODIFIED JSON showing progressive construction at ${completionPercent}%.
+Return JSON showing ${completionPercent}% completion state.
 `;
 
-        // Build the two-JSON prompt showing CURRENT STATE and GOAL
         const promptText = `
-GOAL JSON (100% complete - the finished craft):
+GOAL JSON (100% complete - the finished creation):
 ${JSON.stringify(masterPrompt, null, 2)}
-
-CURRENT STATE JSON (~${completionPercent - 17}% complete - previous step):
-${JSON.stringify(inputPrompt, null, 2)}
 
 INSTRUCTIONS:
 ${systemInstruction}
 
-Return ONLY the modified JSON for step ${stepNumber} (~${completionPercent}% complete).
+Return ONLY the JSON for step ${stepNumber} (~${completionPercent}% complete).
 `;
 
         return retryWithBackoff(async () => {
@@ -475,8 +460,8 @@ Return ONLY the modified JSON for step ${stepNumber} (~${completionPercent}% com
             if (!text) throw new Error("No text returned from FIBO refinement");
 
             const refinedPrompt = JSON.parse(text) as StructuredPrompt;
-            console.log(`✅ VLM refined JSON for step ${stepNumber}/${totalSteps}:`, refinedPrompt.short_description);
-            console.log(`   Objects count: ${refinedPrompt.objects?.length || 0} (master had ${masterPrompt.objects?.length || 0})`);
+            console.log(`✅ VLM generated JSON for step ${stepNumber}/${totalSteps}:`, refinedPrompt.short_description);
+            console.log(`   Objects count: ${refinedPrompt.objects?.length || 0} (master has ${masterPrompt.objects?.length || 0})`);
 
             return this.ensureAestheticsField(refinedPrompt);
         });

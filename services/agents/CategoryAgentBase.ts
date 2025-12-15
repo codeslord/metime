@@ -59,14 +59,14 @@ export abstract class CategoryAgentBase extends AgentBase {
                     result = await this.generateCraftFromImage(task.payload.imageBase64);
                     break;
                 case 'generate_step_image':
-                    // PROGRESSIVE CONSTRUCTION: uses previous step's JSON + master as goal
+                    // PARALLEL CONSTRUCTION: All steps reference master directly
                     result = await this.generateStepImage(
                         task.payload.masterSeed,
                         task.payload.stepDescription,
                         task.payload.masterStructuredPrompt,
                         task.payload.stepNumber,
-                        task.payload.totalSteps,
-                        task.payload.previousStepPrompt  // Previous step's output (null for Step 1)
+                        task.payload.totalSteps
+                        // NO previousStepPrompt - parallel generation
                     );
                     break;
                 case 'dissect_craft':
@@ -128,7 +128,19 @@ export abstract class CategoryAgentBase extends AgentBase {
 
         try {
             trackApiUsage('generateCraftFromImage', true);
-            const result = await BriaService.generateImage(prompt, [imageBase64]);
+
+            // Ensure image has proper base64 format with data URI prefix
+            let formattedImage = imageBase64;
+            if (!imageBase64.startsWith('data:')) {
+                // If it's raw base64, add the data URI prefix
+                // Default to JPEG, but could be PNG
+                formattedImage = `data:image/jpeg;base64,${imageBase64}`;
+                console.log('Added data URI prefix to image');
+            }
+
+            console.log('Formatted image (first 100 chars):', formattedImage.substring(0, 100));
+
+            const result = await BriaService.generateImage(prompt, [formattedImage]);
             return {
                 imageUrl: result.imageUrl,
                 structuredPrompt: result.structuredPrompt,
@@ -141,70 +153,49 @@ export abstract class CategoryAgentBase extends AgentBase {
     }
 
     /**
-     * Generate step image using PROGRESSIVE CONSTRUCTION.
+     * Generate step image using PARALLEL CONSTRUCTION.
      * 
-     * PROGRESSIVE CONSTRUCTION:
-     * 1. Step 1: Raw materials baseline (no VLM)
-     * 2. Steps 2-5: VLM refines PREVIOUS step's JSON towards MASTER goal
-     * 3. Step 6: Master's exact JSON for 100% match
+     * ALL STEPS now use VLM refinement with the master image as reference.
+     * Each step independently shows a percentage of progress toward the master.
+     * This enables parallel generation of all steps.
      * 
      * @param masterSeed Seed from master image (MUST be same for all steps)
      * @param stepDescription Description of what this step should show
      * @param masterStructuredPrompt Master image's structured JSON (THE GOAL)
      * @param stepNumber Current step (1-indexed)
      * @param totalSteps Total number of steps
-     * @param previousStepPrompt Previous step's structured JSON (null for Step 1)
      */
     protected async generateStepImage(
         masterSeed: number,
         stepDescription: string,
         masterStructuredPrompt: any,
         stepNumber: number,
-        totalSteps: number,
-        previousStepPrompt?: any
+        totalSteps: number
     ): Promise<{ imageUrl: string; structuredPrompt: any; seed: number }> {
         try {
             const completionPercent = Math.round((stepNumber / totalSteps) * 100);
 
-            console.log(`\n🔧 Progressive Construction - Step ${stepNumber}/${totalSteps} (~${completionPercent}%)`);
+            console.log(`\n🔧 Parallel Step Generation - Step ${stepNumber}/${totalSteps} (~${completionPercent}%)`);
             console.log(`   Step Description: "${stepDescription}"`);
             console.log(`   Master Seed: ${masterSeed} (same for consistency)`);
-            console.log(`   Previous Step: ${previousStepPrompt ? 'Provided' : 'None (using raw materials baseline)'}`);
+            console.log(`   Using VLM refinement with master as reference`);
 
-            // FINAL STEP: Use master's exact structured prompt for 100% match
-            if (stepNumber === totalSteps) {
-                console.log(`   🎯 Final step: Using master's exact structured prompt`);
-
-                const result = await BriaService.generateImage(
-                    '',
-                    undefined,
-                    masterStructuredPrompt,
-                    masterSeed
-                );
-
-                return {
-                    imageUrl: result.imageUrl,
-                    structuredPrompt: result.structuredPrompt,
-                    seed: masterSeed
-                };
-            }
-
-            // STEPS 1-5: Progressive construction with VLM
-            // Pass previous step's prompt (or null for Step 1) to build progressively towards master
+            // ALL STEPS: Use VLM refinement with master as the goal
+            // No previousStepPrompt needed - each step is independent
             const stepStructuredPrompt = await PromptEngineeringService.refineStructuredPrompt(
                 masterStructuredPrompt,
                 stepDescription,
                 stepNumber,
                 totalSteps,
-                this.category,
-                previousStepPrompt  // Pass previous step's output for sequential building
+                this.category
+                // NO previousStepPrompt - parallel generation
             );
 
             console.log(`   ✅ Generated specific JSON for step ${stepNumber}`);
 
-            // 2. Generate image using the MODIFIED JSON and SAME SEED
+            // Generate image using the MODIFIED JSON and SAME SEED
             // This ensures strict visual consistency (same seed/lighting/style) 
-            // but with the specific objects for this step.
+            // but with the specific progress level for this step.
             const result = await BriaService.generateImage(
                 '',
                 undefined,

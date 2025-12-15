@@ -15,7 +15,7 @@ The core value proposition is to provide "mindful doing" by:
 *   **Language**: TypeScript
 *   **Styling**: TailwindCSS
 *   **UI Library**: React Flow (@xyflow/react) for the infinite canvas
-*   **AI SDK**: Google GenAI SDK (@google/genai), BRIA FIBO API
+*   **AI SDK**:BRIA FIBO API, Google GenAI SDK (@google/genai), 
 *   **Icons**: Lucide React
 *   **Package Manager**: npm
 

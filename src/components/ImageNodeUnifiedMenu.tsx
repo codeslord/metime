@@ -16,15 +16,8 @@ interface ImageNodeUnifiedMenuProps {
   isConverting: boolean;
 }
 
-const CRAFT_CATEGORIES = [
-  CraftCategory.PAPERCRAFT,
-  CraftCategory.CLAY,
-  CraftCategory.COSTUME_PROPS,
-  CraftCategory.WOODCRAFT,
-  CraftCategory.JEWELRY,
-  CraftCategory.KIDS_CRAFTS,
-  CraftCategory.COLORING_BOOK,
-];
+// Use all categories from the enum dynamically
+const CRAFT_CATEGORIES = Object.values(CraftCategory);
 
 export const ImageNodeUnifiedMenu: React.FC<ImageNodeUnifiedMenuProps> = ({
   visible,
@@ -139,11 +132,10 @@ export const ImageNodeUnifiedMenu: React.FC<ImageNodeUnifiedMenuProps> = ({
                     onSelectCategory(category);
                     setDropdownOpen(false);
                   }}
-                  className={`w-full text-left px-4 py-2 text-sm transition-colors ${
-                    selectedCategory === category
+                  className={`w-full text-left px-4 py-2 text-sm transition-colors ${selectedCategory === category
                       ? 'bg-orange-50 text-orange-600 font-medium'
                       : 'text-gray-700 hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   {category}
                 </button>

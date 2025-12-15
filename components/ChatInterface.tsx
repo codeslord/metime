@@ -99,7 +99,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerate, onStar
       if (onGenerationError) {
         onGenerationError(nodeId);
       }
-      alert("Failed to generate craft. Please check your connection and try again.");
+      alert("Failed to generate creation. Please check your connection and try again.");
     } finally {
       setIsLoading(false);
     }
@@ -167,7 +167,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerate, onStar
               type="text"
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
-              placeholder={isLoading ? loadingMsg : "Describe a craft you want to build..."}
+              placeholder={isLoading ? loadingMsg : "Describe your creative idea..."}
               disabled={isLoading}
               className="w-full bg-transparent border-none text-slate-100 placeholder-slate-500 focus:ring-0 h-10 md:h-12 py-2 md:py-3 px-1 md:px-2 text-sm md:text-base"
               autoComplete="off"

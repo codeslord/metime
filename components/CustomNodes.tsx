@@ -896,22 +896,36 @@ export const TextNode = memo(({ data, id }: NodeProps<any>) => {
 
   return (
     <div
-      className={`bg-slate-900/95 backdrop-blur-sm rounded-lg shadow-lg relative smooth-transition overflow-hidden min-w-[150px] group ${isRefining ? 'border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)] animate-pulse' : 'hover:shadow-xl'}`}
+      className={`relative group bg-slate-900 backdrop-blur-sm rounded-xl shadow-2xl transition-none min-w-[200px] ${isRefining
+        ? 'border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.5)] animate-pulse'
+        : 'border-2 border-cyan-500/50 hover:shadow-xl'
+        }`}
       onDoubleClick={handleDoubleClick}
     >
-      <Handle type="source" position={Position.Right} id="source-right" className="!bg-emerald-500 !w-3 !h-3" />
-      <Handle type="source" position={Position.Left} id="source-left" className="!bg-emerald-500 !w-3 !h-3" />
-      <Handle type="target" position={Position.Right} id="target-right" className="!bg-emerald-500 !w-3 !h-3" />
-      <Handle type="target" position={Position.Left} id="target-left" className="!bg-emerald-500 !w-3 !h-3" />
+      <Handle type="source" position={Position.Right} id="source-right" className="!bg-cyan-500 !w-3 !h-3" />
+      <Handle type="source" position={Position.Left} id="source-left" className="!bg-cyan-500 !w-3 !h-3" />
+      <Handle type="target" position={Position.Right} id="target-right" className="!bg-cyan-500 !w-3 !h-3" />
+      <Handle type="target" position={Position.Left} id="target-left" className="!bg-cyan-500 !w-3 !h-3" />
+
+      {/* Header */}
+      <div className="px-4 py-2 bg-cyan-600/20 border-b border-cyan-500/30 flex justify-between items-center rounded-t-xl">
+        <span className="text-cyan-200 font-semibold text-sm">Refinement Prompt</span>
+        <div className="flex items-center gap-2">
+          {isRefining && <Loader2 className="w-3 h-3 text-cyan-400 animate-spin" />}
+          <svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+        </div>
+      </div>
 
       {/* Play/Refine Button - visible on hover when content exists */}
       {onRefine && content && content.trim() && !isEditing && (
         <button
           onClick={handleRefineClick}
           disabled={isRefining}
-          className={`absolute top-2 right-2 z-10 p-1.5 rounded-full transition-all duration-300 ${isRefining
-              ? 'bg-emerald-500 text-white'
-              : 'bg-emerald-600 hover:bg-emerald-500 text-white opacity-0 group-hover:opacity-100'
+          className={`absolute top-12 right-2 z-10 p-1.5 rounded-full transition-all duration-300 ${isRefining
+            ? 'bg-emerald-500 text-white'
+            : 'bg-emerald-600 hover:bg-emerald-500 text-white opacity-0 group-hover:opacity-100'
             }`}
           title="Generate image from this prompt"
         >
@@ -925,7 +939,8 @@ export const TextNode = memo(({ data, id }: NodeProps<any>) => {
         </button>
       )}
 
-      <div className="p-3">
+      {/* Content - positioned below header */}
+      <div className="p-4">
         {isEditing ? (
           <textarea
             ref={textareaRef}
@@ -933,7 +948,7 @@ export const TextNode = memo(({ data, id }: NodeProps<any>) => {
             onChange={(e) => setEditContent(e.target.value)}
             onBlur={handleBlur}
             onKeyDown={handleKeyDown}
-            className="w-full bg-slate-800 text-slate-100 border border-emerald-500 rounded px-2 py-1 resize-none outline-none"
+            className="w-full bg-slate-800 text-slate-100 border border-cyan-500 rounded px-2 py-1 resize-none outline-none"
             style={{
               fontSize: `${fontSize}px`,
               fontFamily,

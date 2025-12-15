@@ -42,9 +42,8 @@ export const generateCraftFromImage = async (
 };
 
 /**
- * Generates a visualization for a specific step using PROGRESSIVE CONSTRUCTION.
- * Each step builds on the previous step towards the master goal.
- * @param previousStepPrompt The previous step's structured prompt (null for Step 1)
+ * Generates a visualization for a specific step using PARALLEL CONSTRUCTION.
+ * Each step independently references the master as the goal for target percentage.
  */
 export const generateStepImage = async (
   masterSeed: number,
@@ -52,8 +51,7 @@ export const generateStepImage = async (
   masterStructuredPrompt: any,
   stepNumber: number,
   totalSteps: number,
-  category: CraftCategory,
-  previousStepPrompt?: any
+  category: CraftCategory
 ): Promise<{ imageUrl: string; structuredPrompt: any; seed: number }> => {
   return orchestrator.dispatch('generate_step_image', {
     masterSeed,
@@ -61,8 +59,8 @@ export const generateStepImage = async (
     masterStructuredPrompt,
     stepNumber,
     totalSteps,
-    category,
-    previousStepPrompt
+    category
+    // NO previousStepPrompt - parallel generation
   });
 };
 
