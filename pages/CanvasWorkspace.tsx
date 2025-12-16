@@ -2826,11 +2826,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
     };
 
     setNodes((nds) => [...nds, newNode]);
-
-    // Pan canvas to center on the node (accounting for node dimensions)
-    // setCenter targets the center point, so offset by half node size
-    setCenter(nodeWidth / 2, nodeHeight / 2, { duration: 300 });
-  }, [setNodes, readOnly, handleDissect, handleDissectSelected, handleMasterNodeSelect, handleMasterNodeDeselect, setCenter]);
+  }, [setNodes, readOnly, handleDissect, handleDissectSelected, handleMasterNodeSelect, handleMasterNodeDeselect]);
 
   /**
    * Update placeholder node when generation completes
