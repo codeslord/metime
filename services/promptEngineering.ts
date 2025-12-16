@@ -609,4 +609,105 @@ Return ONLY the rewritten prompt text, no explanation or quotes.
 
         return rewrittenPrompt;
     }
+    /**
+     * Adapts an extracted structured prompt (from an uploaded image) to fit a specific craft category style.
+     * Keeps the composition and object arrangement but updates the aesthetics and materials.
+     */
+    static async adaptStructuredPromptToCategory(
+        sourcePrompt: StructuredPrompt,
+        category: CraftCategory
+    ): Promise<StructuredPrompt> {
+        const ai = getAiClient();
+
+        const systemInstruction = `
+You are an expert art director adapting a visual scene for a specific craft category.
+
+SOURCE SCENE (Structure Reference):
+${JSON.stringify(sourcePrompt, null, 2)}
+
+TARGET CATEGORY: ${category}
+
+YOUR TASK: Modify the Source JSON to fit the Target Category style while PRESERVING the original structure.
+
+RULES:
+1. **PRESERVE STRUCTURE**: Keep the same number of objects, their locations, relationships, and relative sizes. The composition must match the source.
+2. **ADAPT MATERIALS/OBJECTS**: If the source objects are generic, describe them as materials relevant to ${category}.
+   - Example: If conversion to "Clay", objects become "clay figures".
+   - Example: If conversion to "Papercraft", objects become "paper cutouts".
+3. **ADAPT VISUAL STYLE**: Update 'aesthetics', 'lighting', 'style_medium' to match professional photography for ${category}.
+4. **ADAPT BACKGROUND**: Set a background appropriate for the craft (e.g., cutting mat for papercraft, easel for painting).
+
+Return ONLY the adapted JSON object matching the Bria StructuredPrompt schema.
+`;
+
+        return retryWithBackoff(async () => {
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: { parts: [{ text: systemInstruction }] },
+                config: {
+                    responseMimeType: "application/json",
+                    // Reuse schema from createMasterPrompt
+                    responseSchema: {
+                        type: Type.OBJECT,
+                        properties: {
+                            short_description: { type: Type.STRING },
+                            objects: {
+                                type: Type.ARRAY,
+                                items: {
+                                    type: Type.OBJECT,
+                                    properties: {
+                                        description: { type: Type.STRING },
+                                        location: { type: Type.STRING },
+                                        relationship: { type: Type.STRING },
+                                        relative_size: { type: Type.STRING },
+                                        shape_and_color: { type: Type.STRING },
+                                        texture: { type: Type.STRING },
+                                        number_of_objects: { type: Type.NUMBER }
+                                    },
+                                    required: ["description", "relationship"]
+                                }
+                            },
+                            background_setting: { type: Type.STRING },
+                            lighting: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    conditions: { type: Type.STRING },
+                                    direction: { type: Type.STRING },
+                                    shadows: { type: Type.STRING }
+                                },
+                                required: ["conditions", "direction", "shadows"]
+                            },
+                            aesthetics: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    composition: { type: Type.STRING },
+                                    color_scheme: { type: Type.STRING },
+                                    mood_atmosphere: { type: Type.STRING }
+                                },
+                                required: ["composition", "color_scheme", "mood_atmosphere"]
+                            },
+                            photographic_characteristics: {
+                                type: Type.OBJECT,
+                                properties: {
+                                    camera_angle: { type: Type.STRING },
+                                    depth_of_field: { type: Type.STRING },
+                                    focus: { type: Type.STRING },
+                                    lens_focal_length: { type: Type.STRING }
+                                },
+                                required: ["camera_angle", "depth_of_field", "focus", "lens_focal_length"]
+                            },
+                            style_medium: { type: Type.STRING },
+                            context: { type: Type.STRING }
+                        },
+                        required: ["short_description", "objects", "style_medium", "aesthetics", "context"]
+                    }
+                }
+            });
+
+            const text = response.text;
+            if (!text) throw new Error("No text returned from category adaptation");
+            const prompt = JSON.parse(text) as StructuredPrompt;
+            return this.ensureAestheticsField(prompt);
+        });
+    }
 }

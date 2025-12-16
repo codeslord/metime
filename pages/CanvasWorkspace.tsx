@@ -2921,8 +2921,36 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
     setIsConvertingImage(true);
 
     try {
-      // Call Gemini API to generate craft image
-      const craftImageUrl = await generateCraftFromImage(imageUrl, category);
+      // Convert blob URL or data URI to base64 for Bria API
+      let imageForBria = imageUrl;
+
+      if (imageForBria.startsWith('blob:')) {
+        console.log('🔄 Converting blob URL to base64...');
+        try {
+          const blob = await fetch(imageForBria).then(r => r.blob());
+          const dataUri = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+          // Extract just the base64 part (Bria wants raw base64, not data URI)
+          imageForBria = dataUri.split(',')[1];
+          console.log('✅ Converted blob to base64');
+        } catch (e) {
+          console.error('Failed to convert blob to base64', e);
+          throw new Error('Could not process image data');
+        }
+      } else if (imageForBria.startsWith('data:')) {
+        console.log('🔄 Extracting base64 from data URI...');
+        imageForBria = imageForBria.split(',')[1];
+        console.log('✅ Extracted base64 data');
+      }
+      // If it's an HTTP URL or already raw base64, use as-is
+
+      console.log('📸 Calling generateCraftFromImage (image length:', imageForBria.length, ')...');
+      // Call Bria FIBO API to generate craft image from uploaded image
+      const { imageUrl: craftImageUrl, structuredPrompt, seed } = await generateCraftFromImage(imageForBria, category);
 
       // Create MasterNode with generated craft image
       // Position it near the original ImageNode
@@ -2938,6 +2966,8 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
           label: `${category} Craft`,
           imageUrl: craftImageUrl,
           category,
+          structuredPrompt,  // Store for refinement workflow
+          seed,              // Store for refinement workflow
           onDissect: handleDissect,
           onContextMenu: handleNodeContextMenu,
           onDissectSelected: handleDissectSelected,

@@ -87,28 +87,39 @@ export class VisualizerAgent extends AgentBase {
             const structuredPrompt = await PromptEngineeringService.createMasterPrompt(prompt, category);
 
             // 2. Generate Image
-            const imageUrl = await BriaService.generateImage('', undefined, structuredPrompt);
-            return imageUrl;
+            const result = await BriaService.generateImage('', undefined, structuredPrompt);
+            return result.imageUrl;
         } catch (error) {
             trackApiUsage('generateCraftImage', false);
             throw error;
         }
     }
 
-    private async generateCraftFromImage(imageBase64: string, category: CraftCategory): Promise<string> {
+    private async generateCraftFromImage(imageBase64: string, category: CraftCategory): Promise<{ imageUrl: string; structuredPrompt: any; seed: number }> {
         if (!imageGenerationLimiter.canMakeRequest()) {
             const waitTime = imageGenerationLimiter.getTimeUntilNextRequest();
             const waitSeconds = Math.ceil(waitTime / 1000);
             throw new Error(`Rate limit exceeded. Wait ${waitSeconds}s.`);
         }
 
-        const prompt = `Transform this image into a photorealistic studio photograph of a DIY craft project. Category: ${category}. Maintain form and colors.`;
-
         try {
             trackApiUsage('generateCraftFromImage', true);
-            // Passing imageBase64 as reference - still using simple prompt for now
-            const imageUrl = await BriaService.generateImage(prompt, [imageBase64]);
-            return imageUrl;
+
+            // Step 1: Generate structured prompt from the uploaded image
+            console.log('Generating structured prompt from uploaded image...');
+            const structuredPrompt = await BriaService.generateStructuredPrompt(imageBase64);
+            console.log('Structured prompt generated:', structuredPrompt);
+
+            // Step 2: Generate the craft image using the structured prompt
+            console.log('Generating craft image with structured prompt...');
+            const result = await BriaService.generateImage('', undefined, structuredPrompt);
+
+            console.log('Craft image generated successfully:', result.imageUrl);
+            return {
+                imageUrl: result.imageUrl,
+                structuredPrompt: result.structuredPrompt,
+                seed: result.seed
+            };
         } catch (error) {
             trackApiUsage('generateCraftFromImage', false);
             throw error;
@@ -142,8 +153,8 @@ export class VisualizerAgent extends AgentBase {
             );
 
             // 3. Generate image
-            const imageUrl = await BriaService.generateImage('', undefined, stepStructuredPrompt);
-            return imageUrl;
+            const result = await BriaService.generateImage('', undefined, stepStructuredPrompt);
+            return result.imageUrl;
         } catch (error) {
             throw new Error("Failed to generate step image");
         }
@@ -160,7 +171,10 @@ export class VisualizerAgent extends AgentBase {
 
         try {
             trackApiUsage('generateTurnTableView', true);
-            const imageUrl = await BriaService.generateImage(prompt, [originalImageBase64]);
+            // Generate structured prompt first from the original image
+            const structuredPrompt = await BriaService.generateStructuredPrompt(originalImageBase64);
+            const result = await BriaService.generateImage('', undefined, structuredPrompt);
+            const imageUrl = result.imageUrl;
             return imageUrl;
         } catch (error) {
             trackApiUsage('generateTurnTableView', false);

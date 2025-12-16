@@ -124,23 +124,30 @@ export abstract class CategoryAgentBase extends AgentBase {
             throw new Error(`Rate limit exceeded. Wait ${Math.ceil(waitTime / 1000)}s.`);
         }
 
-        const prompt = this.getMasterImagePrompt('Transform this into a craft reference');
-
         try {
             trackApiUsage('generateCraftFromImage', true);
 
-            // Ensure image has proper base64 format with data URI prefix
-            let formattedImage = imageBase64;
-            if (!imageBase64.startsWith('data:')) {
-                // If it's raw base64, add the data URI prefix
-                // Default to JPEG, but could be PNG
-                formattedImage = `data:image/jpeg;base64,${imageBase64}`;
-                console.log('Added data URI prefix to image');
-            }
+            // NEW WORKFLOW: "Structure Reference" Conversion
+            // 1. Extract structure from the uploaded image
+            console.log('Extracting structure from uploaded image...');
+            const extractedStructuredPrompt = await BriaService.generateStructuredPrompt(imageBase64);
 
-            console.log('Formatted image (first 100 chars):', formattedImage.substring(0, 100));
+            // 2. Adapt the structure to the target category using VLM
+            console.log(`Adapting structure to ${this.category}...`);
+            const categoryStructuredPrompt = await PromptEngineeringService.adaptStructuredPromptToCategory(
+                extractedStructuredPrompt,
+                this.category
+            );
 
-            const result = await BriaService.generateImage(prompt, [formattedImage]);
+            // 3. Generate new image using the adapted structure
+            // We use the structural JSON as the reference, not the raw pixel image
+            console.log('Generating category-specific craft image...');
+            const result = await BriaService.generateImage(
+                '',
+                undefined, // No pixel reference needed - structure is fully captured in JSON
+                categoryStructuredPrompt
+            );
+
             return {
                 imageUrl: result.imageUrl,
                 structuredPrompt: result.structuredPrompt,
