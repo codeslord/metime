@@ -13,6 +13,7 @@ import {
 } from '../utils/auth';
 import { encryptApiKey, decryptApiKey, validateApiKeyFormat } from '../utils/encryption';
 import { sanitizeText } from '../utils/security';
+import { getConfig } from '../utils/config';
 
 // State Interface
 interface AuthContextState {
@@ -62,8 +63,8 @@ const initialState: AuthContextState = {
   isLoading: true, // Start as loading to check for existing session
   error: null,
 
-  apiKey: null,
-  briaApiKey: null,
+  apiKey: getConfig().apiKey || null,
+  briaApiKey: getConfig().briaApiKey || null,
   subscription: 'free',
 };
 
@@ -235,46 +236,47 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const briaApiKeyData = localStorage.getItem(STORAGE_KEYS.BRIA_API_KEY);
       const subscriptionData = localStorage.getItem(STORAGE_KEYS.SUBSCRIPTION);
 
+      // Always load API keys from local storage if available, regardless of session
+      let apiKey: string | null = null;
+      if (apiKeyData) {
+        try {
+          apiKey = decryptApiKey(apiKeyData);
+        } catch {
+          // Invalid API key, remove it
+          localStorage.removeItem(STORAGE_KEYS.API_KEY);
+        }
+      }
+
+      let briaApiKey: string | null = null;
+      if (briaApiKeyData) {
+        try {
+          briaApiKey = decryptApiKey(briaApiKeyData);
+        } catch {
+          localStorage.removeItem(STORAGE_KEYS.BRIA_API_KEY);
+        }
+      }
+
+      // If keys are found in localStorage, they override env vars
+      if (apiKey) {
+        dispatch({ type: 'SET_API_KEY', payload: { apiKey } });
+      }
+      if (briaApiKey) {
+        dispatch({ type: 'SET_BRIA_API_KEY', payload: { apiKey: briaApiKey } });
+      }
+
       if (sessionData && userData) {
         const session: AuthSession = JSON.parse(sessionData);
         const user: User = JSON.parse(userData);
 
         // Validate session
         if (isSessionValid(session) && validateUserData(user)) {
-          // Restore API key if exists
-          let apiKey: string | null = null;
-          if (apiKeyData) {
-            try {
-              apiKey = decryptApiKey(apiKeyData);
-            } catch {
-              // Invalid API key, remove it
-              localStorage.removeItem(STORAGE_KEYS.API_KEY);
-            }
-          }
-
-
-          let briaApiKey: string | null = null;
-          if (briaApiKeyData) {
-            try {
-              briaApiKey = decryptApiKey(briaApiKeyData);
-            } catch {
-              localStorage.removeItem(STORAGE_KEYS.BRIA_API_KEY);
-            }
-          }
-
           // Restore subscription
           const subscription: SubscriptionTier =
             subscriptionData === 'pro' ? 'pro' : 'free';
 
           dispatch({ type: 'AUTH_SUCCESS', payload: { user, subscription } });
-          if (apiKey) {
-            dispatch({ type: 'SET_API_KEY', payload: { apiKey } });
-          }
-          if (briaApiKey) {
-            dispatch({ type: 'SET_BRIA_API_KEY', payload: { apiKey: briaApiKey } });
-          }
         } else {
-          // Invalid session, clear storage
+          // Invalid session, clear storage (but keep API keys!)
           clearStorage();
           dispatch({ type: 'SET_LOADING', payload: { isLoading: false } });
         }

@@ -249,6 +249,19 @@ npm run build && npm run preview
 ```
 
 ---
+## 🔐 Security & Privacy
+
+**Me Time** is a client-side application designed with privacy in mind.
+
+### API Key Security
+- **Local Storage (Recommended)**: usage via Settings saves keys encrypted in your browser's Local Storage. keys strictly remain on your device and are never sent to any backend server (other than directly to Gemini/Bria APIs).
+- **Environment Variables**: For local development or private deployments, you can key in `.env` files. These are baked into the build and are suitable only for trusted environments.
+
+### Data Privacy
+- No images or prompts are stored on our servers.
+- All generation happens directly between your browser and the AI providers (Google Gemini & Bria AI).
+
+---
 
 ## 🏅 Hackathon Submission
 

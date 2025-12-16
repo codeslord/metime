@@ -12,8 +12,9 @@ import {
   ReactFlowProvider,
   BackgroundVariant,
   useReactFlow,
+  Panel,
 } from '@xyflow/react';
-import { Sparkles, Keyboard } from 'lucide-react';
+import { Sparkles, Keyboard, AlertTriangle } from 'lucide-react';
 import { MasterNode, InstructionNode, MaterialNode, ImageNode, ShapeNode, TextNode, DrawingNode } from '../components/CustomNodes';
 import { ChatInterface } from '../components/ChatInterface';
 import { FloatingMenuBar } from '../components/FloatingMenuBar';
@@ -30,6 +31,7 @@ import { CraftCategory, DissectionResponse } from '../types';
 import { useProjects } from '../contexts/ProjectsContext';
 import { useCanvasState } from '../contexts/CanvasStateContext';
 import { useKeyboardShortcuts } from '../utils/useKeyboardShortcuts';
+import { useAuth } from '../contexts/AuthContext';
 import { useToolKeyboardShortcuts } from '../utils/useToolKeyboardShortcuts';
 import { useDrawingState } from '../utils/useDrawingState';
 import { DrawingPath } from '../types';
@@ -176,6 +178,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
 
   const { state: projectsState, saveProject, updateProject } = useProjects();
   const { screenToFlowPosition, fitView, getViewport, setCenter, getEdges } = useReactFlow();
+  const { state: authState } = useAuth();
 
   // Get canvas state from context to persist across navigation
   const { state: canvasSessionState, updateNodes: persistNodes, updateEdges: persistEdges, updateViewport: persistViewport } = useCanvasState();
@@ -3158,6 +3161,33 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
             gap={24}
             size={2}
           />
+          {(!authState.apiKey || !authState.briaApiKey) && (
+            <Panel position="top-center" className="mt-32 bg-amber-50 border border-amber-200 rounded-lg p-4 shadow-lg max-w-md pointer-events-auto">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h3 className="text-sm font-semibold text-amber-900 mb-1">Missing API Keys</h3>
+                  <p className="text-xs text-amber-700 mb-2">
+                    To use AI features like image generation and refinement, you need to set your API keys by going to the Settings tab.
+                  </p>
+                  <div className="space-y-1">
+                    {!authState.apiKey && (
+                      <div className="flex items-center gap-2 text-xs text-amber-800">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                        Gemini API Key missing
+                      </div>
+                    )}
+                    {!authState.briaApiKey && (
+                      <div className="flex items-center gap-2 text-xs text-amber-800">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                        BRIA API Key missing
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </Panel>
+          )}
         </ReactFlow>
       </div>
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Key, Save, Eye, EyeOff, Trash2, Check, Settings as SettingsIcon } from 'lucide-react';
 import { maskApiKey } from '../utils/encryption';
+import { getConfig } from '../utils/config';
 
 export const SettingsView: React.FC = () => {
   const { state, setApiKey, removeApiKey } = useAuth();
@@ -10,6 +11,23 @@ export const SettingsView: React.FC = () => {
   const [isSavingApiKey, setIsSavingApiKey] = useState(false);
   const [apiKeySuccess, setApiKeySuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Check sources
+  const config = getConfig();
+  const isGeminiKyFromEnv = !!config.apiKey && state.apiKey === config.apiKey;
+  // We can also check local storage directly to be sure (since user might have saved the same key)
+  // But for UI purposes, if it matches config and NOT in local storage (we can't easily check LS here cleanly without effects, 
+  // but AuthContext handles the priority). 
+  // Let's rely on a helper or just checking if `state.apiKey` is present.
+
+  // Actually, to be precise:
+  // If we have a key in state:
+  // 1. Is it in LocalStorage? -> "Saved locally"
+  // 2. If not, and matches Env -> "Environment Variable"
+
+  // We'll use a simple effect or just check direct localStorage for the UI state since this is a client-side app
+  const hasLocalGeminiKey = !!localStorage.getItem('craftus_user_api_key');
+  const hasLocalBriaKey = !!localStorage.getItem('craftus_user_bria_api_key');
 
   const { state: authState, setBriaApiKey, removeBriaApiKey } = useAuth();
   const [briaKeyInput, setBriaKeyInput] = useState('');
@@ -118,19 +136,35 @@ export const SettingsView: React.FC = () => {
                   </code>
                 </div>
 
-                <div className="bg-emerald-900/20 border border-emerald-800 rounded-lg p-4">
-                  <p className="text-sm text-emerald-400">
-                    ✓ API key configured! You can now use all AI features.
-                  </p>
-                </div>
+                {hasLocalGeminiKey ? (
+                  <div className="bg-emerald-900/20 border border-emerald-800 rounded-lg p-4">
+                    <p className="text-sm text-emerald-400 font-medium mb-1">
+                      ✓ API key saved securely in your browser
+                    </p>
+                    <p className="text-xs text-emerald-500/80">
+                      Your key is encrypted in your browser's Local Storage. It is not shared with other users or stored on any server.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-blue-900/20 border border-blue-800 rounded-lg p-4">
+                    <p className="text-sm text-blue-400 font-medium mb-1">
+                      ℹ Using Environment Variable
+                    </p>
+                    <p className="text-xs text-blue-500/80">
+                      This key is loaded from the configuration file. It cannot be removed here.
+                    </p>
+                  </div>
+                )}
 
-                <button
-                  onClick={handleApiKeyRemove}
-                  className="px-4 py-2 bg-red-900/20 border border-red-800 text-red-400 font-medium rounded-lg hover:bg-red-900/30 transition-all flex items-center gap-2"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Remove API Key
-                </button>
+                {hasLocalGeminiKey && (
+                  <button
+                    onClick={handleApiKeyRemove}
+                    className="px-4 py-2 bg-red-900/20 border border-red-800 text-red-400 font-medium rounded-lg hover:bg-red-900/30 transition-all flex items-center gap-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Remove API Key
+                  </button>
+                )}
               </div>
             ) : (
               <form onSubmit={handleApiKeySave} className="space-y-4">
@@ -224,19 +258,35 @@ export const SettingsView: React.FC = () => {
                   </code>
                 </div>
 
-                <div className="bg-purple-900/20 border border-purple-800 rounded-lg p-4">
-                  <p className="text-sm text-purple-400">
-                    ✓ Bria API key configured!
-                  </p>
-                </div>
+                {hasLocalBriaKey ? (
+                  <div className="bg-purple-900/20 border border-purple-800 rounded-lg p-4">
+                    <p className="text-sm text-purple-400 font-medium mb-1">
+                      ✓ Bria API key saved securely in your browser
+                    </p>
+                    <p className="text-xs text-purple-500/80">
+                      Your key is encrypted in your browser's Local Storage. It is not shared with other users or stored on any server.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-blue-900/20 border border-blue-800 rounded-lg p-4">
+                    <p className="text-sm text-blue-400 font-medium mb-1">
+                      ℹ Using Environment Variable
+                    </p>
+                    <p className="text-xs text-blue-500/80">
+                      This key is loaded from the configuration file. It cannot be removed here.
+                    </p>
+                  </div>
+                )}
 
-                <button
-                  onClick={handleBriaKeyRemove}
-                  className="px-4 py-2 bg-red-900/20 border border-red-800 text-red-400 font-medium rounded-lg hover:bg-red-900/30 transition-all flex items-center gap-2"
-                >
-                  <Trash2 className="w-4 h-4" />
-                  Remove API Key
-                </button>
+                {hasLocalBriaKey && (
+                  <button
+                    onClick={handleBriaKeyRemove}
+                    className="px-4 py-2 bg-red-900/20 border border-red-800 text-red-400 font-medium rounded-lg hover:bg-red-900/30 transition-all flex items-center gap-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Remove API Key
+                  </button>
+                )}
               </div>
             ) : (
               <form onSubmit={handleBriaKeySave} className="space-y-4">
