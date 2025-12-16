@@ -65,6 +65,11 @@ The reference image shows the FINISHED pattern art. Each step removes pattern el
 Step 1 = Most simplified (geometric guidelines only). Step 6 = Nearly identical to reference.
 Users START at Step 1 and work TOWARD the reference image.
 
+CRITICAL INSTRUCTION - PATTERN CONSTRUCTION ONLY:
+- The 'description' for each step must focus on drawing the geometric or organic pattern elements.
+- Match the logical construction sequence.
+- DO NOT describe unrelated background elements or frame creation.
+
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Quality drawing paper, Fine-tip pens (various sizes), Ruler, Compass, Protractor, Pencil, Eraser, Markers or colored pens (if colored).
 3. Break down into EXACTLY 6 INCREMENTAL STEPS.
@@ -74,27 +79,27 @@ You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACT
 
 STEP 1 - title: "Geometric framework and guidelines"
   - VISUAL: Remove ALL drawn patterns. Show only faint construction lines (circles, grids, guidelines).
-  - This is the starting point - user sees the structural foundation.
+  - DESCRIPTION CONSTRAINT: Describe drawing the grid and guidelines.
 
 STEP 2 - title: "Central motif established"
   - VISUAL: Remove all pattern layers except the center. Show only the core central design element.
-  - User sees the starting motif they need to draw.
+  - DESCRIPTION CONSTRAINT: Describe drawing the central motif.
 
 STEP 3 - title: "First ring of repeating elements"
   - VISUAL: Remove secondary patterns. Show center + first layer of repeats (~30% complete).
-  - User sees the primary pattern they're building.
+  - DESCRIPTION CONSTRAINT: Describe adding the first layer of repeats.
 
 STEP 4 - title: "Main pattern structure visible"
   - VISUAL: Remove fine details and fills. Show ~60% of pattern without embellishments.
-  - User sees the main structure they're working toward.
+  - DESCRIPTION CONSTRAINT: Describe expanding the main structure.
 
 STEP 5 - title: "Details and fills nearly complete"
   - VISUAL: Remove only final embellishments. Show nearly complete pattern missing only finest details.
-  - User sees the nearly finished pattern needing only polish.
+  - DESCRIPTION CONSTRAINT: Describe adding fills and inner details.
 
 STEP 6 - title: "Reference image with complete pattern"
   - VISUAL: Show the nearly final result - guidelines erased, fully detailed, matching the reference.
-  - User sees their goal - the finished pattern art.
+  - DESCRIPTION CONSTRAINT: Describe final inking and erasing guidelines.
 
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;

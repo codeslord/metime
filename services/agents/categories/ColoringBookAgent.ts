@@ -67,6 +67,11 @@ The reference image shows the FULLY COLORED result. Each step removes color to s
 Step 1 = Most simplified (uncolored line art). Step 6 = Nearly identical to reference.
 Users START at Step 1 (blank line art) and work TOWARD the colorful reference image.
 
+CRITICAL INSTRUCTION - COLORING ONLY:
+- The 'description' for each step must focus ONLY on the coloring process (filling, blending, shading).
+- DO NOT describe drawing the outlines, inking, or creating the page.
+- Assume the user has a printed coloring book page ready to color.
+
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Coloring book or printed page; Colored pencils, crayons, or markers; Eraser; Blending tool or tissue (optional).
 3. Break down into EXACTLY 6 INCREMENTAL STEPS.
@@ -76,27 +81,27 @@ You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACT
 
 STEP 1 - title: "Uncolored line art ready to begin"
   - VISUAL: Remove ALL color. Show pure black and white line art on white paper.
-  - This is the starting point - user sees the blank page they'll color.
+  - DESCRIPTION CONSTRAINT: Describe the blank page ready for color. Do NOT say "Draw the lines".
 
 STEP 2 - title: "Background area lightly colored"
   - VISUAL: Remove all color except background. Show line art with only the largest background area colored.
-  - User sees the first area they should color.
+  - DESCRIPTION CONSTRAINT: Describe coloring the background.
 
 STEP 3 - title: "Main subject with base colors"
   - VISUAL: Remove secondary colors. Show background + main subject colored (~50% complete).
-  - User sees the primary coloring they need to achieve.
+  - DESCRIPTION CONSTRAINT: Describe applying base colors to the main subject.
 
 STEP 4 - title: "Most areas filled with flat color"
   - VISUAL: Remove shading and detail coloring. Show ~75% colored with flat colors, no blending.
-  - User sees the color-blocked stage they're working toward.
+  - DESCRIPTION CONSTRAINT: Describe filling remaining areas with flat color.
 
 STEP 5 - title: "All areas colored with basic shading"
   - VISUAL: Remove highlights and polish. Show fully colored but lacking final depth and highlights.
-  - User sees the nearly complete coloring needing only finishing touches.
+  - DESCRIPTION CONSTRAINT: Describe adding basic shading.
 
 STEP 6 - title: "Reference image fully colored"
   - VISUAL: Show the nearly final result with rich color, shading, and highlights - matching the reference.
-  - User sees their goal - the beautifully finished coloring.
+  - DESCRIPTION CONSTRAINT: Describe final blending and highlights.
 
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;

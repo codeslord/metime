@@ -65,6 +65,11 @@ The reference image shows the FINISHED miniature. Each step removes details to s
 Step 1 = Most simplified (raw form). Step 6 = Nearly identical to reference.
 Users START at Step 1 and work TOWARD the reference image.
 
+CRITICAL INSTRUCTION - PAINTING ONLY:
+- The 'description' for each step must focus ONLY on the visual state and the painting technique.
+- DO NOT describe how to sculpt, build, or 3D print the miniature.
+- Assume the model is already assembled and ready to paint.
+
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Miniature figure, Primer, Acrylic paints (list specific colors), Fine brushes (#0, #1, #2), Palette, Water cup, Paper towels.
 3. Break down into EXACTLY 6 INCREMENTAL STEPS.
@@ -74,27 +79,27 @@ You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACT
 
 STEP 1 - title: "Raw sculpted form without any paint"
   - VISUAL: Remove ALL paint. Show the bare unpainted clay/resin miniature in its raw material color.
-  - This is the starting point - user sees the blank form they'll transform.
+  - DESCRIPTION CONSTRAINT: Describe the unpainted surface texture and material. Do NOT say "sculpt the figure".
 
 STEP 2 - title: "Primed miniature ready for painting"
   - VISUAL: Remove all colors. Show uniform primer coat only (white/gray/black) covering the figure.
-  - User sees the primed figure that needs base colors.
+  - DESCRIPTION CONSTRAINT: Describe applying the primer coat.
 
 STEP 3 - title: "Base colors blocked in on major areas"
   - VISUAL: Remove shading, highlights, and details. Show flat base colors on skin, armor, cloth.
-  - User sees the flat colors they need to apply next.
+  - DESCRIPTION CONSTRAINT: Describe applying base colors to specific areas.
 
 STEP 4 - title: "Shading and washes applied for depth"
   - VISUAL: Remove highlights and fine details. Show base colors WITH shading/washes in recesses.
-  - User sees the shaded miniature that needs highlighting.
+  - DESCRIPTION CONSTRAINT: Describe applying washes to create shadows.
 
 STEP 5 - title: "Highlights and details nearly complete"
   - VISUAL: Remove only finishing touches (varnish, extreme highlights, eye details, weathering).
-  - User sees a nearly complete miniature missing only final polish.
+  - DESCRIPTION CONSTRAINT: Describe adding highlights and details.
 
 STEP 6 - title: "Reference image with all details visible"
   - VISUAL: Show the nearly final result matching the reference with all major work complete.
-  - User sees their goal - the finished miniature.
+  - DESCRIPTION CONSTRAINT: Describe final touches.
 
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;

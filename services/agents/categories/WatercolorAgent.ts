@@ -65,6 +65,12 @@ The reference image shows the FINISHED watercolor. Each step removes color layer
 Step 1 = Most simplified (pencil sketch only). Step 6 = Nearly identical to reference.
 Users START at Step 1 and work TOWARD the reference image.
 
+CRITICAL INSTRUCTION - PAINTING ONLY:
+- The 'description' for each step must focus ONLY on watercolor painting techniques (washes, glazing, lifting).
+- Match the wet-on-wet or wet-on-dry process.
+- DO NOT describe manufacturing paper or stretching canvas.
+- Assume the paper is stretched and ready.
+
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Watercolor paper (cold press), Watercolor paints (list specific colors), Round brushes (various sizes), Flat wash brush, Water containers (2), Paper towels, Masking tape, Palette.
 3. Break down into EXACTLY 6 INCREMENTAL STEPS.
@@ -74,27 +80,27 @@ You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACT
 
 STEP 1 - title: "Pencil sketch on blank paper"
   - VISUAL: Remove ALL color. Show only a light pencil outline sketch on white watercolor paper.
-  - This is the starting point - user sees the composition they'll paint.
+  - DESCRIPTION CONSTRAINT: Describe the pencil sketch composition.
 
 STEP 2 - title: "First light wash in background"
   - VISUAL: Remove all color layers except one pale background wash. Show sketch with single diluted color.
-  - User sees the first wet-on-wet wash they need to apply.
+  - DESCRIPTION CONSTRAINT: Describe applying the initial background wash.
 
 STEP 3 - title: "Base washes on all major areas"
   - VISUAL: Remove all layering. Show first wash layer on each major area - palest version of each color.
-  - User sees the initial color mapping they need to achieve.
+  - DESCRIPTION CONSTRAINT: Describe applying base washes to subjects.
 
 STEP 4 - title: "Second layer building depth"
   - VISUAL: Remove 3rd and 4th layers. Show two layers of washes - beginning to have depth but not saturated.
-  - User sees the mid-stage painting they're working toward.
+  - DESCRIPTION CONSTRAINT: Describe layering specifically for depth.
 
 STEP 5 - title: "Rich layers with emerging details"
   - VISUAL: Remove fine details and final touches. Show most color layers but lacking crisp details and darkest values.
-  - User sees the nearly complete painting missing only finishing work.
+  - DESCRIPTION CONSTRAINT: Describe adding richer colors and definition.
 
 STEP 6 - title: "Reference image with all layers visible"
   - VISUAL: Show the nearly final result with all color layers - matching the reference painting.
-  - User sees their goal - the finished watercolor.
+  - DESCRIPTION CONSTRAINT: Describe final details and textures.
 
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;

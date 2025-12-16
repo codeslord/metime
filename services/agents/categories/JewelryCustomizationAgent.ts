@@ -65,6 +65,11 @@ The reference image shows the FINISHED customized jewelry. Each step removes dec
 Step 1 = Most simplified (plain jewelry). Step 6 = Nearly identical to reference.
 Users START at Step 1 and work TOWARD the reference image.
 
+CRITICAL INSTRUCTION - CUSTOMIZATION ONLY:
+- The 'description' for each step must focus ONLY on customizing, painting, or setting the jewelry piece.
+- DO NOT describe metalworking, casting, soldering, or manufacturing the base piece.
+- Assume the user has the plain jewelry piece ready to customize.
+
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Jewelry piece (to customize), Fine detail brushes (#0, #00), Enamel or acrylic paints (list colors), Jewelry primer, Clear sealant, Magnifying glass or loupe, Cleaning supplies, Toothpicks for detail work.
 3. Break down into EXACTLY 6 INCREMENTAL STEPS.
@@ -74,27 +79,27 @@ You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACT
 
 STEP 1 - title: "Plain jewelry piece uncustomized"
   - VISUAL: Remove ALL customization. Show the original plain jewelry surface.
-  - This is the starting point - user sees the blank piece they'll decorate.
+  - DESCRIPTION CONSTRAINT: Describe prepping the plain piece. Do NOT say "Cast the ring".
 
 STEP 2 - title: "Primed and ready for painting"
   - VISUAL: Remove all color. Show jewelry with primer applied to customization areas.
-  - User sees the prepared surface ready for base colors.
+  - DESCRIPTION CONSTRAINT: Describe applying primer to area.
 
 STEP 3 - title: "Base colors applied to design areas"
   - VISUAL: Remove all detail work. Show flat base colors on painted areas.
-  - User sees the color foundation they need to apply.
+  - DESCRIPTION CONSTRAINT: Describe applying base colors.
 
 STEP 4 - title: "Pattern and details painted"
   - VISUAL: Remove accents and dimension. Show base pattern painted but lacking polish.
-  - User sees the detailed painting they're working toward.
+  - DESCRIPTION CONSTRAINT: Describe painting the pattern.
 
 STEP 5 - title: "Accents and dimension nearly complete"
   - VISUAL: Remove final polish and sealing. Show nearly complete customization.
-  - User sees the nearly finished jewelry needing only final touches.
+  - DESCRIPTION CONSTRAINT: Describe adding details and accents.
 
 STEP 6 - title: "Reference image with complete customization"
   - VISUAL: Show the nearly final result - sealed and polished, matching the reference.
-  - User sees their goal - the finished customized jewelry.
+  - DESCRIPTION CONSTRAINT: Describe final touches and sealant.
 
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;

@@ -65,6 +65,11 @@ The reference image shows the FINISHED decorated vase. Each step removes decorat
 Step 1 = Most simplified (plain vase). Step 6 = Nearly identical to reference.
 Users START at Step 1 and work TOWARD the reference image.
 
+CRITICAL INSTRUCTION - DECORATION ONLY:
+- The 'description' for each step must focus ONLY on painting or decorating the vase.
+- DO NOT describe throwing clay, firing a kiln, or manufacturing the vase.
+- Assume the vase is already purchased and ready to decorate.
+
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Plain ceramic or glass vase, Acrylic or enamel paints (list colors), Fine brushes, Palette, Painter's tape, Rubbing alcohol (for prep), Clear sealant.
 3. Break down into EXACTLY 6 INCREMENTAL STEPS.
@@ -74,27 +79,27 @@ You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACT
 
 STEP 1 - title: "Plain vase with no decoration"
   - VISUAL: Remove ALL decoration. Show the clean, plain vase surface with no paint.
-  - This is the starting point - user sees the blank vase they'll decorate.
+  - DESCRIPTION CONSTRAINT: Describe prepping the clean vase. Do NOT say "Make the vase".
 
 STEP 2 - title: "Base coat applied to vase"
   - VISUAL: Remove all design. Show vase with only solid background/base color.
-  - User sees the base layer they need to apply.
+  - DESCRIPTION CONSTRAINT: Describe applying the base coat.
 
 STEP 3 - title: "Design outline sketched on base"
   - VISUAL: Remove all filled painting. Show base coat + faint design outline only.
-  - User sees the pattern they need to sketch.
+  - DESCRIPTION CONSTRAINT: Describe sketching the design on the vase.
 
 STEP 4 - title: "Main design elements painted"
   - VISUAL: Remove accents and highlights. Show primary design painted but lacking detail.
-  - User sees the main painting they're working toward.
+  - DESCRIPTION CONSTRAINT: Describe painting the main elements.
 
 STEP 5 - title: "Details and accents nearly complete"
   - VISUAL: Remove final polish and sealant sheen. Show nearly complete decoration.
-  - User sees the nearly finished vase needing only final touches.
+  - DESCRIPTION CONSTRAINT: Describe adding details and accents.
 
 STEP 6 - title: "Reference image with complete decoration"
   - VISUAL: Show the nearly final result - sealed and polished, matching the reference.
-  - User sees their goal - the finished decorated vase.
+  - DESCRIPTION CONSTRAINT: Describe final touches and sealing.
 
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;

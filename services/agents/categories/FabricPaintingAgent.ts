@@ -65,6 +65,11 @@ The reference image shows the FINISHED fabric painting. Each step removes paint 
 Step 1 = Most simplified (blank fabric). Step 6 = Nearly identical to reference.
 Users START at Step 1 and work TOWARD the reference image.
 
+CRITICAL INSTRUCTION - DECORATION ONLY:
+- The 'description' for each step must focus ONLY on painting or decorating the fabric surface.
+- DO NOT describe sewing, cutting, or making the shirt/bag/fabric item itself.
+- Assume the fabric item is already sewn and ready to decorate.
+
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Plain fabric item, Fabric paints (list specific colors), Fabric medium, Brushes, Palette, Stencils or transfer paper, Painter's tape, Iron for heat-setting.
 3. Break down into EXACTLY 6 INCREMENTAL STEPS.
@@ -74,27 +79,27 @@ You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACT
 
 STEP 1 - title: "Plain fabric ready for painting"
   - VISUAL: Remove ALL paint. Show the blank, unpainted fabric surface.
-  - This is the starting point - user sees the clean fabric they'll decorate.
+  - DESCRIPTION CONSTRAINT: Describe prepping the fabric item. Do NOT say "Sew the bag".
 
 STEP 2 - title: "Design outline sketched on fabric"
   - VISUAL: Remove all color. Show only faint pencil or chalk outline on plain fabric.
-  - User sees the pattern they need to transfer.
+  - DESCRIPTION CONSTRAINT: Describe transferring the design outline.
 
 STEP 3 - title: "Large areas filled with base colors"
   - VISUAL: Remove all detail colors. Show main shapes blocked in with flat base colors.
-  - User sees the primary color areas they need to fill.
+  - DESCRIPTION CONSTRAINT: Describe painting base layers.
 
 STEP 4 - title: "Secondary colors and patterns added"
   - VISUAL: Remove outlines and accents. Show base + secondary colors but lacking definition.
-  - User sees the mid-stage painting they're working toward.
+  - DESCRIPTION CONSTRAINT: Describe adding secondary colors.
 
 STEP 5 - title: "Outlines and dimension nearly complete"
   - VISUAL: Remove final accents only. Show nearly complete design missing only highlights and polish.
-  - User sees the nearly finished fabric needing final touches.
+  - DESCRIPTION CONSTRAINT: Describe adding definition and details.
 
 STEP 6 - title: "Reference image with complete design"
   - VISUAL: Show the nearly final result - heat-set and complete, matching the reference.
-  - User sees their goal - the finished fabric painting.
+  - DESCRIPTION CONSTRAINT: Describe final touches and heat setting.
 
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;

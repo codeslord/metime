@@ -65,6 +65,11 @@ The reference image shows the FINISHED character design. Each step removes rende
 Step 1 = Most simplified (rough silhouettes). Step 6 = Nearly identical to reference.
 Users START at Step 1 and work TOWARD the reference image.
 
+CRITICAL INSTRUCTION - CONCEPT ART ONLY:
+- The 'description' for each step must focus on the design and illustration process (sketching, coloring, rendering).
+- DO NOT describe 3D modeling, rigging, texturing a 3D mesh, or coding the character behavior.
+- Use terms like "sketch", "line art", "rendering", "paint".
+
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Sketchbook or digital tablet, Pencils or stylus, Drawing software (if digital), Reference images, Color palette swatches, Character design references.
 3. Break down into EXACTLY 6 INCREMENTAL STEPS.
@@ -74,27 +79,27 @@ You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACT
 
 STEP 1 - title: "Rough silhouette thumbnails"
   - VISUAL: Remove ALL rendering and detail. Show only rough thumbnail silhouettes or gesture sketches.
-  - This is the starting point - user sees basic shape exploration.
+  - DESCRIPTION CONSTRAINT: Describe sketching thumbnails to explore shapes.
 
 STEP 2 - title: "Basic proportions and anatomy"
   - VISUAL: Remove all color and detail. Show structural sketch with proportions - mannequin level.
-  - User sees the body structure they need to establish.
+  - DESCRIPTION CONSTRAINT: Describe blocking out anatomy constraints.
 
 STEP 3 - title: "Rough sketch with costume shapes"
   - VISUAL: Remove colors and polish. Show loose sketch with costume elements indicated.
-  - User sees the rough design they need to sketch.
+  - DESCRIPTION CONSTRAINT: Describe roughing in costume elements.
 
 STEP 4 - title: "Clean linework with all details"
   - VISUAL: Remove all color. Show clean, refined linework with complete design details.
-  - User sees the line drawing they're working toward.
+  - DESCRIPTION CONSTRAINT: Describe creating the clean line art.
 
 STEP 5 - title: "Flat colors and basic shading"
   - VISUAL: Remove final rendering polish. Show flat colors with basic shading applied.
-  - User sees the colored character needing final rendering.
+  - DESCRIPTION CONSTRAINT: Describe applying flat colors and basic light.
 
 STEP 6 - title: "Reference image fully rendered"
   - VISUAL: Show the nearly final result - fully rendered, matching the reference design.
-  - User sees their goal - the polished character design.
+  - DESCRIPTION CONSTRAINT: Describe final material rendering and effects.
 
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;

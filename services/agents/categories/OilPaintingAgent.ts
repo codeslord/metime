@@ -65,6 +65,11 @@ The reference image shows the FINISHED oil painting. Each step removes paint lay
 Step 1 = Most simplified (sketch on canvas). Step 6 = Nearly identical to reference.
 Users START at Step 1 and work TOWARD the reference image.
 
+CRITICAL INSTRUCTION - PAINTING ONLY:
+- The 'description' for each step must focus on oil painting techniques (underpainting, blocking, glazing).
+- DO NOT describe building the canvas frame, stretching canvas, or framing the art.
+- Assume the canvas is primed and ready.
+
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Primed canvas, Oil paints (list specific colors), Hog bristle brushes (various sizes), Palette knife, Wooden palette, Linseed oil medium, Turpentine or odorless mineral spirits, Rags, Easel.
 3. Break down into EXACTLY 6 INCREMENTAL STEPS.
@@ -74,27 +79,27 @@ You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACT
 
 STEP 1 - title: "Charcoal sketch on primed canvas"
   - VISUAL: Remove ALL paint. Show only composition sketch lines on primed white/toned canvas.
-  - This is the starting point - user sees the drawing they'll paint over.
+  - DESCRIPTION CONSTRAINT: Describe sketching the composition.
 
 STEP 2 - title: "Monochrome underpainting for values"
   - VISUAL: Remove all color. Show only umber or gray monochrome underpainting establishing lights and darks.
-  - User sees the value structure they need to create.
+  - DESCRIPTION CONSTRAINT: Describe establishing values with underpainting.
 
 STEP 3 - title: "Flat local colors blocked in"
   - VISUAL: Remove all blending and detail. Show flat color shapes over the underpainting - no modeling.
-  - User sees the color map they need to block in.
+  - DESCRIPTION CONSTRAINT: Describe blocking in main colors.
 
 STEP 4 - title: "Forms modeled with basic values"
   - VISUAL: Remove glazes and fine details. Show colors with basic modeling but lacking rich depth.
-  - User sees the mid-stage painting they're working toward.
+  - DESCRIPTION CONSTRAINT: Describe modeling the forms.
 
 STEP 5 - title: "Details and impasto nearly complete"
   - VISUAL: Remove only final glazes and finishing. Show well-developed painting missing luminosity and final touches.
-  - User sees the nearly complete painting needing only polish.
+  - DESCRIPTION CONSTRAINT: Describe adding texture and details.
 
 STEP 6 - title: "Reference image with full depth visible"
   - VISUAL: Show the nearly final result with rich glazing and depth - matching the reference.
-  - User sees their goal - the finished oil painting.
+  - DESCRIPTION CONSTRAINT: Describe final glazing and highlights.
 
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;
