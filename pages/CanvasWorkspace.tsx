@@ -2346,7 +2346,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
       console.log('Craft to dissect:', promptContext);
       console.log('Sending to AI for instructions...\n');
 
-      const dissection = await dissectCraft(imageUrl, promptContext);
+      const dissection = await dissectCraft(imageUrl, promptContext, category);
 
       console.log('\n📊 === AI OUTPUT DEBUG ===');
       console.log('Complexity:', dissection.complexity);

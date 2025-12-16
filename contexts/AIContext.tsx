@@ -131,7 +131,8 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
     dispatch({ type: 'START_GENERATION' });
 
     try {
-      const masterImageUrl = await generateCraftImage(prompt, category);
+      const result = await generateCraftImage(prompt, category);
+      const masterImageUrl = result.imageUrl;
 
       const project: Project = {
         id: `project-${Date.now()}`,
@@ -165,7 +166,8 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
     try {
       const dissection = await dissectCraft(
         state.currentProject.masterImageUrl,
-        state.currentProject.prompt
+        state.currentProject.prompt,
+        state.currentProject.category
       );
 
       dispatch({ type: 'DISSECTION_SUCCESS', payload: { dissection } });
@@ -192,15 +194,23 @@ export const AIProvider: React.FC<AIProviderProps> = ({ children }) => {
     // Generate step images sequentially
     for (const step of dissection.steps) {
       try {
-        const stepImageUrl = await generateStepImage(
-          masterImageUrl,
+        // Mock values for required params that aren't stored in simple context Project yet
+        // In a full implementation, we'd store the master seed and structured prompt
+        const masterSeed = 12345;
+        const masterStructuredPrompt = {};
+
+        const result = await generateStepImage(
+          masterSeed,
           step.description,
+          masterStructuredPrompt,
+          step.stepNumber,
+          dissection.steps.length,
           category
         );
 
         dispatch({
           type: 'UPDATE_STEP_IMAGE',
-          payload: { stepNumber: step.stepNumber, imageUrl: stepImageUrl },
+          payload: { stepNumber: step.stepNumber, imageUrl: result.imageUrl },
         });
       } catch (error) {
         console.error(`Failed to generate image for step ${step.stepNumber}:`, error);

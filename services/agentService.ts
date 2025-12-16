@@ -132,10 +132,12 @@ export const dissectSelectedObject = async (
  */
 export const dissectCraft = async (
   imageBase64: string,
-  userPrompt: string
+  userPrompt: string,
+  category: CraftCategory
 ): Promise<DissectionResponse> => {
   return orchestrator.dispatch('dissect_craft', {
     imageBase64,
-    userPrompt
+    userPrompt,
+    category
   });
 };
