@@ -7,17 +7,17 @@ import { CategoryAgentBase } from '../CategoryAgentBase';
  * Focuses on the deeply meditative nature of repetitive pattern creation.
  */
 export class PatternArtAgent extends CategoryAgentBase {
-    readonly category = ActivityCategory.PATTERN_ART;
+  readonly category = ActivityCategory.PATTERN_ART;
 
-    readonly card: AgentCard = {
-        name: 'PatternArtAgent',
-        version: '1.0.0',
-        description: 'Specialized agent for pattern art including mandalas, fractals, zen doodles, and geometric designs.',
-        capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.PATTERN_ART)
-    };
+  readonly card: AgentCard = {
+    name: 'PatternArtAgent',
+    version: '1.0.0',
+    description: 'Specialized agent for pattern art including mandalas, fractals, zen doodles, and geometric designs.',
+    capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.PATTERN_ART)
+  };
 
-    protected getMasterImagePrompt(userPrompt: string): string {
-        return `
+  protected getMasterImagePrompt(userPrompt: string): string {
+    return `
 Create a high-quality illustration of intricate pattern art: ${userPrompt}.
 Category: Pattern Art (Mandala/Fractal/Zen/Geometric).
 Style:
@@ -29,10 +29,10 @@ Style:
 View: Flat, centered composition showing the complete pattern.
 Background: Clean white or subtle neutral.
 `;
-    }
+  }
 
-    protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
-        return `
+  protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
+    return `
 🎯 YOUR TASK: Generate a MULTI-PANEL PATTERN ART TUTORIAL.
 📷 REFERENCE IMAGE: This is the FINISHED pattern artwork.
 ${targetObjectLabel ? `🎨 SUBJECT: ${targetObjectLabel}` : ''}
@@ -53,50 +53,55 @@ STYLE REQUIREMENTS:
 - Progress from structure to intricate detail
 - Match the pattern style of the reference EXACTLY
 `;
-    }
+  }
 
-    protected getDissectionPrompt(userPrompt: string): string {
-        return `
-You are an expert pattern artist analyzing this image: "${userPrompt}".
-YOUR TASK: Create step-by-step instructions to CREATE this pattern art.
+  protected getDissectionPrompt(userPrompt: string): string {
+    return `
+You are an expert pattern artist analyzing this REFERENCE image: "${userPrompt}".
+YOUR TASK: Create 6 INCREMENTAL STEPS that show progressive simplification FROM the reference.
+
+🎯 INCREMENTAL REVEAL APPROACH:
+The reference image shows the FINISHED pattern art. Each step removes pattern elements to show an earlier stage.
+Step 1 = Most simplified (geometric guidelines only). Step 6 = Nearly identical to reference.
+Users START at Step 1 and work TOWARD the reference image.
 
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Quality drawing paper, Fine-tip pens (various sizes), Ruler, Compass, Protractor, Pencil, Eraser, Markers or colored pens (if colored).
-3. Break down into EXACTLY 6 PROGRESSIVE STEPS.
+3. Break down into EXACTLY 6 INCREMENTAL STEPS.
 
-🚨 MANDATORY 6-STEP PROGRESSION 🚨
+🚨 MANDATORY 6-STEP INCREMENTAL REVEAL 🚨
 You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACTLY as written below:
 
-STEP 1 - title: "Create the geometric framework"
-  - VISUAL: Light guidelines showing structure (circles, grid, etc.).
-  - Action: Draw light pencil guidelines for symmetry.
+STEP 1 - title: "Geometric framework and guidelines"
+  - VISUAL: Remove ALL drawn patterns. Show only faint construction lines (circles, grids, guidelines).
+  - This is the starting point - user sees the structural foundation.
 
-STEP 2 - title: "Establish the central pattern"
-  - VISUAL: Core pattern or central motif drawn.
-  - Action: Begin with center design, work outward.
+STEP 2 - title: "Central motif established"
+  - VISUAL: Remove all pattern layers except the center. Show only the core central design element.
+  - User sees the starting motif they need to draw.
 
-STEP 3 - title: "Add the first layer of repeating elements"
-  - VISUAL: Primary repeating patterns visible.
-  - Action: Draw first ring of repeating elements.
+STEP 3 - title: "First ring of repeating elements"
+  - VISUAL: Remove secondary patterns. Show center + first layer of repeats (~30% complete).
+  - User sees the primary pattern they're building.
 
-STEP 4 - title: "Build complexity with secondary patterns"
-  - VISUAL: Additional pattern layers added.
-  - Action: Fill spaces with secondary patterns.
+STEP 4 - title: "Main pattern structure visible"
+  - VISUAL: Remove fine details and fills. Show ~60% of pattern without embellishments.
+  - User sees the main structure they're working toward.
 
-STEP 5 - title: "Add fine details and embellishments"
-  - VISUAL: Intricate details filling all spaces.
-  - Action: Add dots, small shapes, fine lines.
+STEP 5 - title: "Details and fills nearly complete"
+  - VISUAL: Remove only final embellishments. Show nearly complete pattern missing only finest details.
+  - User sees the nearly finished pattern needing only polish.
 
-STEP 6 - title: "Finalize and clean up lines"
-  - VISUAL: FINISHED pattern art, guidelines erased, EXACT match to master.
-  - Action: Erase guidelines, thicken important lines, add color if desired.
+STEP 6 - title: "Reference image with complete pattern"
+  - VISUAL: Show the nearly final result - guidelines erased, fully detailed, matching the reference.
+  - User sees their goal - the finished pattern art.
 
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;
-    }
+  }
 
-    protected getPatternSheetPrompt(craftLabel?: string): string {
-        return `
+  protected getPatternSheetPrompt(craftLabel?: string): string {
+    return `
 🎯 YOUR TASK: Create a PATTERN BREAKDOWN for this artwork.
 📷 REFERENCE IMAGE: Finished pattern art.
 ${craftLabel ? `🎨 SUBJECT: ${craftLabel}` : ''}
@@ -115,5 +120,5 @@ OUTPUT FORMAT:
 - Clean instructional style
 - Suitable for pattern recreation
 `;
-    }
+  }
 }

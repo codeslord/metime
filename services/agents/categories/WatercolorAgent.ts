@@ -7,17 +7,17 @@ import { CategoryAgentBase } from '../CategoryAgentBase';
  * Focuses on the flowing, meditative nature of watercolor techniques.
  */
 export class WatercolorAgent extends CategoryAgentBase {
-    readonly category = ActivityCategory.WATERCOLOR;
+  readonly category = ActivityCategory.WATERCOLOR;
 
-    readonly card: AgentCard = {
-        name: 'WatercolorAgent',
-        version: '1.0.0',
-        description: 'Specialized agent for watercolor painting with focus on wet-on-wet, blending, and wash techniques.',
-        capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.WATERCOLOR)
-    };
+  readonly card: AgentCard = {
+    name: 'WatercolorAgent',
+    version: '1.0.0',
+    description: 'Specialized agent for watercolor painting with focus on wet-on-wet, blending, and wash techniques.',
+    capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.WATERCOLOR)
+  };
 
-    protected getMasterImagePrompt(userPrompt: string): string {
-        return `
+  protected getMasterImagePrompt(userPrompt: string): string {
+    return `
 Create a high-quality photograph of a beautiful watercolor painting: ${userPrompt}.
 Category: Watercolor Painting.
 Style:
@@ -29,10 +29,10 @@ Style:
 View: Flat, top-down view of the painting on a clean surface.
 Lighting: Natural lighting that shows the watercolor translucency.
 `;
-    }
+  }
 
-    protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
-        return `
+  protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
+    return `
 🎯 YOUR TASK: Generate a MULTI-PANEL WATERCOLOR PAINTING TUTORIAL.
 📷 REFERENCE IMAGE: This is the FINISHED watercolor painting.
 ${targetObjectLabel ? `🎨 SUBJECT: ${targetObjectLabel}` : ''}
@@ -53,50 +53,55 @@ STYLE REQUIREMENTS:
 - Progress from light washes to detailed layers
 - Match the color palette of the reference EXACTLY
 `;
-    }
+  }
 
-    protected getDissectionPrompt(userPrompt: string): string {
-        return `
-You are an expert watercolor artist analyzing this image: "${userPrompt}".
-YOUR TASK: Create step-by-step instructions to PAINT this watercolor.
+  protected getDissectionPrompt(userPrompt: string): string {
+    return `
+You are an expert watercolor artist analyzing this REFERENCE image: "${userPrompt}".
+YOUR TASK: Create 6 INCREMENTAL STEPS that show progressive simplification FROM the reference.
+
+🎯 INCREMENTAL REVEAL APPROACH:
+The reference image shows the FINISHED watercolor. Each step removes color layers to show an earlier stage.
+Step 1 = Most simplified (pencil sketch only). Step 6 = Nearly identical to reference.
+Users START at Step 1 and work TOWARD the reference image.
 
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Watercolor paper (cold press), Watercolor paints (list specific colors), Round brushes (various sizes), Flat wash brush, Water containers (2), Paper towels, Masking tape, Palette.
-3. Break down into EXACTLY 6 PROGRESSIVE STEPS.
+3. Break down into EXACTLY 6 INCREMENTAL STEPS.
 
-🚨 MANDATORY 6-STEP PROGRESSION 🚨
+🚨 MANDATORY 6-STEP INCREMENTAL REVEAL 🚨
 You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACTLY as written below:
 
-STEP 1 - title: "Prepare paper and sketch lightly"
-  - VISUAL: Taped paper with very light pencil sketch.
-  - Action: Tape paper down, sketch subject lightly.
+STEP 1 - title: "Pencil sketch on blank paper"
+  - VISUAL: Remove ALL color. Show only a light pencil outline sketch on white watercolor paper.
+  - This is the starting point - user sees the composition they'll paint.
 
-STEP 2 - title: "Apply initial washes for background"
-  - VISUAL: Soft background wash visible.
-  - Action: Wet paper, apply light background washes.
+STEP 2 - title: "First light wash in background"
+  - VISUAL: Remove all color layers except one pale background wash. Show sketch with single diluted color.
+  - User sees the first wet-on-wet wash they need to apply.
 
-STEP 3 - title: "Build up main shapes with color"
-  - VISUAL: Primary shapes blocked in with base colors.
-  - Action: Apply base colors to main elements while wet.
+STEP 3 - title: "Base washes on all major areas"
+  - VISUAL: Remove all layering. Show first wash layer on each major area - palest version of each color.
+  - User sees the initial color mapping they need to achieve.
 
-STEP 4 - title: "Add depth with secondary layers"
-  - VISUAL: More saturated areas and shadows added.
-  - Action: Layer colors for depth, let layers dry between.
+STEP 4 - title: "Second layer building depth"
+  - VISUAL: Remove 3rd and 4th layers. Show two layers of washes - beginning to have depth but not saturated.
+  - User sees the mid-stage painting they're working toward.
 
-STEP 5 - title: "Paint fine details and accents"
-  - VISUAL: Details and small elements added.
-  - Action: Use fine brush for details when paper is dry.
+STEP 5 - title: "Rich layers with emerging details"
+  - VISUAL: Remove fine details and final touches. Show most color layers but lacking crisp details and darkest values.
+  - User sees the nearly complete painting missing only finishing work.
 
-STEP 6 - title: "Final touches and remove tape"
-  - VISUAL: FINISHED painting, tape removed, EXACT match to master.
-  - Action: Add final highlights, let dry, carefully remove tape.
+STEP 6 - title: "Reference image with all layers visible"
+  - VISUAL: Show the nearly final result with all color layers - matching the reference painting.
+  - User sees their goal - the finished watercolor.
 
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;
-    }
+  }
 
-    protected getPatternSheetPrompt(craftLabel?: string): string {
-        return `
+  protected getPatternSheetPrompt(craftLabel?: string): string {
+    return `
 🎯 YOUR TASK: Create a PAINTING GUIDE for this watercolor.
 📷 REFERENCE IMAGE: Finished watercolor painting.
 ${craftLabel ? `🎨 SUBJECT: ${craftLabel}` : ''}
@@ -115,5 +120,5 @@ OUTPUT FORMAT:
 - Clean instructional style
 - Suitable for beginner watercolorists
 `;
-    }
+  }
 }

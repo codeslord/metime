@@ -7,17 +7,17 @@ import { CategoryAgentBase } from '../CategoryAgentBase';
  * Focuses on calming floral themes and nature-inspired designs.
  */
 export class FlowerVaseAgent extends CategoryAgentBase {
-    readonly category = ActivityCategory.FLOWER_VASE;
+  readonly category = ActivityCategory.FLOWER_VASE;
 
-    readonly card: AgentCard = {
-        name: 'FlowerVaseAgent',
-        version: '1.0.0',
-        description: 'Specialized agent for flower vase customization including hand-painting and decoupage.',
-        capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.FLOWER_VASE)
-    };
+  readonly card: AgentCard = {
+    name: 'FlowerVaseAgent',
+    version: '1.0.0',
+    description: 'Specialized agent for flower vase customization including hand-painting and decoupage.',
+    capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.FLOWER_VASE)
+  };
 
-    protected getMasterImagePrompt(userPrompt: string): string {
-        return `
+  protected getMasterImagePrompt(userPrompt: string): string {
+    return `
 Create a high-quality photograph of a beautifully customized flower vase: ${userPrompt}.
 Category: Flower Vase Customization.
 Style:
@@ -29,10 +29,10 @@ Style:
 View: Three-quarter angle showing the vase shape and painted design.
 Lighting: Soft, diffused lighting that highlights the painted details.
 `;
-    }
+  }
 
-    protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
-        return `
+  protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
+    return `
 🎯 YOUR TASK: Generate a MULTI-PANEL VASE CUSTOMIZATION TUTORIAL.
 📷 REFERENCE IMAGE: This is the FINISHED decorated vase.
 ${targetObjectLabel ? `🎨 SUBJECT: ${targetObjectLabel}` : ''}
@@ -53,50 +53,55 @@ STYLE REQUIREMENTS:
 - Progress from base to detailed decoration
 - Match the design style of the reference EXACTLY
 `;
-    }
+  }
 
-    protected getDissectionPrompt(userPrompt: string): string {
-        return `
-You are an expert decorative artist analyzing this image: "${userPrompt}".
-YOUR TASK: Create step-by-step instructions to DECORATE this vase.
+  protected getDissectionPrompt(userPrompt: string): string {
+    return `
+You are an expert decorative artist analyzing this REFERENCE image: "${userPrompt}".
+YOUR TASK: Create 6 INCREMENTAL STEPS that show progressive simplification FROM the reference.
+
+🎯 INCREMENTAL REVEAL APPROACH:
+The reference image shows the FINISHED decorated vase. Each step removes decoration to show an earlier stage.
+Step 1 = Most simplified (plain vase). Step 6 = Nearly identical to reference.
+Users START at Step 1 and work TOWARD the reference image.
 
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Plain ceramic or glass vase, Acrylic or enamel paints (list colors), Fine brushes, Palette, Painter's tape, Rubbing alcohol (for prep), Clear sealant.
-3. Break down into EXACTLY 6 PROGRESSIVE STEPS.
+3. Break down into EXACTLY 6 INCREMENTAL STEPS.
 
-🚨 MANDATORY 6-STEP PROGRESSION 🚨
+🚨 MANDATORY 6-STEP INCREMENTAL REVEAL 🚨
 You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACTLY as written below:
 
-STEP 1 - title: "Clean and prepare the vase surface"
-  - VISUAL: Clean, plain vase ready for painting.
-  - Action: Wipe with alcohol, let dry completely.
+STEP 1 - title: "Plain vase with no decoration"
+  - VISUAL: Remove ALL decoration. Show the clean, plain vase surface with no paint.
+  - This is the starting point - user sees the blank vase they'll decorate.
 
-STEP 2 - title: "Apply base coat or background color"
-  - VISUAL: Vase with base color layer.
-  - Action: Apply even base coat, allow to dry.
+STEP 2 - title: "Base coat applied to vase"
+  - VISUAL: Remove all design. Show vase with only solid background/base color.
+  - User sees the base layer they need to apply.
 
-STEP 3 - title: "Sketch or transfer the design"
-  - VISUAL: Faint outline of design visible.
-  - Action: Lightly sketch design or use transfer method.
+STEP 3 - title: "Design outline sketched on base"
+  - VISUAL: Remove all filled painting. Show base coat + faint design outline only.
+  - User sees the pattern they need to sketch.
 
-STEP 4 - title: "Paint main design elements"
-  - VISUAL: Primary design painted on vase.
-  - Action: Paint the main floral or decorative elements.
+STEP 4 - title: "Main design elements painted"
+  - VISUAL: Remove accents and highlights. Show primary design painted but lacking detail.
+  - User sees the main painting they're working toward.
 
-STEP 5 - title: "Add details and accents"
-  - VISUAL: Fine details, highlights, and accents added.
-  - Action: Paint small details, add dimension and interest.
+STEP 5 - title: "Details and accents nearly complete"
+  - VISUAL: Remove final polish and sealant sheen. Show nearly complete decoration.
+  - User sees the nearly finished vase needing only final touches.
 
-STEP 6 - title: "Seal and finish"
-  - VISUAL: FINISHED vase, sealed and polished, EXACT match to master.
-  - Action: Apply clear sealant, let cure completely.
+STEP 6 - title: "Reference image with complete decoration"
+  - VISUAL: Show the nearly final result - sealed and polished, matching the reference.
+  - User sees their goal - the finished decorated vase.
 
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;
-    }
+  }
 
-    protected getPatternSheetPrompt(craftLabel?: string): string {
-        return `
+  protected getPatternSheetPrompt(craftLabel?: string): string {
+    return `
 🎯 YOUR TASK: Create a DESIGN TEMPLATE for this vase decoration.
 📷 REFERENCE IMAGE: Finished decorated vase.
 ${craftLabel ? `🎨 SUBJECT: ${craftLabel}` : ''}
@@ -115,5 +120,5 @@ OUTPUT FORMAT:
 - Clean instructional style
 - Traceable pattern quality
 `;
-    }
+  }
 }

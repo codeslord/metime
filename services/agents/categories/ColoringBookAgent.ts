@@ -59,50 +59,44 @@ STYLE REQUIREMENTS:
 
   protected getDissectionPrompt(userPrompt: string): string {
     return `
-You are an expert colorist analyzing this coloring page: "${userPrompt}".
-YOUR TASK: Create step-by-step instructions to progressively COLOR this line art design.
+You are an expert colorist analyzing this REFERENCE image: "${userPrompt}".
+YOUR TASK: Create 6 INCREMENTAL STEPS that show progressive simplification FROM the reference.
 
-CRITICAL: Each step will REFINE the previous step's image, adding MORE color progressively.
-- Step 1 starts from the black and white line art
-- Each subsequent step adds more color to the previous step's output
-- Step 6 should be the fully colored final result
+🎯 INCREMENTAL REVEAL APPROACH:
+The reference image shows the FULLY COLORED result. Each step removes color to show an earlier stage.
+Step 1 = Most simplified (uncolored line art). Step 6 = Nearly identical to reference.
+Users START at Step 1 (blank line art) and work TOWARD the colorful reference image.
 
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Coloring book or printed page; Colored pencils, crayons, or markers; Eraser; Blending tool or tissue (optional).
-3. Break down into EXACTLY 6 PROGRESSIVE STEPS.
+3. Break down into EXACTLY 6 INCREMENTAL STEPS.
 
-🚨 MANDATORY 6-STEP PROGRESSION 🚨
+🚨 MANDATORY 6-STEP INCREMENTAL REVEAL 🚨
 You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACTLY as written below:
 
-STEP 1 - title: "Begin with the main background color"
-  - VISUAL: Line art with ONLY the background area lightly colored.
-  - Action: Apply a light, even base to the largest background area.
-  - REFINES: Master line art (black and white)
+STEP 1 - title: "Uncolored line art ready to begin"
+  - VISUAL: Remove ALL color. Show pure black and white line art on white paper.
+  - This is the starting point - user sees the blank page they'll color.
 
-STEP 2 - title: "Color the primary subject's base"
-  - VISUAL: Background colored + main subject has base colors.
-  - Action: Add flat base colors to the main focal point.
-  - REFINES: Step 1 output
+STEP 2 - title: "Background area lightly colored"
+  - VISUAL: Remove all color except background. Show line art with only the largest background area colored.
+  - User sees the first area they should color.
 
-STEP 3 - title: "Add secondary element colors"
-  - VISUAL: More elements now have color (about 50% colored).
-  - Action: Color secondary subjects and supporting elements.
-  - REFINES: Step 2 output
+STEP 3 - title: "Main subject with base colors"
+  - VISUAL: Remove secondary colors. Show background + main subject colored (~50% complete).
+  - User sees the primary coloring they need to achieve.
 
-STEP 4 - title: "Fill in remaining details"
-  - VISUAL: Most areas now colored (about 75% complete).
-  - Action: Color small details, patterns, and accents.
-  - REFINES: Step 3 output
+STEP 4 - title: "Most areas filled with flat color"
+  - VISUAL: Remove shading and detail coloring. Show ~75% colored with flat colors, no blending.
+  - User sees the color-blocked stage they're working toward.
 
-STEP 5 - title: "Add shading and depth"
-  - VISUAL: All areas colored with shadows and dimension.
-  - Action: Add darker tones for shading, blend colors.
-  - REFINES: Step 4 output
+STEP 5 - title: "All areas colored with basic shading"
+  - VISUAL: Remove highlights and polish. Show fully colored but lacking final depth and highlights.
+  - User sees the nearly complete coloring needing only finishing touches.
 
-STEP 6 - title: "Final highlights and polish"
-  - VISUAL: FULLY COLORED masterpiece with vibrant depth.
-  - Action: Add highlights, final blending, clean up edges.
-  - REFINES: Step 5 output (this is the FINAL colored version)
+STEP 6 - title: "Reference image fully colored"
+  - VISUAL: Show the nearly final result with rich color, shading, and highlights - matching the reference.
+  - User sees their goal - the beautifully finished coloring.
 
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;

@@ -7,17 +7,17 @@ import { CategoryAgentBase } from '../CategoryAgentBase';
  * Focuses on the rhythmic, meditative nature of brush strokes on fabric.
  */
 export class FabricPaintingAgent extends CategoryAgentBase {
-    readonly category = ActivityCategory.FABRIC_PAINTING;
+  readonly category = ActivityCategory.FABRIC_PAINTING;
 
-    readonly card: AgentCard = {
-        name: 'FabricPaintingAgent',
-        version: '1.0.0',
-        description: 'Specialized agent for fabric painting and printing projects including t-shirts, tote bags, and textiles.',
-        capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.FABRIC_PAINTING)
-    };
+  readonly card: AgentCard = {
+    name: 'FabricPaintingAgent',
+    version: '1.0.0',
+    description: 'Specialized agent for fabric painting and printing projects including t-shirts, tote bags, and textiles.',
+    capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.FABRIC_PAINTING)
+  };
 
-    protected getMasterImagePrompt(userPrompt: string): string {
-        return `
+  protected getMasterImagePrompt(userPrompt: string): string {
+    return `
 Create a high-quality photograph of a beautifully hand-painted fabric item: ${userPrompt}.
 Category: Fabric Painting/Printing.
 Style:
@@ -29,10 +29,10 @@ Style:
 View: Top-down or slight angle showing the full painted design.
 Lighting: Natural, soft lighting that shows fabric texture and paint colors.
 `;
-    }
+  }
 
-    protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
-        return `
+  protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
+    return `
 🎯 YOUR TASK: Generate a MULTI-PANEL FABRIC PAINTING TUTORIAL.
 📷 REFERENCE IMAGE: This is the FINISHED painted fabric.
 ${targetObjectLabel ? `🎨 SUBJECT: ${targetObjectLabel}` : ''}
@@ -53,50 +53,55 @@ STYLE REQUIREMENTS:
 - Progress from outline to filled design
 - Match the colors of the reference EXACTLY
 `;
-    }
+  }
 
-    protected getDissectionPrompt(userPrompt: string): string {
-        return `
-You are an expert fabric artist analyzing this image: "${userPrompt}".
-YOUR TASK: Create step-by-step instructions to PAINT this fabric design.
+  protected getDissectionPrompt(userPrompt: string): string {
+    return `
+You are an expert fabric artist analyzing this REFERENCE image: "${userPrompt}".
+YOUR TASK: Create 6 INCREMENTAL STEPS that show progressive simplification FROM the reference.
+
+🎯 INCREMENTAL REVEAL APPROACH:
+The reference image shows the FINISHED fabric painting. Each step removes paint to show an earlier stage.
+Step 1 = Most simplified (blank fabric). Step 6 = Nearly identical to reference.
+Users START at Step 1 and work TOWARD the reference image.
 
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Plain fabric item, Fabric paints (list specific colors), Fabric medium, Brushes, Palette, Stencils or transfer paper, Painter's tape, Iron for heat-setting.
-3. Break down into EXACTLY 6 PROGRESSIVE STEPS.
+3. Break down into EXACTLY 6 INCREMENTAL STEPS.
 
-🚨 MANDATORY 6-STEP PROGRESSION 🚨
+🚨 MANDATORY 6-STEP INCREMENTAL REVEAL 🚨
 You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACTLY as written below:
 
-STEP 1 - title: "Prepare the fabric and workspace"
-  - VISUAL: Clean fabric laid flat, secured and ready.
-  - Action: Wash fabric, tape down edges, prepare paint palette.
+STEP 1 - title: "Plain fabric ready for painting"
+  - VISUAL: Remove ALL paint. Show the blank, unpainted fabric surface.
+  - This is the starting point - user sees the clean fabric they'll decorate.
 
-STEP 2 - title: "Transfer or sketch the design"
-  - VISUAL: Faint outline visible on fabric.
-  - Action: Sketch, stencil, or transfer the design outline.
+STEP 2 - title: "Design outline sketched on fabric"
+  - VISUAL: Remove all color. Show only faint pencil or chalk outline on plain fabric.
+  - User sees the pattern they need to transfer.
 
-STEP 3 - title: "Apply base colors to large areas"
-  - VISUAL: Main areas filled with solid base colors.
-  - Action: Paint the largest areas with even coverage.
+STEP 3 - title: "Large areas filled with base colors"
+  - VISUAL: Remove all detail colors. Show main shapes blocked in with flat base colors.
+  - User sees the primary color areas they need to fill.
 
-STEP 4 - title: "Add secondary colors and details"
-  - VISUAL: Smaller details and accent colors added.
-  - Action: Paint details, patterns, and smaller elements.
+STEP 4 - title: "Secondary colors and patterns added"
+  - VISUAL: Remove outlines and accents. Show base + secondary colors but lacking definition.
+  - User sees the mid-stage painting they're working toward.
 
-STEP 5 - title: "Enhance with outlines and highlights"
-  - VISUAL: Crisp outlines and dimension added.
-  - Action: Add defining lines, shadows, and highlights.
+STEP 5 - title: "Outlines and dimension nearly complete"
+  - VISUAL: Remove final accents only. Show nearly complete design missing only highlights and polish.
+  - User sees the nearly finished fabric needing final touches.
 
-STEP 6 - title: "Heat-set and finish"
-  - VISUAL: FINISHED fabric item, colors set, EXACT match to master.
-  - Action: Iron to heat-set, remove tape, final touch-ups.
+STEP 6 - title: "Reference image with complete design"
+  - VISUAL: Show the nearly final result - heat-set and complete, matching the reference.
+  - User sees their goal - the finished fabric painting.
 
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;
-    }
+  }
 
-    protected getPatternSheetPrompt(craftLabel?: string): string {
-        return `
+  protected getPatternSheetPrompt(craftLabel?: string): string {
+    return `
 🎯 YOUR TASK: Create a DESIGN TEMPLATE for this fabric painting project.
 📷 REFERENCE IMAGE: Finished painted fabric.
 ${craftLabel ? `🎨 SUBJECT: ${craftLabel}` : ''}
@@ -115,5 +120,5 @@ OUTPUT FORMAT:
 - Clean instructional style
 - Print-ready quality for tracing
 `;
-    }
+  }
 }

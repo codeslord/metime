@@ -7,17 +7,17 @@ import { CategoryAgentBase } from '../CategoryAgentBase';
  * Focuses on the rich, meditative nature of oil painting techniques.
  */
 export class OilPaintingAgent extends CategoryAgentBase {
-    readonly category = ActivityCategory.OIL_PAINTING;
+  readonly category = ActivityCategory.OIL_PAINTING;
 
-    readonly card: AgentCard = {
-        name: 'OilPaintingAgent',
-        version: '1.0.0',
-        description: 'Specialized agent for oil painting with focus on glazing, impasto, and blending techniques.',
-        capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.OIL_PAINTING)
-    };
+  readonly card: AgentCard = {
+    name: 'OilPaintingAgent',
+    version: '1.0.0',
+    description: 'Specialized agent for oil painting with focus on glazing, impasto, and blending techniques.',
+    capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.OIL_PAINTING)
+  };
 
-    protected getMasterImagePrompt(userPrompt: string): string {
-        return `
+  protected getMasterImagePrompt(userPrompt: string): string {
+    return `
 Create a high-quality photograph of a beautiful oil painting: ${userPrompt}.
 Category: Oil Painting.
 Style:
@@ -29,10 +29,10 @@ Style:
 View: Slight angle showing canvas texture and paint impasto.
 Lighting: Gallery-style lighting that shows paint dimensionality.
 `;
-    }
+  }
 
-    protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
-        return `
+  protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
+    return `
 🎯 YOUR TASK: Generate a MULTI-PANEL OIL PAINTING TUTORIAL.
 📷 REFERENCE IMAGE: This is the FINISHED oil painting.
 ${targetObjectLabel ? `🎨 SUBJECT: ${targetObjectLabel}` : ''}
@@ -53,50 +53,55 @@ STYLE REQUIREMENTS:
 - Progress from thin underpainting to thick impasto
 - Match the color palette of the reference EXACTLY
 `;
-    }
+  }
 
-    protected getDissectionPrompt(userPrompt: string): string {
-        return `
-You are an expert oil painter analyzing this image: "${userPrompt}".
-YOUR TASK: Create step-by-step instructions to PAINT this oil painting.
+  protected getDissectionPrompt(userPrompt: string): string {
+    return `
+You are an expert oil painter analyzing this REFERENCE image: "${userPrompt}".
+YOUR TASK: Create 6 INCREMENTAL STEPS that show progressive simplification FROM the reference.
+
+🎯 INCREMENTAL REVEAL APPROACH:
+The reference image shows the FINISHED oil painting. Each step removes paint layers to show an earlier stage.
+Step 1 = Most simplified (sketch on canvas). Step 6 = Nearly identical to reference.
+Users START at Step 1 and work TOWARD the reference image.
 
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Primed canvas, Oil paints (list specific colors), Hog bristle brushes (various sizes), Palette knife, Wooden palette, Linseed oil medium, Turpentine or odorless mineral spirits, Rags, Easel.
-3. Break down into EXACTLY 6 PROGRESSIVE STEPS.
+3. Break down into EXACTLY 6 INCREMENTAL STEPS.
 
-🚨 MANDATORY 6-STEP PROGRESSION 🚨
+🚨 MANDATORY 6-STEP INCREMENTAL REVEAL 🚨
 You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACTLY as written below:
 
-STEP 1 - title: "Prepare canvas and sketch composition"
-  - VISUAL: Primed canvas with loose charcoal or thin paint sketch.
-  - Action: Sketch composition lightly, plan values.
+STEP 1 - title: "Charcoal sketch on primed canvas"
+  - VISUAL: Remove ALL paint. Show only composition sketch lines on primed white/toned canvas.
+  - This is the starting point - user sees the drawing they'll paint over.
 
-STEP 2 - title: "Create tonal underpainting"
-  - VISUAL: Monochrome underpainting establishing values.
-  - Action: Block in darks and lights with thin paint.
+STEP 2 - title: "Monochrome underpainting for values"
+  - VISUAL: Remove all color. Show only umber or gray monochrome underpainting establishing lights and darks.
+  - User sees the value structure they need to create.
 
-STEP 3 - title: "Block in main color shapes"
-  - VISUAL: Large areas blocked with local colors.
-  - Action: Apply base colors to main shapes, thick over thin.
+STEP 3 - title: "Flat local colors blocked in"
+  - VISUAL: Remove all blending and detail. Show flat color shapes over the underpainting - no modeling.
+  - User sees the color map they need to block in.
 
-STEP 4 - title: "Build up layers and refine forms"
-  - VISUAL: Forms taking shape with modeled values.
-  - Action: Add mid-tones, refine edges and shapes.
+STEP 4 - title: "Forms modeled with basic values"
+  - VISUAL: Remove glazes and fine details. Show colors with basic modeling but lacking rich depth.
+  - User sees the mid-stage painting they're working toward.
 
-STEP 5 - title: "Add details and highlights"
-  - VISUAL: Details, highlights, and texture added.
-  - Action: Paint fine details, add impasto highlights.
+STEP 5 - title: "Details and impasto nearly complete"
+  - VISUAL: Remove only final glazes and finishing. Show well-developed painting missing luminosity and final touches.
+  - User sees the nearly complete painting needing only polish.
 
-STEP 6 - title: "Final glazes and finishing touches"
-  - VISUAL: FINISHED painting with rich depth, EXACT match to master.
-  - Action: Apply thin glazes for luminosity, sign painting.
+STEP 6 - title: "Reference image with full depth visible"
+  - VISUAL: Show the nearly final result with rich glazing and depth - matching the reference.
+  - User sees their goal - the finished oil painting.
 
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;
-    }
+  }
 
-    protected getPatternSheetPrompt(craftLabel?: string): string {
-        return `
+  protected getPatternSheetPrompt(craftLabel?: string): string {
+    return `
 🎯 YOUR TASK: Create a PAINTING REFERENCE for this oil painting.
 📷 REFERENCE IMAGE: Finished oil painting.
 ${craftLabel ? `🎨 SUBJECT: ${craftLabel}` : ''}
@@ -115,5 +120,5 @@ OUTPUT FORMAT:
 - Clean instructional style
 - Professional oil painting tutorial quality
 `;
-    }
+  }
 }

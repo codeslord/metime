@@ -7,17 +7,17 @@ import { CategoryAgentBase } from '../CategoryAgentBase';
  * Focuses on the detailed, meditative work of personal jewelry customization.
  */
 export class JewelryCustomizationAgent extends CategoryAgentBase {
-    readonly category = ActivityCategory.JEWELRY_CUSTOMIZATION;
+  readonly category = ActivityCategory.JEWELRY_CUSTOMIZATION;
 
-    readonly card: AgentCard = {
-        name: 'JewelryCustomizationAgent',
-        version: '1.0.0',
-        description: 'Specialized agent for jewelry customization including hand-painting, enameling, and personalization.',
-        capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.JEWELRY_CUSTOMIZATION)
-    };
+  readonly card: AgentCard = {
+    name: 'JewelryCustomizationAgent',
+    version: '1.0.0',
+    description: 'Specialized agent for jewelry customization including hand-painting, enameling, and personalization.',
+    capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.JEWELRY_CUSTOMIZATION)
+  };
 
-    protected getMasterImagePrompt(userPrompt: string): string {
-        return `
+  protected getMasterImagePrompt(userPrompt: string): string {
+    return `
 Create a high-quality photograph of beautifully customized jewelry: ${userPrompt}.
 Category: Jewelry Customization/Painting.
 Style:
@@ -29,10 +29,10 @@ Style:
 View: Close-up showing the painted or customized details.
 Lighting: Soft studio lighting that shows the intricate details.
 `;
-    }
+  }
 
-    protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
-        return `
+  protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
+    return `
 🎯 YOUR TASK: Generate a MULTI-PANEL JEWELRY CUSTOMIZATION TUTORIAL.
 📷 REFERENCE IMAGE: This is the FINISHED customized jewelry.
 ${targetObjectLabel ? `🎨 SUBJECT: ${targetObjectLabel}` : ''}
@@ -53,50 +53,55 @@ STYLE REQUIREMENTS:
 - Progress from prep to detailed finish
 - Match the design style of the reference EXACTLY
 `;
-    }
+  }
 
-    protected getDissectionPrompt(userPrompt: string): string {
-        return `
-You are an expert jewelry artist analyzing this image: "${userPrompt}".
-YOUR TASK: Create step-by-step instructions to CUSTOMIZE this jewelry piece.
+  protected getDissectionPrompt(userPrompt: string): string {
+    return `
+You are an expert jewelry artist analyzing this REFERENCE image: "${userPrompt}".
+YOUR TASK: Create 6 INCREMENTAL STEPS that show progressive simplification FROM the reference.
+
+🎯 INCREMENTAL REVEAL APPROACH:
+The reference image shows the FINISHED customized jewelry. Each step removes decoration to show an earlier stage.
+Step 1 = Most simplified (plain jewelry). Step 6 = Nearly identical to reference.
+Users START at Step 1 and work TOWARD the reference image.
 
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Jewelry piece (to customize), Fine detail brushes (#0, #00), Enamel or acrylic paints (list colors), Jewelry primer, Clear sealant, Magnifying glass or loupe, Cleaning supplies, Toothpicks for detail work.
-3. Break down into EXACTLY 6 PROGRESSIVE STEPS.
+3. Break down into EXACTLY 6 INCREMENTAL STEPS.
 
-🚨 MANDATORY 6-STEP PROGRESSION 🚨
+🚨 MANDATORY 6-STEP INCREMENTAL REVEAL 🚨
 You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACTLY as written below:
 
-STEP 1 - title: "Clean and prepare the jewelry surface"
-  - VISUAL: Clean jewelry piece ready for customization.
-  - Action: Clean thoroughly, remove any oils or residue.
+STEP 1 - title: "Plain jewelry piece uncustomized"
+  - VISUAL: Remove ALL customization. Show the original plain jewelry surface.
+  - This is the starting point - user sees the blank piece they'll decorate.
 
-STEP 2 - title: "Apply primer or base coat"
-  - VISUAL: Thin primer layer on areas to be painted.
-  - Action: Apply thin primer coat, let dry completely.
+STEP 2 - title: "Primed and ready for painting"
+  - VISUAL: Remove all color. Show jewelry with primer applied to customization areas.
+  - User sees the prepared surface ready for base colors.
 
-STEP 3 - title: "Paint base colors"
-  - VISUAL: Base colors applied to design areas.
-  - Action: Apply base color layer with fine brush.
+STEP 3 - title: "Base colors applied to design areas"
+  - VISUAL: Remove all detail work. Show flat base colors on painted areas.
+  - User sees the color foundation they need to apply.
 
-STEP 4 - title: "Add design details"
-  - VISUAL: Detailed pattern or design painted on.
-  - Action: Paint fine details and patterns carefully.
+STEP 4 - title: "Pattern and details painted"
+  - VISUAL: Remove accents and dimension. Show base pattern painted but lacking polish.
+  - User sees the detailed painting they're working toward.
 
-STEP 5 - title: "Apply accents and highlights"
-  - VISUAL: Accent colors and dimensional details added.
-  - Action: Add highlights, shadows, and accent colors.
+STEP 5 - title: "Accents and dimension nearly complete"
+  - VISUAL: Remove final polish and sealing. Show nearly complete customization.
+  - User sees the nearly finished jewelry needing only final touches.
 
-STEP 6 - title: "Seal and finish"
-  - VISUAL: FINISHED jewelry, sealed and polished, EXACT match to master.
-  - Action: Apply clear sealant, let cure completely.
+STEP 6 - title: "Reference image with complete customization"
+  - VISUAL: Show the nearly final result - sealed and polished, matching the reference.
+  - User sees their goal - the finished customized jewelry.
 
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;
-    }
+  }
 
-    protected getPatternSheetPrompt(craftLabel?: string): string {
-        return `
+  protected getPatternSheetPrompt(craftLabel?: string): string {
+    return `
 🎯 YOUR TASK: Create a DESIGN GUIDE for this jewelry customization.
 📷 REFERENCE IMAGE: Finished customized jewelry.
 ${craftLabel ? `🎨 SUBJECT: ${craftLabel}` : ''}
@@ -115,5 +120,5 @@ OUTPUT FORMAT:
 - Clean instructional style
 - Suitable for detailed miniature work
 `;
-    }
+  }
 }

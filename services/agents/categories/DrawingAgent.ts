@@ -55,41 +55,46 @@ STYLE REQUIREMENTS:
 
   protected getDissectionPrompt(userPrompt: string): string {
     return `
-You are an expert drawing instructor analyzing this image: "${userPrompt}".
-YOUR TASK: Create step-by-step instructions to DRAW this artwork.
+You are an expert drawing instructor analyzing this REFERENCE image: "${userPrompt}".
+YOUR TASK: Create 6 INCREMENTAL STEPS that show progressive simplification FROM the reference.
+
+🎯 INCREMENTAL REVEAL APPROACH:
+The reference image shows the FINISHED drawing. Each step removes detail to show an earlier stage.
+Step 1 = Most simplified (gesture lines). Step 6 = Nearly identical to reference.
+Users START at Step 1 and work TOWARD the reference image.
 
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Paper or sketchbook, Pencil, Eraser, Pens or liners (optional), Colored pencils, markers, or paints.
-3. Break down into EXACTLY 6 PROGRESSIVE STEPS.
+3. Break down into EXACTLY 6 INCREMENTAL STEPS.
 
-🚨 MANDATORY 6-STEP PROGRESSION 🚨
-You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACTLY as written below (verbatim, no variations):
+🚨 MANDATORY 6-STEP INCREMENTAL REVEAL 🚨
+You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACTLY as written below:
 
-STEP 1 - title: "Lightly sketch the outline"
-  - VISUAL: Very faint, loose gestural lines indicating composition.
-  - Action: Lightly map out the overall placement and size.
+STEP 1 - title: "Faint gesture lines showing placement"
+  - VISUAL: Remove ALL detail and shading. Show only the lightest gestural marks for composition.
+  - This is the starting point - user sees basic placement guides.
 
-STEP 2 - title: "Define main shapes and forms"
-  - VISUAL: Basic geometric forms (circles, cubes) blocking the subject.
-  - Action: Construct the subject using simple 3D shapes.
+STEP 2 - title: "Basic geometric shapes for structure"
+  - VISUAL: Remove all refined lines. Show simple shapes (circles, ovals, boxes) forming the underlying structure.
+  - User sees the construction shapes they need to draw.
 
-STEP 3 - title: "Refine line work"
-  - VISUAL: Clean contour lines defining the actual subject edges.
-  - Action: Darken the correct lines and erase construction guides.
+STEP 3 - title: "Clean contour lines defining edges"
+  - VISUAL: Remove all shading. Show only the refined outline with construction shapes erased.
+  - User sees the line drawing they need to achieve.
 
-STEP 4 - title: "Add shading or color"
-  - VISUAL: Core shadows added or base colors blocked in.
-  - Action: Establish the light source and main values/hues.
+STEP 4 - title: "Core shadows and basic values"
+  - VISUAL: Remove highlights and texture. Show basic value structure with main shadows.
+  - User sees the shading foundation they're working toward.
 
-STEP 5 - title: "Enhance details and contrast"
-  - VISUAL: Textures (hair, wood) and deep blacks/highlights added.
-  - Action: Add fine details and push the contrast.
+STEP 5 - title: "Detailed rendering nearly complete"
+  - VISUAL: Remove only final polish (deepest darks, brightest highlights, finest details).
+  - User sees the nearly finished drawing needing only final touches.
 
-STEP 6 - title: "Finalize and clean up the drawing"
-  - VISUAL: FINISHED DRAWING, signed, smudge-free, EXACT match to master.
-  - Action: Final polish, white highlights, clean up paper.
+STEP 6 - title: "Reference image with full rendering"
+  - VISUAL: Show the nearly final result with all details - matching the reference drawing.
+  - User sees their goal - the finished artwork.
 
-For each step, the "description" field should describe actions specific to THIS drawing.
+For each step, the "description" field should describe what is VISIBLE at this stage.
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;
   }

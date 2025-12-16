@@ -7,17 +7,17 @@ import { CategoryAgentBase } from '../CategoryAgentBase';
  * Focuses on the creative expression of character design for games.
  */
 export class GameCharacterAgent extends CategoryAgentBase {
-    readonly category = ActivityCategory.GAME_CHARACTER;
+  readonly category = ActivityCategory.GAME_CHARACTER;
 
-    readonly card: AgentCard = {
-        name: 'GameCharacterAgent',
-        version: '1.0.0',
-        description: 'Specialized agent for game character design including concept art and character illustration.',
-        capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.GAME_CHARACTER)
-    };
+  readonly card: AgentCard = {
+    name: 'GameCharacterAgent',
+    version: '1.0.0',
+    description: 'Specialized agent for game character design including concept art and character illustration.',
+    capabilities: CategoryAgentBase.createCategoryCapabilities(CraftCategory.GAME_CHARACTER)
+  };
 
-    protected getMasterImagePrompt(userPrompt: string): string {
-        return `
+  protected getMasterImagePrompt(userPrompt: string): string {
+    return `
 Create a high-quality game character design illustration: ${userPrompt}.
 Category: Game Character Design.
 Style:
@@ -29,10 +29,10 @@ Style:
 View: Full body or character sheet with front/side views.
 Background: Clean gradient or simple environment.
 `;
-    }
+  }
 
-    protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
-        return `
+  protected getStepImagePrompt(stepDescription: string, targetObjectLabel?: string): string {
+    return `
 🎯 YOUR TASK: Generate a MULTI-PANEL CHARACTER DESIGN TUTORIAL.
 📷 REFERENCE IMAGE: This is the FINISHED character design.
 ${targetObjectLabel ? `🎨 SUBJECT: ${targetObjectLabel}` : ''}
@@ -53,50 +53,55 @@ STYLE REQUIREMENTS:
 - Progress from loose sketches to polished design
 - Match the character style of the reference EXACTLY
 `;
-    }
+  }
 
-    protected getDissectionPrompt(userPrompt: string): string {
-        return `
-You are an expert game character artist analyzing this image: "${userPrompt}".
-YOUR TASK: Create step-by-step instructions to DESIGN this character.
+  protected getDissectionPrompt(userPrompt: string): string {
+    return `
+You are an expert game character artist analyzing this REFERENCE image: "${userPrompt}".
+YOUR TASK: Create 6 INCREMENTAL STEPS that show progressive simplification FROM the reference.
+
+🎯 INCREMENTAL REVEAL APPROACH:
+The reference image shows the FINISHED character design. Each step removes rendering to show an earlier stage.
+Step 1 = Most simplified (rough silhouettes). Step 6 = Nearly identical to reference.
+Users START at Step 1 and work TOWARD the reference image.
 
 1. Determine complexity (Simple, Moderate, Complex) & score 1-10.
 2. List materials. You MUST include: Sketchbook or digital tablet, Pencils or stylus, Drawing software (if digital), Reference images, Color palette swatches, Character design references.
-3. Break down into EXACTLY 6 PROGRESSIVE STEPS.
+3. Break down into EXACTLY 6 INCREMENTAL STEPS.
 
-🚨 MANDATORY 6-STEP PROGRESSION 🚨
+🚨 MANDATORY 6-STEP INCREMENTAL REVEAL 🚨
 You MUST generate EXACTLY 6 steps. The "title" field for each step MUST be EXACTLY as written below:
 
-STEP 1 - title: "Gather references and ideate concepts"
-  - VISUAL: Mood board or reference collection.
-  - Action: Collect visual references, sketch quick thumbnails.
+STEP 1 - title: "Rough silhouette thumbnails"
+  - VISUAL: Remove ALL rendering and detail. Show only rough thumbnail silhouettes or gesture sketches.
+  - This is the starting point - user sees basic shape exploration.
 
-STEP 2 - title: "Establish silhouette and proportions"
-  - VISUAL: Basic shape language and body proportions.
-  - Action: Define distinctive silhouette, establish proportions.
+STEP 2 - title: "Basic proportions and anatomy"
+  - VISUAL: Remove all color and detail. Show structural sketch with proportions - mannequin level.
+  - User sees the body structure they need to establish.
 
-STEP 3 - title: "Develop the rough sketch"
-  - VISUAL: Loose sketch with main features visible.
-  - Action: Sketch face, body, costume elements loosely.
+STEP 3 - title: "Rough sketch with costume shapes"
+  - VISUAL: Remove colors and polish. Show loose sketch with costume elements indicated.
+  - User sees the rough design they need to sketch.
 
-STEP 4 - title: "Refine linework and details"
-  - VISUAL: Clean linework with costume and feature details.
-  - Action: Clean up lines, add costume details, accessories.
+STEP 4 - title: "Clean linework with all details"
+  - VISUAL: Remove all color. Show clean, refined linework with complete design details.
+  - User sees the line drawing they're working toward.
 
-STEP 5 - title: "Add base colors and shading"
-  - VISUAL: Flat colors and basic shading applied.
-  - Action: Apply color palette, establish lighting direction.
+STEP 5 - title: "Flat colors and basic shading"
+  - VISUAL: Remove final rendering polish. Show flat colors with basic shading applied.
+  - User sees the colored character needing final rendering.
 
-STEP 6 - title: "Polish with final rendering"
-  - VISUAL: FINISHED character design, fully rendered, EXACT match to master.
-  - Action: Add highlights, textures, final polish.
+STEP 6 - title: "Reference image fully rendered"
+  - VISUAL: Show the nearly final result - fully rendered, matching the reference design.
+  - User sees their goal - the polished character design.
 
 Return strict JSON with steps array where each step has "stepNumber", "title" (EXACT), and "description".
 `;
-    }
+  }
 
-    protected getPatternSheetPrompt(craftLabel?: string): string {
-        return `
+  protected getPatternSheetPrompt(craftLabel?: string): string {
+    return `
 🎯 YOUR TASK: Create a CHARACTER DESIGN SHEET for this character.
 📷 REFERENCE IMAGE: Finished character design.
 ${craftLabel ? `🎨 SUBJECT: ${craftLabel}` : ''}
@@ -115,5 +120,5 @@ OUTPUT FORMAT:
 - Professional game art style
 - Suitable for production reference
 `;
-    }
+  }
 }
