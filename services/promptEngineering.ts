@@ -1,4 +1,4 @@
-import { getAiClient, retryWithBackoff } from "./aiUtils";
+import { getAiClient, retryWithModelFallback } from "./aiUtils";
 import { StructuredPrompt, AestheticControl, ConsistentContext } from "./briaTypes";
 import { CraftCategory } from "../types";
 import { Type } from "@google/genai";
@@ -61,9 +61,9 @@ REQUIREMENTS:
 5. Return ONLY the JSON object matching the Bria StructuredPrompt schema.
 `;
 
-        return retryWithBackoff(async () => {
+        return retryWithModelFallback(async (modelId) => {
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: modelId,
                 contents: { parts: [{ text: systemInstruction }] },
                 config: {
                     responseMimeType: "application/json",
@@ -187,9 +187,9 @@ INSTRUCTIONS:
 ${systemInstruction}
 `;
 
-        return retryWithBackoff(async () => {
+        return retryWithModelFallback(async (modelId) => {
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: modelId,
                 contents: { parts: [{ text: promptText }] },
                 config: {
                     responseMimeType: "application/json",
@@ -441,9 +441,9 @@ ${systemInstruction}
 Generate the JSON for Step ${stepNumber} showing the simplified version with ~${detailPercent}% of the master's details visible.
 `;
 
-        return retryWithBackoff(async () => {
+        return retryWithModelFallback(async (modelId) => {
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: modelId,
                 contents: { parts: [{ text: promptText }] },
                 config: {
                     responseMimeType: "application/json",
@@ -552,9 +552,9 @@ CRITICAL: These elements create visual continuity. Every step photo should feel 
 Return ONLY valid JSON matching the schema.
 `;
 
-        return retryWithBackoff(async () => {
+        return retryWithModelFallback(async (modelId) => {
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: modelId,
                 contents: { parts: [{ text: systemInstruction }] },
                 config: {
                     responseMimeType: "application/json",
@@ -642,20 +642,22 @@ Make it detailed and specific. The AI should generate an image that looks like i
 Return ONLY the rewritten prompt text, no explanation or quotes.
 `;
 
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: { parts: [{ text: systemInstruction }] }
+        return retryWithModelFallback(async (modelId) => {
+            const response = await ai.models.generateContent({
+                model: modelId,
+                contents: { parts: [{ text: systemInstruction }] }
+            });
+
+            let rewrittenPrompt = response.text.trim();
+
+            // Clean any markdown quotes or formatting
+            rewrittenPrompt = rewrittenPrompt.replace(/^["']|["']$/g, '').trim();
+
+            console.log(`✅ Step ${stepNumber}/${totalSteps} prompt rewritten (${rewrittenPrompt.length} chars)`);
+            console.log(`   Preview: ${rewrittenPrompt.substring(0, 80)}...`);
+
+            return rewrittenPrompt;
         });
-
-        let rewrittenPrompt = response.text.trim();
-
-        // Clean any markdown quotes or formatting
-        rewrittenPrompt = rewrittenPrompt.replace(/^["']|["']$/g, '').trim();
-
-        console.log(`✅ Step ${stepNumber}/${totalSteps} prompt rewritten (${rewrittenPrompt.length} chars)`);
-        console.log(`   Preview: ${rewrittenPrompt.substring(0, 80)}...`);
-
-        return rewrittenPrompt;
     }
     /**
      * Adapts an extracted structured prompt (from an uploaded image) to fit a specific craft category style.
@@ -688,9 +690,9 @@ RULES:
 Return ONLY the adapted JSON object matching the Bria StructuredPrompt schema.
 `;
 
-        return retryWithBackoff(async () => {
+        return retryWithModelFallback(async (modelId) => {
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: modelId,
                 contents: { parts: [{ text: systemInstruction }] },
                 config: {
                     responseMimeType: "application/json",

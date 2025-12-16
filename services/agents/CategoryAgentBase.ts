@@ -1,6 +1,6 @@
 import { AgentBase } from '../a2a/AgentBase';
 import { AgentCard, A2AMessage } from '../a2a/types';
-import { getAiClient, retryWithBackoff } from '../aiUtils';
+import { getAiClient, retryWithBackoff, retryWithModelFallback } from '../aiUtils';
 import { imageGenerationLimiter, dissectionLimiter, trackApiUsage } from '../../utils/rateLimiter';
 import { BriaService } from '../briaService';
 import { BriaGenerationResult } from '../briaTypes';
@@ -258,9 +258,9 @@ export abstract class CategoryAgentBase extends AgentBase {
 
         const prompt = this.getDissectionPrompt(userPrompt);
 
-        return retryWithBackoff(async () => {
+        return retryWithModelFallback(async (modelId) => {
             const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
+                model: modelId,
                 contents: { parts: [{ inlineData: { mimeType: 'image/png', data: cleanBase64 } }, { text: prompt }] },
                 config: {
                     responseMimeType: "application/json",

@@ -22,7 +22,7 @@ const LOADING_MESSAGES = [
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerate, onStartGeneration, onGenerationComplete, onGenerationError }) => {
   const [prompt, setPrompt] = useState('');
-  const [category, setCategory] = useState<CraftCategory>(CraftCategory.PAPERCRAFT);
+  const [category, setCategory] = useState<CraftCategory>(CraftCategory.DRAWING);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState(LOADING_MESSAGES[0]);
@@ -99,7 +99,19 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ onGenerate, onStar
       if (onGenerationError) {
         onGenerationError(nodeId);
       }
-      alert("Failed to generate creation. Please check your connection and try again.");
+      let errorMessage = "Failed to generate creation. Please check your connection and try again.";
+
+      // Check for overload error (503)
+      const isOverloaded = error?.status === 503 ||
+        error?.code === 503 ||
+        error?.message?.includes('overloaded') ||
+        (typeof error === 'string' && error.includes('overloaded'));
+
+      if (isOverloaded) {
+        errorMessage = "Models are currently overloaded. Please try again in a moment.";
+      }
+
+      alert(errorMessage);
     } finally {
       setIsLoading(false);
     }

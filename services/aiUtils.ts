@@ -62,3 +62,51 @@ export async function retryWithBackoff<T>(
         throw error;
     }
 }
+
+export const FALLBACK_MODELS = [
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-preview-09-2025",
+    "gemini-3-pro-preview"
+];
+
+/**
+ * Retry wrapper that tries multiple models in sequence if the previous one is overloaded.
+ * For each model, it performs standard retries with backoff.
+ */
+export async function retryWithModelFallback<T>(
+    operation: (modelId: string) => Promise<T>,
+    models: string[] = FALLBACK_MODELS
+): Promise<T> {
+    let lastError: any;
+
+    for (const model of models) {
+        try {
+            // Attempt the operation with the current model, including its own internal retries
+            return await retryWithBackoff(
+                () => operation(model),
+                3, // retries per model
+                2000 // initial delay
+            );
+        } catch (error: any) {
+            lastError = error;
+            const isOverloaded = error?.status === 503 || error?.code === 503 || error?.message?.includes('overloaded');
+
+            // If it's an overload error, log and try the next model
+            if (isOverloaded) {
+                console.warn(`Model ${model} overloaded. Falling back to next model...`);
+                continue;
+            }
+
+            // If it's not an overload error (e.g. 400 Bad Request), fail immediately
+            throw error;
+        }
+    }
+
+    // If we exhausted all models, throw the last error (likely an overload error)
+    if (lastError) {
+        console.error("All models overloaded or failed.");
+        throw lastError;
+    }
+
+    throw new Error("Model generation failed with no error captured.");
+}
