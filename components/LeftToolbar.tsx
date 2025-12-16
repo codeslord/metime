@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MousePointer2, Hand, Plus, Type, Maximize, Download, FileArchive, FileText, Loader2, Upload } from 'lucide-react';
+import { MousePointer2, Hand, Plus, Type, Maximize, Download, FileArchive, FileText, Loader2, Upload, Trash2 } from 'lucide-react';
 // TODO: Re-import when re-enabling tools: Square, Pencil
 import { ToolButton } from './ToolButton';
 
@@ -13,6 +13,7 @@ interface LeftToolbarProps {
   onExportZip?: () => Promise<void>;
   onExportPdf?: () => Promise<void>;
   onImport?: (file: File) => Promise<void>;
+  onClearCanvas?: () => void;
   canExport?: boolean;
 }
 
@@ -24,6 +25,7 @@ export const LeftToolbar: React.FC<LeftToolbarProps> = ({
   onExportZip,
   onExportPdf,
   onImport,
+  onClearCanvas,
   canExport = false,
 }) => {
   const [showExportMenu, setShowExportMenu] = useState(false);
@@ -184,6 +186,17 @@ export const LeftToolbar: React.FC<LeftToolbarProps> = ({
             />
           </div>
 
+          {/* Clear Canvas Button */}
+          <div onClick={onClearCanvas}>
+            <ToolButton
+              icon={Trash2}
+              label="Clear Canvas"
+              isActive={false}
+              onClick={() => { }}
+              className="text-red-400 hover:text-red-300"
+            />
+          </div>
+
           {/* Export/Import Button with Dropdown */}
           <div className="relative" ref={exportMenuRef}>
             <div
@@ -208,8 +221,8 @@ export const LeftToolbar: React.FC<LeftToolbarProps> = ({
                   onClick={() => handleExport('zip')}
                   disabled={!canExport}
                   className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${canExport
-                      ? 'text-slate-200 hover:bg-slate-800/50'
-                      : 'text-slate-500 cursor-not-allowed'
+                    ? 'text-slate-200 hover:bg-slate-800/50'
+                    : 'text-slate-500 cursor-not-allowed'
                     }`}
                   title={canExport ? 'Export as ZIP Archive' : 'Generate a craft first to enable export'}
                 >
@@ -220,8 +233,8 @@ export const LeftToolbar: React.FC<LeftToolbarProps> = ({
                   onClick={() => handleExport('pdf')}
                   disabled={!canExport}
                   className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${canExport
-                      ? 'text-slate-200 hover:bg-slate-800/50'
-                      : 'text-slate-500 cursor-not-allowed'
+                    ? 'text-slate-200 hover:bg-slate-800/50'
+                    : 'text-slate-500 cursor-not-allowed'
                     }`}
                   title={canExport ? 'Export as PDF Document' : 'Generate a craft first to enable export'}
                 >

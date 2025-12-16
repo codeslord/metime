@@ -8,6 +8,7 @@ interface ToolButtonProps {
   onClick: () => void;
   keyboardShortcut?: string;
   hasSubmenu?: boolean;
+  className?: string;
 }
 
 export const ToolButton: React.FC<ToolButtonProps> = ({
@@ -17,6 +18,7 @@ export const ToolButton: React.FC<ToolButtonProps> = ({
   onClick,
   keyboardShortcut,
   hasSubmenu = false,
+  className = '',
 }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -29,17 +31,18 @@ export const ToolButton: React.FC<ToolButtonProps> = ({
         className={`
           relative w-10 h-10 md:w-11 md:h-11 rounded-xl flex items-center justify-center
           smooth-transition group
-          ${isActive 
-            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/50' 
+          ${isActive
+            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/50'
             : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
           }
+          ${className}
         `}
         title={label}
         aria-label={label}
         aria-pressed={isActive}
       >
         <Icon className="w-5 h-5" />
-        
+
         {/* Submenu indicator */}
         {hasSubmenu && (
           <div className="absolute bottom-1 right-1 w-1 h-1 rounded-full bg-current opacity-50" />

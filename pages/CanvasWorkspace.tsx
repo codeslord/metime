@@ -368,6 +368,19 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
     : null;
 
   /**
+   * Clear the entire canvas
+   */
+  const handleClearCanvas = useCallback(() => {
+    if (readOnly) return;
+
+    if (window.confirm('Are you sure you want to clear the entire canvas? This action cannot be undone.')) {
+      setNodes([]);
+      setEdges([]);
+      console.log('Canvas cleared');
+    }
+  }, [readOnly, setNodes, setEdges]);
+
+  /**
    * Handle image node selection for craft conversion
    */
   const handleImageNodeSelect = useCallback((nodeId: string, element: HTMLElement) => {
@@ -2498,6 +2511,7 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
           })
         );
 
+
         try {
           // Generate image using PARALLEL CONSTRUCTION
           // All steps reference master directly - no dependency on previous steps
@@ -3032,11 +3046,12 @@ const CanvasWorkspaceContent: React.FC<CanvasWorkspaceProps> = ({ projectId: pro
           activeTool={activeTool}
           onToolChange={setActiveTool}
           onToolSubmenuOpen={handleToolSubmenuOpen}
-          onFitView={() => fitView({ padding: 0.2 })}
+          onFitView={() => fitView({ padding: 0.2, duration: 800 })}
           onExportZip={handleExportZip}
           onExportPdf={handleExportPdf}
           onImport={handleImportZip}
-          canExport={canExport()}
+          onClearCanvas={handleClearCanvas}
+          canExport={nodes.some(n => n.type === 'imageNode' || n.type === 'masterNode')}
         />
       )}
 
